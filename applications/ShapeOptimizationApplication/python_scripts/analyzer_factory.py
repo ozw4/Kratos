@@ -19,6 +19,7 @@ def CreateAnalyzer(project_parameters, model_part_controller, external_analyzer)
 class Analyzer:
     # --------------------------------------------------------------------------
     def __init__(self, project_parameters, model_part_controller, external_analyzer):
+        self.model_part_controller = model_part_controller
         self.external_analyzer = external_analyzer
 
         if self.__IsInternalAnalyzerRequired(project_parameters["optimization_settings"]):
@@ -32,18 +33,19 @@ class Analyzer:
 
     # --------------------------------------------------------------------------
     def InitializeBeforeOptimizationLoop(self):
-        self.external_analyzer.InitializeBeforeOptimizationLoop()
         self.internal_analyzer.InitializeBeforeOptimizationLoop()
+        self.external_analyzer.InitializeBeforeOptimizationLoop()
 
     # --------------------------------------------------------------------------
     def AnalyzeDesignAndReportToCommunicator(self, current_design, unique_iterator, communicator):
-        self.external_analyzer.AnalyzeDesignAndReportToCommunicator(current_design, unique_iterator, communicator)
         self.internal_analyzer.AnalyzeDesignAndReportToCommunicator(current_design, unique_iterator, communicator)
+        self.external_analyzer.AnalyzeDesignAndReportToCommunicator(current_design, unique_iterator, communicator)
+        self.__ResetPossibleShapeModificationsDuringAnalyses()
 
     # --------------------------------------------------------------------------
     def FinalizeAfterOptimizationLoop(self):
-        self.external_analyzer.FinalizeAfterOptimizationLoop()
         self.internal_analyzer.FinalizeAfterOptimizationLoop()
+        self.external_analyzer.FinalizeAfterOptimizationLoop()
 
     # --------------------------------------------------------------------------
     def __IsInternalAnalyzerRequired(self, optimization_settings):
@@ -55,5 +57,10 @@ class Analyzer:
             if optimization_settings["constraints"][constraint_number]["use_kratos"].GetBool():
                 return True
         return False
+
+    # --------------------------------------------------------------------------
+    def __ResetPossibleShapeModificationsDuringAnalyses(self):
+        self.model_part_controller.SetMeshToReferenceMesh()
+        self.model_part_controller.SetDeformationVariablesToZero()
 
 # ==============================================================================

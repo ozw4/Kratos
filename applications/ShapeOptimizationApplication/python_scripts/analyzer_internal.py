@@ -22,8 +22,8 @@ import time as timer
 # ==============================================================================
 class KratosInternalAnalyzer( (__import__("analyzer_base")).AnalyzerBaseClass ):
     # --------------------------------------------------------------------------
-    def __init__( self, project_parameters, model_part ):
-        self.response_function_list = response_function_factory.CreateListOfResponseFunctions(project_parameters["optimization_settings"], model_part)
+    def __init__( self, project_parameters, optimization_model_part ):
+        self.response_function_list = response_function_factory.CreateListOfResponseFunctions(project_parameters["optimization_settings"], optimization_model_part)
 
     # --------------------------------------------------------------------------
     def InitializeBeforeOptimizationLoop( self ):
@@ -48,6 +48,9 @@ class KratosInternalAnalyzer( (__import__("analyzer_base")).AnalyzerBaseClass ):
                 response.CalculateGradient()
                 communicator.reportGradient(identifier, response.GetShapeGradient())
                 print("> Time needed for calculating response gradient of '" + identifier + "' = ",round(timer.time() - startTime,2),"s")
+
+            # Clear results of response calcualtion to provide a clean data base for the next calculation
+            response.Clear()
 
     # --------------------------------------------------------------------------
     def FinalizeAfterOptimizationLoop( self ):

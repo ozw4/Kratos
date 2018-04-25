@@ -114,7 +114,6 @@ class AlgorithmPenalizedProjection( OptimizationAlgorithm ) :
         self.Analyzer.AnalyzeDesignAndReportToCommunicator( self.DesignSurface, self.optimizationIteration, self.Communicator )
 
         self.__storeResultOfSensitivityAnalysisOnNodes()
-        self.__RevertPossibleShapeModificationsDuringAnalysis()
 
     # --------------------------------------------------------------------------
     def __storeResultOfSensitivityAnalysisOnNodes( self ):
@@ -127,11 +126,6 @@ class AlgorithmPenalizedProjection( OptimizationAlgorithm ) :
     def __storeGradientOnNodalVariable( self, gradient, variable_name ):
         for nodeId, tmp_gradient in gradient.items():
             self.OptimizationModelPart.Nodes[nodeId].SetSolutionStepValue(variable_name,0,tmp_gradient)
-
-    # --------------------------------------------------------------------------
-    def __RevertPossibleShapeModificationsDuringAnalysis( self ):
-        self.ModelPartController.SetMeshToReferenceMesh()
-        self.ModelPartController.SetDeformationVariablesToZero()
 
     # --------------------------------------------------------------------------
     def __projectSensitivitiesOnSurfaceNormals( self ):
