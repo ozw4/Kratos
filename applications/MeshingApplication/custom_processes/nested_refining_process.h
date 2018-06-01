@@ -70,6 +70,21 @@ public:
     ///@name Type Definitions
     ///@{
 
+    /**
+     * Node type
+     */
+    typedef Node<3> NodeType;
+
+    /**
+     * Type of IDs
+     */
+    typedef std::size_t IndexType;
+
+    /**
+     * Map types to locate nodes in the mesh
+     */
+    typedef std::unordered_map<IndexType, NodeType::Pointer> IndexNodeMapType;
+
     ///@}
     ///@name Pointer Definitions
     /// Pointer definition of NestedRefiningProcess
@@ -177,10 +192,16 @@ public:
     ///@name Member Variables
     ///@{
 
-    ModelPart& mrModelPart;
+    ModelPart& mrOriginModelPart;
     Parameters mParameters;
 
     unsigned int mEchoLevel;
+
+    ModelPart::Pointer mpOwnModelPart;     /// Where the origin model part is stored
+    ModelPart::Pointer mpRefinedModelPart; /// Where the refinement is performed
+
+    IndexNodeMapType mCoarseToRefinedNodesMap; /// Mapping from own to refined
+    IndexNodeMapType mRefinedToCoarseNodesMap; /// Mapping from refined to own
 
     ///@}
     ///@name Private Operators
@@ -189,6 +210,11 @@ public:
     ///@}
     ///@name Private Operations
     ///@{
+
+    /**
+     * @brief This function checks if the nodal values satisfy the condition to be refined
+     */
+    void CheckRefiningCondition();
 
     ///@}
     ///@name Private  Access
