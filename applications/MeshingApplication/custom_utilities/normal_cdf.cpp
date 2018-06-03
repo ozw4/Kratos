@@ -34,21 +34,21 @@ double NormalCDF::Probability(double x)
     if (z <= 37.0)
     {
         const double e = std::exp(-z*z/2.0);
-        if (z < mSplit)
+        if (z < msSplit)
         {
-            const double n = (((((mN6*z + mN5)*z + mN4)*z + mN3)*z + mN2)*z + mN1)*z + mN0;
-            const double d = ((((((mD7*z + mD6)*z + mD5)*z + mD4)*z + mD3)*z + mD2)*z + mD1)*z + mD0;
+            const double n = (((((msN6*z + msN5)*z + msN4)*z + msN3)*z + msN2)*z + msN1)*z + msN0;
+            const double d = ((((((msD7*z + msD6)*z + msD5)*z + msD4)*z + msD3)*z + msD2)*z + msD1)*z + msD0;
             c = e*n/d;
         }
         else
         {
             const double f = z + 1.0/(z + 2.0/(z + 3.0/(z + 4.0/(z + 13.0/20.0))));
-            c = e/(mSqrt2Pi*f);
+            c = e/(msSqrt2Pi*f);
         }
     }
     return x<=0.0 ? c : 1-c;
 }
-  
+
 }  // namespace Kratos.
 
 

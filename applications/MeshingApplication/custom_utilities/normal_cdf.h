@@ -157,26 +157,26 @@ private:
     ///@name Static Member Variables
     ///@{
 
-    static constexpr double mSqrt2Pi = 2.5066282746310002; //std::sqrt(4.0*std::acos(0.0));
+    static constexpr double msSqrt2Pi = 2.5066282746310002; //std::sqrt(4.0*std::acos(0.0));
 
-    static constexpr double mSplit = 7.07106781186547;
+    static constexpr double msSplit = 7.07106781186547;
 
-    static constexpr double mN0 = 220.206867912376;
-    static constexpr double mN1 = 221.213596169931;
-    static constexpr double mN2 = 112.079291497871;
-    static constexpr double mN3 = 33.912866078383;
-    static constexpr double mN4 = 6.37396220353165;
-    static constexpr double mN5 = 0.700383064443688;
-    static constexpr double mN6 = 3.52624965998911e-02;
+    static constexpr double msN0 = 220.206867912376;
+    static constexpr double msN1 = 221.213596169931;
+    static constexpr double msN2 = 112.079291497871;
+    static constexpr double msN3 = 33.912866078383;
+    static constexpr double msN4 = 6.37396220353165;
+    static constexpr double msN5 = 0.700383064443688;
+    static constexpr double msN6 = 3.52624965998911e-02;
 
-    static constexpr double mD0 = 440.413735824752;
-    static constexpr double mD1 = 793.826512519948;
-    static constexpr double mD2 = 637.333633378831;
-    static constexpr double mD3 = 296.564248779674;
-    static constexpr double mD4 = 86.7807322029461;
-    static constexpr double mD5 = 16.064177579207;
-    static constexpr double mD6 = 1.75566716318264;
-    static constexpr double mD7 = 8.83883476483184e-02;
+    static constexpr double msD0 = 440.413735824752;
+    static constexpr double msD1 = 793.826512519948;
+    static constexpr double msD2 = 637.333633378831;
+    static constexpr double msD3 = 296.564248779674;
+    static constexpr double msD4 = 86.7807322029461;
+    static constexpr double msD5 = 16.064177579207;
+    static constexpr double msD6 = 1.75566716318264;
+    static constexpr double msD7 = 8.83883476483184e-02;
 
     ///@}
     ///@name Member Variables
@@ -184,7 +184,6 @@ private:
 
     double mMean;
     double mStDev;
-
 
     ///@}
     ///@name Private Operators
