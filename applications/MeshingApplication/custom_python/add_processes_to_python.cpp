@@ -24,6 +24,7 @@
 #include "custom_processes/metrics_levelset_process.h"
 #include "custom_processes/metrics_hessian_process.h"
 #include "custom_processes/metrics_error_process.h"
+#include "custom_processes/multi_scale_refining_process.h"
 // #include "custom_processes/nodal_values_interpolation_process.h"
 #include "custom_processes/internal_variables_interpolation_process.h"
 // #include "custom_processes/set_h_map_process.h"
@@ -136,6 +137,11 @@ void  AddProcessesToPython(pybind11::module& m)
         .def("Execute",&ComputeErrorSolMetricProcess<3>::Execute)
         ;
         
+        class_<MultiScaleRefiningProcess, MultiScaleRefiningProcess::Pointer, Process>(m, "MultiScaleRefiningProcess")
+        .def(init<Model&>())
+        .def(init<Model&, Parameters>())
+        ;
+
         /* MMG PROCESS */
     #ifdef INCLUDE_MMG
         // 2D
