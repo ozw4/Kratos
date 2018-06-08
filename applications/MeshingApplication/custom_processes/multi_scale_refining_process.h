@@ -40,6 +40,11 @@ namespace Kratos {
 ///@name Type Definitions
 ///@{
 
+/**
+ * Vector of strings type
+ */
+typedef std::vector<std::string> StringVectorType;
+
 ///@}
 ///@name  Enum's
 ///@{
@@ -203,8 +208,12 @@ private:
 
     unsigned int mEchoLevel;
     unsigned int mMaxMultiScaleLevels;
-    unsigned int mSubSteps;
+    unsigned int mDivisions;
     unsigned int mWorkingLevel;
+
+    std::string mConditionName;
+
+    StringVectorType mModelPartsNames;  /// The names of the model parts at each level
 
     std::vector<IndexNodeMapType> mCoarseRefinedNodesMap; /// Mapping from own to refined
     std::vector<IndexNodeMapType> mRefinedCoarseNodesMap; /// Mapping from refined to own
@@ -213,13 +222,17 @@ private:
     ///@name Private Operators
     ///@{
 
-    void SetWorkingLevel(int Level);
+    void InitializeModelParts();
 
-    void InterpolateLevelBoundaryValuesAtSubStep(int SubStep);
+    void SetWorkingLevel(const int Level);
+
+    void InterpolateLevelBoundaryValuesAtSubStep(const int SubStep, const int SubSteps);
 
     void UpdateSubLevel();
 
     void TransferDataToCoarseLevel();
+
+    StringVectorType GetRecursiveSubModelPartNames(ModelPart& rThisModelPart, std::string Prefix = "");
 
     ///@}
     ///@name Private Operations
@@ -238,10 +251,10 @@ private:
     ///@{
 
     /// Assignment operator.
-    MultiScaleRefiningProcess& operator=(MultiScaleRefiningProcess const& rOther);
+    // MultiScaleRefiningProcess& operator=(MultiScaleRefiningProcess const& rOther);
 
     /// Copy constructor.
-    //MultiScaleRefiningProcess(MultiScaleRefiningProcess const& rOther);
+    // MultiScaleRefiningProcess(MultiScaleRefiningProcess const& rOther);
 
     ///@}
 
