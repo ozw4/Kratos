@@ -55,7 +55,7 @@ ax = plt.gca()
 legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
           ncol=3, frameon=True)
 legend.get_frame().set_edgecolor('black')
-f.savefig("accumulated.pdf", bbox_inches='tight')
+f.savefig("accumulated_"+str(1 / time_intervals_inv[-1])+".pdf", bbox_inches='tight')
 
 
 f = plt.figure(2)
@@ -75,4 +75,4 @@ legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
           ncol=3, frameon=True)
 legend.get_frame().set_edgecolor('black')
 
-f.savefig("averaged.pdf", bbox_inches='tight')
+f.savefig("averaged_"+str(1 / time_intervals_inv[-1])+".pdf", bbox_inches='tight')
