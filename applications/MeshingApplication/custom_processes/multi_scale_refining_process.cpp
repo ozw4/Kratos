@@ -57,20 +57,58 @@ MultiScaleRefiningProcess::MultiScaleRefiningProcess(
 void MultiScaleRefiningProcess::InitializeModelParts()
 {
     ModelPart& root_mp = mrModel.GetModelPart(mModelPartsNames[0]);
+    
+    // StringVectorType sub_model_parts_names = root_mp.GetSubModelPartNames();
+    StringVectorType sub_model_parts_names = this->GetRecursiveSubModelPartNames(root_mp);
+
+    KRATOS_WATCH(mrModel)
 
     for (unsigned int i = 1; i <= mMaxMultiScaleLevels; i++)
     {
         std::string name = mModelPartsNames[0] + "-level_" + std::to_string(i);
         KRATOS_INFO_IF(this->Info(), mEchoLevel>1) << "Creating Model Part " << name << std::endl;
         mModelPartsNames.push_back(name);
-        // ModelPart::Pointer new_model_part = Kratos::make_shared<ModelPart>( name );
-        // mrModel.AddModelPart(new_model_part);
+
+        ModelPart::Pointer new_model_part = Kratos::make_shared<ModelPart>( name );
+        mrModel.AddModelPart(new_model_part);
+        KRATOS_WATCH(mrModel)
         // TODO: using the new Model interface:
         // mrModel.CreateModelPart(name);
+
+        // for (auto sub_full_name : sub_model_parts_names)
+        // {
+        //     ModelPart::Pointer sub_model_part = new_model_part;
+        //     KRATOS_WATCH(sub_full_name)
+        //     std::istringstream iss(sub_full_name);
+        //     std::string token;
+        //     while (std::getline(iss, token, '.'))
+        //     {
+        //         if (sub_model_part->HasSubModelPart(token))
+        //             sub_model_part = sub_model_part->pGetSubModelPart(token);
+        //         else
+        //             sub_model_part = sub_model_part->CreateSubModelPart(token);
+        //     }
+        //     KRATOS_WATCH(*new_model_part)
+        // }
     }
 
-    // StringVectorType sub_model_parts_names = root_mp.GetSubModelPartNames();
-    StringVectorType sub_model_parts_names = this->GetRecursiveSubModelPartNames(root_mp);
+    KRATOS_WATCH(" ")
+    KRATOS_WATCH("Finished constructing Model Parts")
+    KRATOS_WATCH(" ")
+
+    KRATOS_WATCH(mrModel)
+
+    for (auto name : mModelPartsNames)
+    {
+        ModelPart& mp = mrModel.GetModelPart(name);
+        KRATOS_WATCH(name)
+        KRATOS_WATCH(mp)
+    }
+
+    // for (auto sub_name : sub_model_parts_names)
+    // {
+    //     KRATOS_WATCH(sub_name)
+    // }
 
 }
 
@@ -83,13 +121,11 @@ StringVectorType MultiScaleRefiningProcess::GetRecursiveSubModelPartNames(ModelP
     
     for (auto& name : names)
     {
-        if (rThisModelPart.HasSubModelPart(name))
-        {
-            ModelPart& sub_model_part = rThisModelPart.GetSubModelPart(name);
-            auto sub_names = this->GetRecursiveSubModelPartNames(sub_model_part, Prefix + name);
-            name.insert(0, Prefix);
-            names.push_back(name);
-        }
+        ModelPart& sub_model_part = rThisModelPart.GetSubModelPart(name);
+        auto sub_names = this->GetRecursiveSubModelPartNames(sub_model_part, Prefix + name);
+        name.insert(0, Prefix);
+        for (auto sub_name : sub_names)
+            names.push_back(sub_name);
     }
 
     return names;
