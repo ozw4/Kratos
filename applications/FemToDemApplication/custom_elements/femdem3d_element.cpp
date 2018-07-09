@@ -215,7 +215,7 @@ namespace Kratos
 
 		//Loop over edges
 		for (int cont = 0; cont < 6; cont++) {
-			this->Set_Convergeddamages(this->GetnonConvergedDamages(cont), cont);
+			this->SetConvergedDamages(this->GetNonConvergedDamages(cont), cont);
 			this->SetConvergedEquivalentStress(this->GetNonConvergedEquivalentStress(cont), cont);
 			current_equivalent_stress = this->GetConvergedEquivalentStress(cont);
 			if (current_equivalent_stress > this->GetThreshold(cont)) { this->SetThreshold(current_equivalent_stress, cont); }
@@ -419,14 +419,14 @@ namespace Kratos
 				this->IntegrateStressDamageMechanics(IntegratedStressVectorOnEdge, DamageEdge,
 					AverageStrainVector, AverageStressVector, edge, Lchar );
 				
-				this->Set_NonConvergeddamages(DamageEdge, edge);
+				this->SetNonConvergedDamages(DamageEdge, edge);
 				DamagesOnEdges[edge] = DamageEdge;
 
 			} // End loop over edges
 
 			double damage_element = this->CalculateElementalDamage(DamagesOnEdges);
 			if (damage_element >= 0.999) { damage_element = 0.999; }
-			this->Set_NonConvergeddamage(damage_element);
+			this->SetNonConvergedDamages(damage_element);
 			
 			const Vector& StressVector = this->GetValue(STRESS_VECTOR);
 			IntegratedStressVector = (1.0 - damage_element)*StressVector;

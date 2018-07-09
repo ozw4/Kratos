@@ -20,8 +20,6 @@
 
 namespace Kratos
 {
-
-
 	class FemDem3DElement : public SmallDisplacementElement    // Derived Element from SolidMechanics
 	{
 
@@ -135,20 +133,20 @@ namespace Kratos
 		void   SetConvergedDamage(double af) { mDamage = af; }
 		double Get_Convergeddamage() { return mDamage; }
 
-		void   SetConverged_f_sigma(double af) { mF_sigma = af; }
-		double GetConverged_f_sigma() { return mF_sigma; }
+		void   SetConvergedEquivalentStress(double af) { mF_sigma = af; }
+		double GetConvergedEquivalentStress() { return mF_sigma; }
 
 		void   SetConvergedEquivalentStress(double af, int cont) { mF_sigmas[cont] = af; }
 		double GetConvergedEquivalentStress(int cont) { return mF_sigmas[cont]; }
 
-		void   Set_Convergeddamages(double af, int cont) { mDamages[cont] = af; }
+		void   SetConvergedDamages(double af, int cont) { mDamages[cont] = af; }
 		double GetConvergedDamages(int cont) { return mDamages[cont]; }
 
 		// Non Converged values
-		void   Set_NonConvergeddamages(double af, int cont) { mNonConvergedDamages[cont] = af; }
-		double GetnonConvergedDamages(int cont) { return mNonConvergedDamages[cont]; }
+		void   SetNonConvergedDamages(double af, int cont) { mNonConvergedDamages[cont] = af; }
+		double GetNonConvergedDamages(int cont) { return mNonConvergedDamages[cont]; }
 
-		void   Set_NonConvergeddamage(double af) { mNonConvergedDamage = af; }
+		void   SetNonConvergedDamages(double af) { mNonConvergedDamage = af; }
 		double GetNonConvergedDamage() { return mNonConvergedDamage; }
 
 		void   SetNonConvergedEquivalentStress(double af, int cont) { mNonConvergedFsigmas[cont] = af; }
@@ -157,14 +155,13 @@ namespace Kratos
 		void   SetNonConvergedEquivalentStress(double af) { mNonConvergedFsigma = af; }
 		double GetNonConvergedEquivalentStress() { return mNonConvergedFsigma; }
 
-		void   ResetNonConvergedVars()
+		void ResetNonConvergedVars()
 		{
-			this->Set_NonConvergeddamage(0.0);
+			this->SetNonConvergedDamages(0.0);
 			this->SetNonConvergedEquivalentStress(0.0);
 
-			for (int cont = 0;cont < 6;cont++)
-			{
-				this->Set_NonConvergeddamages(0, cont);
+			for (int cont = 0;cont < 6;cont++) {
+				this->SetNonConvergedDamages(0, cont);
 				this->SetNonConvergedEquivalentStress(0, cont);
 			}
 		}

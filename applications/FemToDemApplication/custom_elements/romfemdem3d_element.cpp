@@ -306,7 +306,7 @@ namespace Kratos
 				this->IntegrateStressDamageMechanics(IntegratedStressVectorOnEdge, DamageEdge,
 					AverageStrainVectorConcrete, AverageStressVectorConcrete, edge, Lchar );
 				
-				this->Set_NonConvergeddamages(DamageEdge, edge);
+				this->SetNonConvergedDamages(DamageEdge, edge);
 				DamagesOnEdges[edge] = DamageEdge;
 
 			} // End loop over edges
@@ -314,7 +314,7 @@ namespace Kratos
             // Compute elemental damage
 			double damage_element = this->CalculateElementalDamage(DamagesOnEdges);
 			if (damage_element >= 0.999) { damage_element = 0.999; }
-			this->Set_NonConvergeddamage(damage_element);
+			this->SetNonConvergedDamages(damage_element);
 			
 			const Vector& StressVectorConcrete = this->GetValue(CONCRETE_STRESS_VECTOR);
 			noalias(IntegratedStressVectorConcrete) = (1.0 - damage_element)*StressVectorConcrete;
@@ -410,39 +410,25 @@ namespace Kratos
 	)
 	{
     	const unsigned int& integration_points_number = GetGeometry().IntegrationPointsNumber( mThisIntegrationMethod );
-    	const unsigned int dimension                  = GetGeometry().WorkingSpaceDimension();
+    	const unsigned int& dimension                 = GetGeometry().WorkingSpaceDimension();
 
         if ( rOutput[0].size2() != dimension )
             rOutput[0].resize( dimension, dimension, false );
 
-		if (rVariable == CONCRETE_STRESS_TENSOR)
-		{
+		if (rVariable == CONCRETE_STRESS_TENSOR) {
 			rOutput[0] = MathUtils<double>::StressVectorToTensor(this->GetValue(CONCRETE_STRESS_VECTOR));
-		}
-
-		if (rVariable == STEEL_STRESS_TENSOR)
-		{
-			if (this->GetProperties()[STEEL_VOLUMETRIC_PART] > 0.0)
-			{
+		} else if (rVariable == STEEL_STRESS_TENSOR) {
+			if (this->GetProperties()[STEEL_VOLUMETRIC_PART] > 0.0) {
 				rOutput[0] = MathUtils<double>::StressVectorToTensor(this->GetValue(STEEL_STRESS_VECTOR));			
-			}
-			else
-			{
+			} else {
 				Matrix dummy;
 				rOutput[0] = dummy;
 			}
-		}
-
-		if (rVariable == STRAIN_TENSOR)
-		{
+		} else if (rVariable == STRAIN_TENSOR) {
 			rOutput[0] =  MathUtils<double>::StrainVectorToTensor(this->GetValue(STRAIN_VECTOR));
-		}
-
-		if (rVariable == CONCRETE_STRESS_TENSOR_INTEGRATED)
-		{
+		} else if (rVariable == CONCRETE_STRESS_TENSOR_INTEGRATED) {
 			rOutput[0] =  MathUtils<double>::StressVectorToTensor(this->GetIntegratedStressVector());
 		}
-
     }
 
 	// Tensor variables
@@ -452,20 +438,13 @@ namespace Kratos
 		const ProcessInfo& rCurrentProcessInfo
 	)
 	{
-		if (rVariable == STRAIN_TENSOR)
-		{
+		if (rVariable == STRAIN_TENSOR) {
 			CalculateOnIntegrationPoints(rVariable, rValues, rCurrentProcessInfo);
-		}
-		if (rVariable == STEEL_STRESS_TENSOR)
-		{
+		} else if (rVariable == STEEL_STRESS_TENSOR) {
 			CalculateOnIntegrationPoints(rVariable, rValues, rCurrentProcessInfo);
-		}
-		if (rVariable == CONCRETE_STRESS_TENSOR)
-		{
+		} else if (rVariable == CONCRETE_STRESS_TENSOR) {
 			CalculateOnIntegrationPoints(rVariable, rValues, rCurrentProcessInfo);
-		}
-		if (rVariable == CONCRETE_STRESS_TENSOR_INTEGRATED)
-		{
+		} else if (rVariable == CONCRETE_STRESS_TENSOR_INTEGRATED) {
 			CalculateOnIntegrationPoints(rVariable, rValues, rCurrentProcessInfo);
 		}
 	}
@@ -510,8 +489,7 @@ namespace Kratos
 			double DLambda;
 			Vector DS = ZeroVector(6), DESIG = ZeroVector(6);
 
-			while (Conv == false && iter <= iter_max)
-			{
+			while (Conv == false && iter <= iter_max) {
 				DLambda = F * PlasticDenominator;
 				if(DLambda < 0.0) DLambda = 0.0;
 				
@@ -534,8 +512,7 @@ namespace Kratos
 					this->SetNonConvergedCapap(Capap);
 					this->SetNonConvergedPlasticDeformation(PlasticStrain);
 					this->SetValue(EQUIVALENT_STRESS_VM, Yield);
-				}
-				else iter++;
+				} else iter++;
 			}
 			if (iter == iter_max) KRATOS_ERROR << "Reached Max iterations inside Plasticity Loop" << std::endl;
 		}
@@ -808,7 +785,7 @@ namespace Kratos
 		
 		//Loop over edges
 		for (int cont = 0; cont < 3; cont++) {
-			this->Set_Convergeddamages(this->GetNonConvergedDamages(cont), cont);
+			this->SetConvergedDamages(this->GetNonConvergedDamages(cont), cont);
 			this->SetConvergedEquivalentStress(this->GetNonConvergedEquivalentStress(cont), cont);
 			current_equivalent_stress = this->GetConvergedEquivalentStress(cont);
 			if (current_equivalent_stress > this->GetThreshold(cont)) { this->SetThreshold(current_equivalent_stress, cont); }
@@ -816,11 +793,6 @@ namespace Kratos
 
 		damage_element = this->GetNonConvergedDamage();
 		this->SetConvergedDamage(damage_element);
-
-		// if (damage_element > 0.0) 
-		// {
-		// 	this->SetValue(IS_DAMAGED, 1);
-		// }
 		
 		if (damage_element >= 0.98) {
 			if (this->GetProperties()[STEEL_VOLUMETRIC_PART] > 0.0) {
