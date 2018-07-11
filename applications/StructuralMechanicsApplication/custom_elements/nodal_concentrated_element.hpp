@@ -53,6 +53,21 @@ public:
     ///@name Type Definitions
     ///@{
 
+    /// Definition of the node type
+    typedef Node<3> NodeType;
+
+    /// Definition of the geometry
+    typedef Geometry<NodeType> GeometryType;
+
+    /// Definition of the base type
+    typedef Element BaseType;
+
+    /// Definition of the index type
+    typedef std::size_t IndexType;
+
+    /// Definition of the size type
+    typedef std::size_t SizeType;
+
     /// Counted pointer of NodalConcentratedElement
     KRATOS_CLASS_POINTER_DEFINITION( NodalConcentratedElement);
 
@@ -60,7 +75,9 @@ public:
      * @brief Flags related to the element computation
      */
     KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_DISPLACEMENT_STIFFNESS );
+    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_NODAL_MASS );
     KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_ROTATIONAL_STIFFNESS );
+    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_NODAL_INERTIA );
     KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_RAYLEIGH_DAMPING );
 
     ///@}
