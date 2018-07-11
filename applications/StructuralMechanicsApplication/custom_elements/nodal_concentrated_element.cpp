@@ -16,7 +16,7 @@
 // Project includes
 #include "includes/define.h"
 #include "includes/checks.h"
-#include "custom_elements/nodal_concentrated_element.hpp"
+#include "custom_elements/nodal_concentrated_element.h"
 
 #include "structural_mechanics_application_variables.h"
 
