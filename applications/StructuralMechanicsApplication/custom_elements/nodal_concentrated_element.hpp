@@ -38,8 +38,13 @@ namespace Kratos
 ///@name Kratos Classes
 ///@{
 
-/// Concentrated nodal for 3D and 2D points
-
+/**
+ * @class SolidShellElementSprism3D6N
+ * @ingroup StructuralMechanicsApplication
+ * @brief Concentrated nodal for 3D and 2D points
+ * @details The element can consider both the
+ * @author Vicente Mataix Ferrandiz
+ */
 class NodalConcentratedElement
     : public Element
 {
@@ -47,12 +52,18 @@ public:
 
     ///@name Type Definitions
     ///@{
+
     /// Counted pointer of NodalConcentratedElement
     KRATOS_CLASS_POINTER_DEFINITION( NodalConcentratedElement);
+
+     /**
+     * @brief Flags related to the element computation
+     */
+    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_DISPLACEMENT_STIFFNESS );
+    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_ROTATIONAL_STIFFNESS );
+    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_RAYLEIGH_DAMPING );
+
     ///@}
-
-public:
-
     ///@name Life Cycle
     ///@{
 
@@ -269,7 +280,7 @@ protected:
     ///@{
     ///@}
 
-    bool mUseRayleighDamping;
+    Flags mELementalFlags; /// Elemental flags
 
     ///@name Protected Operators
     ///@{

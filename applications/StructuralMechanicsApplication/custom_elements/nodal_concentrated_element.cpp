@@ -22,6 +22,13 @@
 
 namespace Kratos
 {
+/**
+ * Flags related to the element computation
+ */
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_DISPLACEMENT_STIFFNESS, 0 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ROTATIONAL_STIFFNESS,   1 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_RAYLEIGH_DAMPING,       2 );
+
 //***********************DEFAULT CONSTRUCTOR******************************************
 //************************************************************************************
 
@@ -31,9 +38,8 @@ NodalConcentratedElement::NodalConcentratedElement(
     const bool UseRayleighDamping
     )
     : Element( NewId, pGeometry )
-    , mUseRayleighDamping( UseRayleighDamping )
 {
-    //DO NOT ADD DOFS HERE!!!
+    mELementalFlags.Set(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING, UseRayleighDamping);
 }
 
 
@@ -46,9 +52,8 @@ NodalConcentratedElement::NodalConcentratedElement(
     const bool UseRayleighDamping
     )
     : Element( NewId, pGeometry, pProperties )
-    , mUseRayleighDamping( UseRayleighDamping )
 {
-
+    mELementalFlags.Set(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING, UseRayleighDamping);
 }
 
 //******************************COPY CONSTRUCTOR**************************************
@@ -56,7 +61,7 @@ NodalConcentratedElement::NodalConcentratedElement(
 
 NodalConcentratedElement::NodalConcentratedElement( NodalConcentratedElement const& rOther)
     :Element(rOther)
-    ,mUseRayleighDamping(rOther.mUseRayleighDamping)
+    ,mELementalFlags(rOther.mELementalFlags)
 {
 
 }
@@ -83,7 +88,7 @@ Element::Pointer NodalConcentratedElement::Create(
     ) const
 {
     //NEEDED TO CREATE AN ELEMENT
-    return Kratos::make_shared<NodalConcentratedElement>( NewId, GetGeometry().Create( rThisNodes ), pProperties, mUseRayleighDamping );
+    return Kratos::make_shared<NodalConcentratedElement>( NewId, GetGeometry().Create( rThisNodes ), pProperties, mELementalFlags.Is(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING) );
 }
 
 //************************************************************************************
@@ -96,7 +101,7 @@ Element::Pointer NodalConcentratedElement::Create(
     ) const
 {
     //NEEDED TO CREATE AN ELEMENT   
-    return Kratos::make_shared<NodalConcentratedElement>( NewId, pGeom, pProperties, mUseRayleighDamping );
+    return Kratos::make_shared<NodalConcentratedElement>( NewId, pGeom, pProperties, mELementalFlags.Is(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING) );
 }
 
 //************************************CLONE*******************************************
@@ -110,7 +115,7 @@ Element::Pointer NodalConcentratedElement::Clone(
     //YOU CREATE A NEW ELEMENT CLONING THEIR VARIABLES
     //ALL MEMBER VARIABLES THAT MUST BE CLONED HAVE TO BE DEFINED HERE
 
-    NodalConcentratedElement new_element(NewId, GetGeometry().Create( rThisNodes ), pGetProperties(), mUseRayleighDamping );
+    NodalConcentratedElement new_element(NewId, GetGeometry().Create( rThisNodes ), pGetProperties(), mELementalFlags.Is(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING) );
 
     return Kratos::make_shared<NodalConcentratedElement>(new_element);
 }
@@ -414,7 +419,7 @@ void NodalConcentratedElement::CalculateDampingMatrix(
     rDampingMatrix = ZeroMatrix( system_size, system_size );
 
     //Check, if Rayleigh damping is available; use nodal damping, if not
-    if( mUseRayleighDamping ) {
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING) ) {
         //1.-Calculate StiffnessMatrix:
 
         MatrixType stiffness_matrix     = ZeroMatrix( system_size, system_size );
