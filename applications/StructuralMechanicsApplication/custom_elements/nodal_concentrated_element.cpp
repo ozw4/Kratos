@@ -354,29 +354,55 @@ void NodalConcentratedElement::Initialize()
     // We get the reference
     const auto& rconst_this = *this;
 
-    // We check the nodal stiffness
-    if (rconst_this.Has(NODAL_STIFFNESS) || GetProperties().Has(NODAL_STIFFNESS))
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, true);
-    else
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
+    if (HasProperties()) {
+        // We check the nodal stiffness
+        if (rconst_this.Has(NODAL_STIFFNESS) || GetProperties().Has(NODAL_STIFFNESS))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
 
-    // We check the nodal rotational stiffness
-    if (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS) || GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS))
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
-    else
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
+        // We check the nodal rotational stiffness
+        if (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS) || GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
 
-    // We check the nodal mass
-    if (rconst_this.Has(NODAL_MASS) || GetProperties().Has(NODAL_MASS))
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, true);
-    else
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, false);
+        // We check the nodal mass
+        if (rconst_this.Has(NODAL_MASS) || GetProperties().Has(NODAL_MASS))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, false);
 
-    // We check the nodal inertia
-    if (rconst_this.Has(NODAL_INERTIA) || GetProperties().Has(NODAL_INERTIA))
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, true);
-    else
-        mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, false);
+        // We check the nodal inertia
+        if (rconst_this.Has(NODAL_INERTIA) || GetProperties().Has(NODAL_INERTIA))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, false);
+    } else {
+        // We check the nodal stiffness
+        if (rconst_this.Has(NODAL_STIFFNESS))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
+
+        // We check the nodal rotational stiffness
+        if (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
+
+        // We check the nodal mass
+        if (rconst_this.Has(NODAL_MASS))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, false);
+
+        // We check the nodal inertia
+        if (rconst_this.Has(NODAL_INERTIA))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, false);
+    }
 
     KRATOS_CATCH( "" );
 }
@@ -493,7 +519,7 @@ void NodalConcentratedElement::CalculateRightHandSide(
 
         // Compute and add internal forces
         const array_1d<double, 3 >& current_displacement = GetGeometry()[0].FastGetSolutionStepValue(DISPLACEMENT);
-        const array_1d<double, 3 >& nodal_stiffness = rconst_this.Has(NODAL_STIFFNESS) ? rconst_this.GetValue(NODAL_STIFFNESS) : GetProperties().GetValue(NODAL_STIFFNESS);
+        const array_1d<double, 3 >& nodal_stiffness = HasProperties() ? (GetProperties().Has(NODAL_STIFFNESS) ? GetProperties().GetValue(NODAL_STIFFNESS) : rconst_this.GetValue(NODAL_STIFFNESS)) : rconst_this.GetValue(NODAL_STIFFNESS);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rRightHandSideVector[j]  -= nodal_stiffness[j] * current_displacement[j];
@@ -507,7 +533,7 @@ void NodalConcentratedElement::CalculateRightHandSide(
 
         // Compute and add internal forces
         const array_1d<double, 3 >& current_rotation = GetGeometry()[0].FastGetSolutionStepValue(ROTATION);
-        const array_1d<double, 3 >& nodal_rotational_stiffness = rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS) ? rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS) : GetProperties().GetValue(NODAL_ROTATIONAL_STIFFNESS);
+        const array_1d<double, 3 >& nodal_rotational_stiffness = HasProperties() ? (GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS) ? GetProperties().GetValue(NODAL_ROTATIONAL_STIFFNESS) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS)) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rRightHandSideVector[aux_index + j]  -= nodal_rotational_stiffness[j] * current_rotation[j];
@@ -542,7 +568,7 @@ void NodalConcentratedElement::CalculateLeftHandSide(
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS)) {
 
-        const array_1d<double, 3 >& nodal_stiffness = rconst_this.Has(NODAL_STIFFNESS) ? rconst_this.GetValue(NODAL_STIFFNESS) : GetProperties().GetValue(NODAL_STIFFNESS);
+        const array_1d<double, 3 >& nodal_stiffness = HasProperties() ? (GetProperties().Has(NODAL_STIFFNESS) ? GetProperties().GetValue(NODAL_STIFFNESS) : rconst_this.GetValue(NODAL_STIFFNESS)) : rconst_this.GetValue(NODAL_STIFFNESS);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rLeftHandSideMatrix( j, j ) += nodal_stiffness[j];
@@ -554,7 +580,7 @@ void NodalConcentratedElement::CalculateLeftHandSide(
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_INERTIA)) {
 
-        const array_1d<double, 3 >& nodal_rotational_stiffness = rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS) ? rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS) : GetProperties().GetValue(NODAL_ROTATIONAL_STIFFNESS);
+        const array_1d<double, 3 >& nodal_rotational_stiffness = HasProperties() ? (GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS) ? GetProperties().GetValue(NODAL_ROTATIONAL_STIFFNESS) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS)) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rLeftHandSideMatrix( aux_index + j, aux_index + j ) += nodal_rotational_stiffness[j];
@@ -590,7 +616,7 @@ void NodalConcentratedElement::CalculateMassMatrix(
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS)) {
 
-        const double nodal_mass = rconst_this.Has(NODAL_MASS) ? rconst_this.GetValue(NODAL_MASS) : GetProperties().GetValue(NODAL_MASS);
+        const double nodal_mass = HasProperties() ? (GetProperties().Has(NODAL_MASS) ? GetProperties().GetValue(NODAL_MASS) : rconst_this.GetValue(NODAL_MASS)) : rconst_this.GetValue(NODAL_MASS);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rMassMatrix( j, j ) = nodal_mass;
@@ -602,7 +628,7 @@ void NodalConcentratedElement::CalculateMassMatrix(
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_INERTIA)) {
 
-        const array_1d<double, 3>& nodal_inertia = rconst_this.Has(NODAL_INERTIA) ? rconst_this.GetValue(NODAL_INERTIA) : GetProperties().GetValue(NODAL_INERTIA);
+        const array_1d<double, 3>& nodal_inertia =  HasProperties() ? (GetProperties().Has(NODAL_INERTIA) ? GetProperties().GetValue(NODAL_INERTIA) : rconst_this.GetValue(NODAL_INERTIA)) : rconst_this.GetValue(NODAL_INERTIA);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rMassMatrix( aux_index + j, aux_index + j ) = nodal_inertia[j];
