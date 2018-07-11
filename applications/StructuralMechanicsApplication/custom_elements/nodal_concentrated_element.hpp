@@ -309,40 +309,52 @@ protected:
     ///@name Protected Operations
     ///@{
 
-
-    /**
-     * Calculation of the Delta Position
-     */
-    Matrix& CalculateDeltaPosition(Matrix & rDeltaPosition);
-
     ///@}
     ///@name Protected  Access
     ///@{
+
     ///@}
     ///@name Protected Inquiry
     ///@{
+
     ///@}
     ///@name Protected LifeCycle
     ///@{
+
     ///@}
 
 private:
 
     ///@name Static Member Variables
     ///@{
+
     ///@}
     ///@name Member Variables
     ///@{
+
     ///@}
     ///@name Private Operators
     ///@{
+
     ///@}
     ///@name Private Operations
     ///@{
+
+    /**
+     * Calculation of the Delta Position
+     */
+    Matrix& CalculateDeltaPosition(Matrix & rDeltaPosition);
+
+    /**
+     * @brief This method computes the actual size of the system of equations
+     * @return This method returns the size of the system of equations
+     */
+    SizeType ComputeSizeOfSystem();
+
     ///@}
     ///@name Private  Access
     ///@{
-    ///@}
+
     ///@}
     ///@name Serialization
     ///@{

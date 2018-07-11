@@ -141,7 +141,7 @@ void NodalConcentratedElement::GetDofList(
     )
 {
     //NEEDED TO DEFINE THE DOFS OF THE ELEMENT 
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
     
     rElementalDofList.resize( 0 );
 
@@ -160,7 +160,7 @@ void NodalConcentratedElement::EquationIdVector(
     )
 {
     //NEEDED TO DEFINE GLOBAL IDS FOR THE CORRECT ASSEMBLY
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     if ( rResult.size() != dimension )
         rResult.resize( dimension, false );
@@ -177,7 +177,7 @@ void NodalConcentratedElement::EquationIdVector(
 void NodalConcentratedElement::GetValuesVector( Vector& rValues, int Step )
 {
     //GIVES THE VECTOR WITH THE DOFS VARIABLES OF THE ELEMENT (i.e. ELEMENT DISPLACEMENTS)
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     if ( rValues.size() != dimension ) 
         rValues.resize( dimension, false );
@@ -196,7 +196,7 @@ void NodalConcentratedElement::GetValuesVector( Vector& rValues, int Step )
 void NodalConcentratedElement::GetFirstDerivativesVector( Vector& rValues, int Step )
 {
     //GIVES THE VECTOR WITH THE TIME DERIVATIVE OF THE DOFS VARIABLES OF THE ELEMENT (i.e. ELEMENT VELOCITIES)
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     if ( rValues.size() != dimension ) 
         rValues.resize( dimension, false );
@@ -214,7 +214,7 @@ void NodalConcentratedElement::GetFirstDerivativesVector( Vector& rValues, int S
 void NodalConcentratedElement::GetSecondDerivativesVector( Vector& rValues, int Step )
 {
     //GIVES THE VECTOR WITH THE TIME SECOND DERIVATIVE OF THE DOFS VARIABLES OF THE ELEMENT (i.e. ELEMENT ACCELERATIONS)
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     if ( rValues.size() != dimension ) 
         rValues.resize( dimension, false );
@@ -344,10 +344,10 @@ void NodalConcentratedElement::CalculateRightHandSide(
     ProcessInfo& rCurrentProcessInfo
     )
 {
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     // Resizing as needed the RHS
-    const IndexType system_size = dimension;
+    const SizeType system_size = ComputeSizeOfSystem();
 
     if ( rRightHandSideVector.size() != system_size )
         rRightHandSideVector.resize( system_size, false );
@@ -379,10 +379,10 @@ void NodalConcentratedElement::CalculateRightHandSide(
 
 void NodalConcentratedElement::CalculateLeftHandSide( MatrixType& rLeftHandSideMatrix, ProcessInfo& rCurrentProcessInfo )
 {
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     // Resizing as needed the LHS
-    const IndexType system_size = dimension;
+    const SizeType system_size = ComputeSizeOfSystem();
 
     if ( rLeftHandSideMatrix.size1() != system_size )
         rLeftHandSideMatrix.resize( system_size, system_size, false );
@@ -408,7 +408,7 @@ Matrix& NodalConcentratedElement::CalculateDeltaPosition(Matrix & rDeltaPosition
 
     //KRATOS NODAL CURRENT POSITION (X = X0 + DISPLACEMENT_X) IS ALWAYS COMPUTED
     GeometryType& geom = GetGeometry();
-    const IndexType dimension = geom.WorkingSpaceDimension();
+    const SizeType dimension = geom.WorkingSpaceDimension();
 
     rDeltaPosition = ZeroMatrix( 1 , dimension);
 
@@ -430,8 +430,8 @@ void NodalConcentratedElement::CalculateMassMatrix( MatrixType& rMassMatrix, Pro
     KRATOS_TRY
 
     // Lumped (by definition)
-    IndexType dimension = GetGeometry().WorkingSpaceDimension();
-    IndexType system_size = dimension;
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType system_size = ComputeSizeOfSystem();
 
     if ( rMassMatrix.size1() != system_size )
         rMassMatrix.resize( system_size, system_size, false );
@@ -461,10 +461,10 @@ void NodalConcentratedElement::CalculateDampingMatrix(
     KRATOS_TRY;
 
     // 0.-Initialize the DampingMatrix:
-    const IndexType dimension = GetGeometry().WorkingSpaceDimension();
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     // Resizing as needed the LHS
-    const IndexType system_size = dimension;
+    const SizeType system_size = ComputeSizeOfSystem();
 
     rDampingMatrix = ZeroMatrix( system_size, system_size );
 
@@ -472,7 +472,7 @@ void NodalConcentratedElement::CalculateDampingMatrix(
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING) ) {
         //1.-Calculate StiffnessMatrix:
 
-        MatrixType stiffness_matrix     = ZeroMatrix( system_size, system_size );
+        MatrixType stiffness_matrix       = ZeroMatrix( system_size, system_size );
         VectorType right_hand_side_vector = ZeroVector( system_size ); 
 
         this->CalculateLocalSystem( stiffness_matrix, right_hand_side_vector, rCurrentProcessInfo );
@@ -516,22 +516,55 @@ void NodalConcentratedElement::CalculateDampingMatrix(
 /***********************************************************************************/
 /***********************************************************************************/
 
+SizeType NodalConcentratedElement::ComputeSizeOfSystem()
+{
+    SizeType system_size = 0;
+
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
+
+    // The displacement terms
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
+        mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS)) {
+        system_size += dimension;
+    }
+
+    // The rotational terms
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS) ||
+        mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_INERTIA)) {
+        system_size += dimension;
+    }
+
+    return system_size;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
 int NodalConcentratedElement::Check( const ProcessInfo& rCurrentProcessInfo )
 {    
     KRATOS_TRY
     
     // Check that all required variables have been registered
-    KRATOS_CHECK_VARIABLE_KEY(DISPLACEMENT)
-    KRATOS_CHECK_VARIABLE_KEY(VELOCITY)
-    KRATOS_CHECK_VARIABLE_KEY(ACCELERATION)
-    KRATOS_CHECK_VARIABLE_KEY(NODAL_MASS)
-    KRATOS_CHECK_VARIABLE_KEY(NODAL_STIFFNESS)
 
-    KRATOS_CHECK_VARIABLE_KEY(ROTATION)
-    KRATOS_CHECK_VARIABLE_KEY(ANGULAR_VELOCITY)
-    KRATOS_CHECK_VARIABLE_KEY(ANGULAR_ACCELERATION)
-    KRATOS_CHECK_VARIABLE_KEY(NODAL_INERTIA)
-    KRATOS_CHECK_VARIABLE_KEY(NODAL_ROTATIONAL_STIFFNESS)
+    // The displacement terms
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
+        mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS)) {
+        KRATOS_CHECK_VARIABLE_KEY(DISPLACEMENT)
+        KRATOS_CHECK_VARIABLE_KEY(VELOCITY)
+        KRATOS_CHECK_VARIABLE_KEY(ACCELERATION)
+        KRATOS_CHECK_VARIABLE_KEY(NODAL_MASS)
+        KRATOS_CHECK_VARIABLE_KEY(NODAL_STIFFNESS)
+    }
+
+        // The rotational terms
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS) ||
+        mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_INERTIA)) {
+        KRATOS_CHECK_VARIABLE_KEY(ROTATION)
+        KRATOS_CHECK_VARIABLE_KEY(ANGULAR_VELOCITY)
+        KRATOS_CHECK_VARIABLE_KEY(ANGULAR_ACCELERATION)
+        KRATOS_CHECK_VARIABLE_KEY(NODAL_INERTIA)
+        KRATOS_CHECK_VARIABLE_KEY(NODAL_ROTATIONAL_STIFFNESS)
+    }
 
     KRATOS_CHECK_VARIABLE_KEY(NODAL_DAMPING_RATIO)
     KRATOS_CHECK_VARIABLE_KEY(VOLUME_ACCELERATION)
@@ -539,20 +572,26 @@ int NodalConcentratedElement::Check( const ProcessInfo& rCurrentProcessInfo )
     // Check that the element's nodes contain all required SolutionStepData and Degrees of freedom
     NodeType& rnode = this->GetGeometry()[0];
 
-    KRATOS_CHECK_VARIABLE_IN_NODAL_DATA(DISPLACEMENT,rnode)
-    KRATOS_CHECK_VARIABLE_IN_NODAL_DATA(VOLUME_ACCELERATION,rnode)
+    // The displacement terms
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
+        mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS)) {
+        KRATOS_CHECK_VARIABLE_IN_NODAL_DATA(DISPLACEMENT,rnode)
+        KRATOS_CHECK_VARIABLE_IN_NODAL_DATA(VOLUME_ACCELERATION,rnode)
 
-    KRATOS_CHECK_DOF_IN_NODE(DISPLACEMENT_X,rnode)
-    KRATOS_CHECK_DOF_IN_NODE(DISPLACEMENT_Y,rnode)
-    KRATOS_CHECK_DOF_IN_NODE(DISPLACEMENT_Z,rnode)
+        KRATOS_CHECK_DOF_IN_NODE(DISPLACEMENT_X,rnode)
+        KRATOS_CHECK_DOF_IN_NODE(DISPLACEMENT_Y,rnode)
+        KRATOS_CHECK_DOF_IN_NODE(DISPLACEMENT_Z,rnode)
+    }
 
-//     // NOTE: to check or not o check?
-//
-//     KRATOS_CHECK_VARIABLE_IN_NODAL_DATA(ROTATION,rnode)
-//
-//     KRATOS_CHECK_DOF_IN_NODE(ROTATION_X,rnode)
-//     KRATOS_CHECK_DOF_IN_NODE(ROTATION_Y,rnode)
-//     KRATOS_CHECK_DOF_IN_NODE(ROTATION_Z,rnode)
+    // The rotational terms
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS) ||
+        mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_INERTIA)) {
+        KRATOS_CHECK_VARIABLE_IN_NODAL_DATA(ROTATION,rnode)
+
+        KRATOS_CHECK_DOF_IN_NODE(ROTATION_X,rnode)
+        KRATOS_CHECK_DOF_IN_NODE(ROTATION_Y,rnode)
+        KRATOS_CHECK_DOF_IN_NODE(ROTATION_Z,rnode)
+    }
     
     return 0;
 
