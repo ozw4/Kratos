@@ -341,15 +341,10 @@ private:
     ///@{
 
     /**
-     * Calculation of the Delta Position
-     */
-    Matrix& CalculateDeltaPosition(Matrix & rDeltaPosition);
-
-    /**
      * @brief This method computes the actual size of the system of equations
      * @return This method returns the size of the system of equations
      */
-    SizeType ComputeSizeOfSystem();
+    std::size_t ComputeSizeOfSystem();
 
     ///@}
     ///@name Private  Access
