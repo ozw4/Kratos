@@ -37,13 +37,13 @@ namespace Kratos
 ///@{
 
 /**
- * @class SolidShellElementSprism3D6N
+ * @class NodalConcentratedElement
  * @ingroup StructuralMechanicsApplication
  * @brief Concentrated nodal for 3D and 2D points
  * @details The element can consider both the
  * @author Vicente Mataix Ferrandiz
  */
-class NodalConcentratedElement
+class KRATOS_API(STRUCTURAL_MECHANICS_APPLICATION) NodalConcentratedElement
     : public Element
 {
 public:
@@ -307,6 +307,12 @@ protected:
     ///@name Protected Operations
     ///@{
 
+    /**
+     * @brief This method computes the actual size of the system of equations
+     * @return This method returns the size of the system of equations
+     */
+    std::size_t ComputeSizeOfSystem();
+
     ///@}
     ///@name Protected  Access
     ///@{
@@ -337,12 +343,6 @@ private:
     ///@}
     ///@name Private Operations
     ///@{
-
-    /**
-     * @brief This method computes the actual size of the system of equations
-     * @return This method returns the size of the system of equations
-     */
-    std::size_t ComputeSizeOfSystem();
 
     ///@}
     ///@name Private  Access
