@@ -77,15 +77,16 @@ public:
     KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_ROTATIONAL_STIFFNESS );
     KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_NODAL_INERTIA );
     KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_RAYLEIGH_DAMPING );
+    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_ACTIVE_NODE_FLAG );
 
     ///@}
     ///@name Life Cycle
     ///@{
 
     /// Default constructors
-    NodalConcentratedElement(IndexType NewId, GeometryType::Pointer pGeometry, bool UseRayleighDamping = false);
+    NodalConcentratedElement(IndexType NewId, GeometryType::Pointer pGeometry, const bool UseRayleighDamping = false, const bool ComputeActiveNodeFlag = true);
 
-    NodalConcentratedElement(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties, bool UseRayleighDamping = false);
+    NodalConcentratedElement(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties, const bool UseRayleighDamping = false, const bool ComputeActiveNodeFlag = true);
 
     ///Copy constructor
     NodalConcentratedElement(NodalConcentratedElement const& rOther);

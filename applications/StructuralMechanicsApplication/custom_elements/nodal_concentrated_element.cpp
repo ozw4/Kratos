@@ -16,6 +16,7 @@
 // Project includes
 #include "includes/define.h"
 #include "includes/checks.h"
+#include "includes/kratos_flags.h"
 #include "custom_elements/nodal_concentrated_element.h"
 
 #include "structural_mechanics_application_variables.h"
@@ -30,6 +31,7 @@ KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_NODAL_MASS,         
 KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ROTATIONAL_STIFFNESS,   2 );
 KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_NODAL_INERTIA,          3 );
 KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_RAYLEIGH_DAMPING,       4 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ACTIVE_NODE_FLAG,       5 );
 
 //***********************DEFAULT CONSTRUCTOR******************************************
 /***********************************************************************************/
@@ -37,11 +39,13 @@ KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_RAYLEIGH_DAMPING,   
 NodalConcentratedElement::NodalConcentratedElement( 
     IndexType NewId, 
     GeometryType::Pointer pGeometry, 
-    const bool UseRayleighDamping
+    const bool UseRayleighDamping,
+    const bool ComputeActiveNodeFlag
     )
     : Element( NewId, pGeometry )
 {
     mELementalFlags.Set(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING, UseRayleighDamping);
+    mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ACTIVE_NODE_FLAG, ComputeActiveNodeFlag);
 }
 
 
@@ -51,11 +55,13 @@ NodalConcentratedElement::NodalConcentratedElement(
 NodalConcentratedElement::NodalConcentratedElement( 
     IndexType NewId, GeometryType::Pointer pGeometry, 
     PropertiesType::Pointer pProperties, 
-    const bool UseRayleighDamping
+    const bool UseRayleighDamping,
+    const bool ComputeActiveNodeFlag
     )
     : Element( NewId, pGeometry, pProperties )
 {
     mELementalFlags.Set(NodalConcentratedElement::COMPUTE_RAYLEIGH_DAMPING, UseRayleighDamping);
+    mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ACTIVE_NODE_FLAG, ComputeActiveNodeFlag);
 }
 
 //******************************COPY CONSTRUCTOR**************************************
@@ -428,6 +434,12 @@ void NodalConcentratedElement::InitializeNonLinearIteration( ProcessInfo& rCurre
 
     BaseType::InitializeNonLinearIteration(rCurrentProcessInfo);
 
+    // Setting flag according node
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ACTIVE_NODE_FLAG) ) {
+        const bool is_active = GetGeometry()[0].Is(ACTIVE);
+        this->Set(ACTIVE, is_active);
+    }
+
     KRATOS_CATCH( "" );
 }
 
@@ -439,6 +451,12 @@ void NodalConcentratedElement::FinalizeNonLinearIteration( ProcessInfo& rCurrent
     KRATOS_TRY;
 
     BaseType::FinalizeNonLinearIteration(rCurrentProcessInfo);
+
+    // Setting flag according node
+    if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ACTIVE_NODE_FLAG) ) {
+        const bool is_active = GetGeometry()[0].Is(ACTIVE);
+        this->Set(ACTIVE, is_active);
+    }
 
     KRATOS_CATCH( "" );
 }
