@@ -14,83 +14,220 @@
 // External includes
 
 // Project includes
+#include "includes/checks.h"
 #include "custom_constitutive/spring_constitutive_law.h"
+#include "structural_mechanics_application_variables.h"
 
 namespace Kratos
 {
 
-//******************************CONSTRUCTOR*******************************************
-//************************************************************************************
+//******************************CONSTRUCTOR*****************************************/
+/***********************************************************************************/
 
-SpringConstitutiveLaw::SpringConstitutiveLaw()
+template<std::size_t TDim>
+SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw()
     : ConstitutiveLaw()
 {
+    KRATOS_WARNING("SpringConstitutiveLaw") << "Using default constructor, please use the constructor via parameters" << std::endl;
 }
 
-//******************************COPY CONSTRUCTOR**************************************
-//************************************************************************************
+//******************************CONSTRUCTOR*****************************************/
+/***********************************************************************************/
 
-SpringConstitutiveLaw::SpringConstitutiveLaw(const SpringConstitutiveLaw& rOther)
+template<std::size_t TDim>
+SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
+    : ConstitutiveLaw()
+{
+    Kratos::Parameters default_parameters = Kratos::Parameters(R"(
+    {
+        "thig"  : "thing"
+    })" );
+
+    NewParameters.ValidateAndAssignDefaults(default_parameters);
+}
+
+//******************************COPY CONSTRUCTOR************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(const SpringConstitutiveLaw& rOther)
     : ConstitutiveLaw(rOther)
 {
 }
 
-//********************************CLONE***********************************************
-//************************************************************************************
+//********************************CLONE*********************************************/
+/***********************************************************************************/
 
-ConstitutiveLaw::Pointer SpringConstitutiveLaw::Clone() const
+template<std::size_t TDim>
+ConstitutiveLaw::Pointer SpringConstitutiveLaw<TDim>::Clone() const
 {
-    SpringConstitutiveLaw::Pointer p_clone(new SpringConstitutiveLaw(*this));
-    return p_clone;
+    return Kratos::make_shared<SpringConstitutiveLaw<TDim>>(SpringConstitutiveLaw<TDim>(*this));
 }
 
-//*******************************DESTRUCTOR*******************************************
-//************************************************************************************
+//*******************************DESTRUCTOR*****************************************/
+/***********************************************************************************/
 
-SpringConstitutiveLaw::~SpringConstitutiveLaw()
+template<std::size_t TDim>
+SpringConstitutiveLaw<TDim>::~SpringConstitutiveLaw<TDim>()
 {
     // TODO: Add if necessary
 }
 
-//*************************CONSTITUTIVE LAW GENERAL FEATURES *************************
-//************************************************************************************
+//*************************CONSTITUTIVE LAW GENERAL FEATURES ***********************/
+/***********************************************************************************/
 
-void SpringConstitutiveLaw::GetLawFeatures(Features& rFeatures)
+template<std::size_t TDim>
+void SpringConstitutiveLaw<TDim>::GetLawFeatures(Features& rFeatures)
 {
-    //Set the strain size
-    rFeatures.mStrainSize = 1;
+    // Set the strain size
+    rFeatures.mStrainSize =  2 * TDim;
 
-    //Set the spacedimension
-    rFeatures.mSpaceDimension = 3;
+    // Set the spacedimension
+    rFeatures.mSpaceDimension = TDim;
 }
 
-//************************************************************************************
-//************************************************************************************
+/***********************************************************************************/
+/***********************************************************************************/
 
-int SpringConstitutiveLaw::Check(
+template<std::size_t TDim>
+bool SpringConstitutiveLaw<TDim>::Has(const Variable<double>& rThisVariable)
+{
+    if (rThisVariable == NODAL_MASS) {
+    }
+
+    return false;
+}
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+bool SpringConstitutiveLaw<TDim>::Has(const Variable<Vector>& rThisVariable)
+{
+//     if (rThisVariable == NODAL_MASS) {
+//     }
+
+    return false;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+bool SpringConstitutiveLaw<TDim>::Has(const Variable<Matrix>& rThisVariable)
+{
+//     if (rThisVariable == NODAL_MASS) {
+//     }
+
+    return false;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+bool SpringConstitutiveLaw<TDim>::Has(const Variable<array_1d<double, 3>>& rThisVariable)
+{
+    if (rThisVariable == NODAL_STIFFNESS) {
+
+    } else if  (rThisVariable == NODAL_INERTIA) {
+
+    } else if (rThisVariable == NODAL_ROTATIONAL_STIFFNESS) {
+
+    }
+
+    return false;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+double& SpringConstitutiveLaw<TDim>::CalculateValue(
+    ConstitutiveLaw::Parameters& rParameterValues,
+    const Variable<double>& rThisVariable,
+    double& rValue
+    )
+{
+    if (Has(rThisVariable)) {
+
+    } else {
+        rValue = 0.0;
+    }
+
+    return rValue;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+Vector& SpringConstitutiveLaw<TDim>::CalculateValue(
+    ConstitutiveLaw::Parameters& rParameterValues,
+    const Variable<Vector>& rThisVariable,
+    Vector& rValue
+    )
+{
+    if (Has(rThisVariable)) {
+
+    } else {
+        rValue = ZeroVector(2 * TDim);
+    }
+
+    return rValue;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+Matrix& SpringConstitutiveLaw<TDim>::CalculateValue(
+    ConstitutiveLaw::Parameters& rParameterValues,
+    const Variable<Matrix>& rThisVariable,
+    Matrix& rValue
+    )
+{
+    if (Has(rThisVariable)) {
+
+    } else {
+        rValue = ZeroMatrix(TDim, TDim);
+    }
+
+    return rValue;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
+    ConstitutiveLaw::Parameters& rParameterValues,
+    const Variable<array_1d<double, 3 > >& rThisVariable,
+    array_1d<double, 3 > & rValue
+    )
+{
+    if (Has(rThisVariable)) {
+
+    } else {
+        rValue = ZeroVector(3);
+    }
+
+    return rValue;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+int SpringConstitutiveLaw<TDim>::Check(
     const Properties& rMaterialProperties,
     const GeometryType& rElementGeometry,
     const ProcessInfo& rCurrentProcessInfo
-)
+    )
 {
-    if(YOUNG_MODULUS.Key() == 0 || rMaterialProperties[YOUNG_MODULUS] <= 0.00)
-    {
-        KRATOS_ERROR << "YOUNG_MODULUS has Key zero or invalid value " << std::endl;
-    }
-
-    const double& nu = rMaterialProperties[POISSON_RATIO];
-    const bool check = bool( (nu >0.499 && nu<0.501 ) || (nu < -0.999 && nu > -1.01 ) );
-
-    if(POISSON_RATIO.Key() == 0 || check==true)
-    {
-        KRATOS_ERROR << "POISSON_RATIO has Key zero invalid value " << std::endl;
-    }
-
-
-    if(DENSITY.Key() == 0 || rMaterialProperties[DENSITY] < 0.00)
-    {
-        KRATOS_ERROR << "DENSITY has Key zero or invalid value " << std::endl;
-    }
+    KRATOS_CHECK_VARIABLE_KEY(NODAL_MASS)
+    KRATOS_CHECK_VARIABLE_KEY(NODAL_STIFFNESS)
+    KRATOS_CHECK_VARIABLE_KEY(NODAL_INERTIA)
+    KRATOS_CHECK_VARIABLE_KEY(NODAL_ROTATIONAL_STIFFNESS)
 
     return 0;
 
