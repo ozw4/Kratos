@@ -9,15 +9,15 @@
 //  Main authors:    Vicente Mataix Ferrandiz
 //
 
-#if !defined(KRATOS_NODAL_CONCENTRATED_ELEMENT_H_INCLUDED )
-#define  KRATOS_NODAL_CONCENTRATED_ELEMENT_H_INCLUDED
+#if !defined(KRATOS_NODAL_CONCENTRATED_WITH_CONSTITUTIVE_BEHAVIOUR_ELEMENT_H_INCLUDED )
+#define  KRATOS_NODAL_CONCENTRATED_WITH_CONSTITUTIVE_BEHAVIOUR_ELEMENT_H_INCLUDED
 
 // System includes
 
 // External includes
 
 // Project includes
-#include "includes/element.h"
+#include "custom_elements/nodal_concentrated_element.h"
 
 namespace Kratos
 {
@@ -37,14 +37,14 @@ namespace Kratos
 ///@{
 
 /**
- * @class NodalConcentratedElement
+ * @class NodalConcentratedWithConstitutiveBehaviourElement
  * @ingroup StructuralMechanicsApplication
- * @brief Concentrated nodal for 3D and 2D points
+ * @brief Concentrated nodal for 3D and 2D points with constitutive behaviour
  * @details The element can consider both the displacement and rotational stiffness, and both the mass and the inertia
  * @author Vicente Mataix Ferrandiz
  */
-class KRATOS_API(STRUCTURAL_MECHANICS_APPLICATION) NodalConcentratedElement
-    : public Element
+class KRATOS_API(STRUCTURAL_MECHANICS_APPLICATION) NodalConcentratedWithConstitutiveBehaviourElement
+    : public NodalConcentratedElement
 {
 public:
 
@@ -58,7 +58,7 @@ public:
     typedef Geometry<NodeType> GeometryType;
 
     /// Definition of the base type
-    typedef Element BaseType;
+    typedef NodalConcentratedElement BaseType;
 
     /// Definition of the index type
     typedef std::size_t IndexType;
@@ -66,39 +66,30 @@ public:
     /// Definition of the size type
     typedef std::size_t SizeType;
 
-    /// Counted pointer of NodalConcentratedElement
-    KRATOS_CLASS_POINTER_DEFINITION( NodalConcentratedElement);
-
-     /**
-     * @brief Flags related to the element computation
-     */
-    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_DISPLACEMENT_STIFFNESS );
-    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_NODAL_MASS );
-    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_ROTATIONAL_STIFFNESS );
-    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_NODAL_INERTIA );
-    KRATOS_DEFINE_LOCAL_FLAG( COMPUTE_RAYLEIGH_DAMPING );
+    /// Counted pointer of NodalConcentratedWithConstitutiveBehaviourElement
+    KRATOS_CLASS_POINTER_DEFINITION( NodalConcentratedWithConstitutiveBehaviourElement);
 
     ///@}
     ///@name Life Cycle
     ///@{
 
     /// Default constructors
-    NodalConcentratedElement(IndexType NewId, GeometryType::Pointer pGeometry, bool UseRayleighDamping = false);
+    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, ConstitutiveLaw::Pointer pConstitutiveLaw, bool UseRayleighDamping = false);
 
-    NodalConcentratedElement(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties, bool UseRayleighDamping = false);
+    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties, bool UseRayleighDamping = false);
 
     ///Copy constructor
-    NodalConcentratedElement(NodalConcentratedElement const& rOther);
+    NodalConcentratedWithConstitutiveBehaviourElement(NodalConcentratedWithConstitutiveBehaviourElement const& rOther);
 
     /// Destructor.
-    ~NodalConcentratedElement() override;
+    ~NodalConcentratedWithConstitutiveBehaviourElement() override;
 
     ///@}
     ///@name Operators
     ///@{
 
     /// Assignment operator.
-    NodalConcentratedElement& operator=(NodalConcentratedElement const& rOther);
+    NodalConcentratedWithConstitutiveBehaviourElement& operator=(NodalConcentratedWithConstitutiveBehaviourElement const& rOther);
 
     ///@}
     ///@name Operations
@@ -137,39 +128,6 @@ public:
      * @return a Pointer to the new element
      */
     Element::Pointer Clone(IndexType NewId, NodesArrayType const& ThisNodes) const override;
-
-    //************* GETTING METHODS
-
-    /**
-     * Sets on rElementalDofList the degrees of freedom of the considered element geometry
-     */
-    void GetDofList(
-        DofsVectorType& rElementalDofList, 
-        ProcessInfo& rCurrentProcessInfo
-        ) override;
-
-    /**
-     * Sets on rResult the ID's of the element degrees of freedom
-     */
-    void EquationIdVector(
-        EquationIdVectorType& rResult, 
-        ProcessInfo& rCurrentProcessInfo
-        ) override;
-
-    /**
-     * Sets on rValues the nodal displacements
-     */
-    void GetValuesVector(Vector& rValues, int Step = 0) override;
-
-    /**
-     * Sets on rValues the nodal velocities
-     */
-    void GetFirstDerivativesVector(Vector& rValues, int Step = 0) override;
-
-    /**
-     * Sets on rValues the nodal accelerations
-     */
-    void GetSecondDerivativesVector(Vector& rValues, int Step = 0) override;
 
     //************* STARTING - ENDING  METHODS
 
@@ -264,15 +222,6 @@ public:
         ProcessInfo& rCurrentProcessInfo
         ) override;
 
-    /**
-     * This function provides the place to perform checks on the completeness of the input.
-     * It is designed to be called only once (or anyway, not often) typically at the beginning
-     * of the calculations, so to verify that nothing is missing from the input
-     * or that no common error is found.
-     * @param rCurrentProcessInfo
-     */
-    int Check(const ProcessInfo& rCurrentProcessInfo) override;
-
     ///@}
     ///@name Access
     ///@{
@@ -295,23 +244,17 @@ protected:
     ///@{
     ///@}
 
-    Flags mELementalFlags; /// Elemental flags
+    ConstitutiveLaw::Pointer mpConstitutiveLaw;
 
     ///@name Protected Operators
     ///@{
-    NodalConcentratedElement() : Element()
+    NodalConcentratedWithConstitutiveBehaviourElement() : BaseType()
     {
     }
 
     ///@}
     ///@name Protected Operations
     ///@{
-
-    /**
-     * @brief This method computes the actual size of the system of equations
-     * @return This method returns the size of the system of equations
-     */
-    std::size_t ComputeSizeOfSystem();
 
     ///@}
     ///@name Protected  Access
@@ -367,7 +310,7 @@ private:
     ///@{
     ///@}
 
-}; // Class NodalConcentratedElement
+}; // Class NodalConcentratedWithConstitutiveBehaviourElement
 
 ///@}
 ///@name Type Definitions
@@ -378,4 +321,4 @@ private:
 ///@}
 
 } // namespace Kratos.
-#endif // KRATOS_NODAL_CONCENTRATED_ELEMENT_H_INCLUDED  defined 
+#endif // KRATOS_NODAL_CONCENTRATED_WITH_CONSTITUTIVE_BEHAVIOUR_ELEMENT_H_INCLUDED  defined
