@@ -60,6 +60,20 @@ public:
      */
     KRATOS_CLASS_POINTER_DEFINITION( SpringConstitutiveLaw );
 
+    /**
+     * @brief Flags related to constitutive law computation
+     */
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_MASS );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_INERTIA_X );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_INERTIA_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_INERTIA_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_STIFFNESS_X );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_STIFFNESS_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_STIFFNESS_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATTIONAL_STIFFNESS_X );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATTIONAL_STIFFNESS_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATTIONAL_STIFFNESS_Z );
+
     ///@}
     ///@name Life Cycle
     ///@{
@@ -236,6 +250,10 @@ protected:
     ///@name Protected member Variables
     ///@{
     
+    Flags mConstitutiveLawFlags; /// Constitutive flags
+
+    array_1d<double, 2> mTimeInterval; /// The time interval
+
     ///@}
     ///@name Protected Operators
     ///@{
@@ -263,7 +281,6 @@ private:
     ///@{
     ///@}
 
-
     ///@}
     ///@name Private  Access
     ///@{
@@ -277,11 +294,15 @@ private:
     void save(Serializer& rSerializer) const override
     {
         KRATOS_SERIALIZE_SAVE_BASE_CLASS( rSerializer, ConstitutiveLaw)
+        rSerializer.save("ConstitutiveLawFlags",mConstitutiveLawFlags);
+        rSerializer.save("TimeInterval",mTimeInterval);
     }
 
     void load(Serializer& rSerializer) override
     {
         KRATOS_SERIALIZE_LOAD_BASE_CLASS( rSerializer, ConstitutiveLaw)
+        rSerializer.load("ConstitutiveLawFlags",mConstitutiveLawFlags);
+        rSerializer.load("TimeInterval",mTimeInterval);
     }
 
 

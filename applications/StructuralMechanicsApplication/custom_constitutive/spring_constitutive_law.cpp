@@ -12,6 +12,8 @@
 // System includes
 
 // External includes
+#include <pybind11/pybind11.h>
+#include <pybind11/eval.h>
 
 // Project includes
 #include "includes/checks.h"
@@ -20,6 +22,30 @@
 
 namespace Kratos
 {
+/**
+ * Flags related to the CL computation
+ */
+// Avoiding using the macro since this has a template parameter. If there was no template plase use the KRATOS_CREATE_LOCAL_FLAG macro
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_MASS(Kratos::Flags::Create(0));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_INERTIA_X(Kratos::Flags::Create(1));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_INERTIA_Y(Kratos::Flags::Create(2));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_INERTIA_Z(Kratos::Flags::Create(3));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_STIFFNESS_X(Kratos::Flags::Create(4));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_STIFFNESS_Y(Kratos::Flags::Create(5));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_STIFFNESS_Z(Kratos::Flags::Create(6));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATTIONAL_STIFFNESS_X(Kratos::Flags::Create(7));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATTIONAL_STIFFNESS_Y(Kratos::Flags::Create(8));
+template<std::size_t TDim>
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATTIONAL_STIFFNESS_Z(Kratos::Flags::Create(9));
 
 //******************************CONSTRUCTOR*****************************************/
 /***********************************************************************************/
@@ -40,10 +66,32 @@ SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(Kratos::Parameters NewParamet
 {
     Kratos::Parameters default_parameters = Kratos::Parameters(R"(
     {
-        "thig"  : "thing"
+        "nodal_mass"                 : null,
+        "nodal_inertia"              : [null, null, null],
+        "nodal_stiffness"            : [null, null, null],
+        "nodal_rotational_stiffness" : [null, null, null],
+        "interval"                   : [0.0, 1e30]
     })" );
 
     NewParameters.ValidateAndAssignDefaults(default_parameters);
+
+    /// Setting the flags
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_MASS, NewParameters["nodal_mass"].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_INERTIA_X, NewParameters["nodal_inertia"][0].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_INERTIA_Y, NewParameters["nodal_inertia"][1].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_INERTIA_Z, NewParameters["nodal_inertia"][2].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_STIFFNESS_X, NewParameters["nodal_stiffness"][0].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_STIFFNESS_Y, NewParameters["nodal_stiffness"][1].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_STIFFNESS_Z, NewParameters["nodal_stiffness"][2].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_X, NewParameters["nodal_rotational_stiffness"][0].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Y, NewParameters["nodal_rotational_stiffness"][1].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Z, NewParameters["nodal_rotational_stiffness"][2].IsNull());
+
+    /// Creating the functions // TODO: Define this, use pointers so save memory
+
+    /// Getting intervals
+    mTimeInterval[0] = NewParameters["interval"][0].GetDouble();
+    mTimeInterval[1] = NewParameters["interval"][1].GetDouble();
 }
 
 //******************************COPY CONSTRUCTOR************************************/
@@ -93,6 +141,7 @@ template<std::size_t TDim>
 bool SpringConstitutiveLaw<TDim>::Has(const Variable<double>& rThisVariable)
 {
     if (rThisVariable == NODAL_MASS) {
+        return mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_MASS);
     }
 
     return false;
@@ -103,9 +152,7 @@ bool SpringConstitutiveLaw<TDim>::Has(const Variable<double>& rThisVariable)
 template<std::size_t TDim>
 bool SpringConstitutiveLaw<TDim>::Has(const Variable<Vector>& rThisVariable)
 {
-//     if (rThisVariable == NODAL_MASS) {
-//     }
-
+    // TODO: Define in case we want more complex behaviours
     return false;
 }
 
@@ -115,9 +162,7 @@ bool SpringConstitutiveLaw<TDim>::Has(const Variable<Vector>& rThisVariable)
 template<std::size_t TDim>
 bool SpringConstitutiveLaw<TDim>::Has(const Variable<Matrix>& rThisVariable)
 {
-//     if (rThisVariable == NODAL_MASS) {
-//     }
-
+    // TODO: Define in case we want more complex behaviours
     return false;
 }
 
@@ -128,11 +173,29 @@ template<std::size_t TDim>
 bool SpringConstitutiveLaw<TDim>::Has(const Variable<array_1d<double, 3>>& rThisVariable)
 {
     if (rThisVariable == NODAL_STIFFNESS) {
-
+        if (mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_STIFFNESS_X) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_STIFFNESS_Y) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_STIFFNESS_Z) ) {
+            return false;
+        } else {
+            return true;
+        }
     } else if  (rThisVariable == NODAL_INERTIA) {
-
+        if (mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_INERTIA_X) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_INERTIA_Y) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_INERTIA_Z) ) {
+            return false;
+        } else {
+            return true;
+        }
     } else if (rThisVariable == NODAL_ROTATIONAL_STIFFNESS) {
-
+        if (mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_X) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Y) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Z) ) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     return false;
