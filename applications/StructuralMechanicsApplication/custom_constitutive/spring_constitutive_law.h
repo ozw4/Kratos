@@ -221,7 +221,7 @@ private:
     ///@name Un accessible methods
     ///@{
     ///@}
-};
+}; // PythonConstitutiveLawFunction
 
 /**
  * @class SpringConstitutiveLaw
@@ -489,6 +489,7 @@ private:
     ///@}
     ///@name Serialization
     ///@{
+
     friend class Serializer;
 
     void save(Serializer& rSerializer) const override
