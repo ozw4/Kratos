@@ -87,8 +87,53 @@ SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(Kratos::Parameters NewParamet
     mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Y, NewParameters["nodal_rotational_stiffness"][1].IsNull());
     mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Z, NewParameters["nodal_rotational_stiffness"][2].IsNull());
 
-    /// Creating the functions // TODO: Define this, use pointers so save memory
-
+    /// Creating the functions
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_MASS))
+        mMassFuntion = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_mass"].GetString());
+    else
+        mInertiaFunction[0] = nullptr;
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_X))
+        mInertiaFunction[0] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_inertia"][0].GetString());
+    else
+        mInertiaFunction[0] = nullptr;
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Y))
+        mInertiaFunction[1] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_inertia"][1].GetString());
+    else
+        mInertiaFunction[1] = nullptr;
+    if (TDim == 3) {
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Z))
+            mInertiaFunction[2] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_inertia"][2].GetString());
+        else
+            mInertiaFunction[2] = nullptr;
+    }
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_X))
+        mStiffnessunction[0] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_stiffness"][0].GetString());
+    else
+        mStiffnessunction[0] = nullptr;
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Y))
+        mStiffnessunction[1] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_stiffness"][1].GetString());
+    else
+        mStiffnessunction[1] = nullptr;
+    if (TDim == 3) {
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Z))
+            mStiffnessunction[2] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_stiffness"][2].GetString());
+        else
+            mStiffnessunction[2] = nullptr;
+    }
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_X))
+        mRotationalStiffnessunction[0] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][0].GetString());
+    else
+        mRotationalStiffnessunction[0] = nullptr;
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Y))
+        mRotationalStiffnessunction[1] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][1].GetString());
+    else
+        mRotationalStiffnessunction[1] = nullptr;
+    if (TDim == 3) {
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Z))
+            mRotationalStiffnessunction[2] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][2].GetString());
+        else
+            mRotationalStiffnessunction[2] = nullptr;
+    }
     /// Getting intervals
     mTimeInterval[0] = NewParameters["interval"][0].GetDouble();
     mTimeInterval[1] = NewParameters["interval"][1].GetDouble();
