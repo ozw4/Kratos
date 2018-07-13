@@ -344,6 +344,13 @@ public:
      * @param rThisVariable the variable to be checked for
      * @return true if the variable is defined in the constitutive law
      */
+    bool Has(const Variable<int>& rThisVariable) override;
+
+    /**
+     * @brief Returns whether this constitutive Law has specified variable (double)
+     * @param rThisVariable the variable to be checked for
+     * @return true if the variable is defined in the constitutive law
+     */
     bool Has(const Variable<double>& rThisVariable) override;
 
     /**
@@ -367,6 +374,29 @@ public:
      * @note Fixed size array of 3 doubles (e.g. for 2D stresses, plastic strains, ...)
      */
     bool Has(const Variable<array_1d<double, 3 > >& rThisVariable) override;
+
+    /**
+     * @brief Returns the value of a specified variable (integer)
+     * @param rThisVariable the variable to be returned
+     * @param rValue a reference to the returned value
+     * @return rValue output: the value of the specified variable
+     */
+    int& GetValue(
+        const Variable<int>& rThisVariable,
+        int& rValue
+        ) override;
+
+    /**
+     * @brief Sets the value of a specified variable (integer)
+     * @param rThisVariable the variable to be returned
+     * @param rValue new value of the specified variable
+     * @param rCurrentProcessInfo the process info
+     */
+    void SetValue(
+        const Variable<int>& rThisVariable,
+        const int& rValue,
+        const ProcessInfo& rCurrentProcessInfo
+        ) override;
 
     /**
      * @brief Calculates the value of a specified variable (double)
@@ -450,7 +480,7 @@ protected:
     array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mStiffnessunction;           /// The function of the stiffness
     array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mRotationalStiffnessunction; /// The function of the rotational stiffness
 
-    IndexType mNodeIndex = 0;          /// The index of the current node on the geometry
+    IndexType mNodalIndex = 0;          /// The index of the current node on the geometry
 
     Flags mConstitutiveLawFlags;       /// Constitutive flags
 
@@ -497,6 +527,7 @@ private:
     void save(Serializer& rSerializer) const override
     {
         KRATOS_SERIALIZE_SAVE_BASE_CLASS( rSerializer, ConstitutiveLaw)
+        rSerializer.save("NodeIndex",mNodalIndex);
         rSerializer.save("ConstitutiveLawFlags",mConstitutiveLawFlags);
         rSerializer.save("TimeInterval",mTimeInterval);
     }
@@ -504,6 +535,7 @@ private:
     void load(Serializer& rSerializer) override
     {
         KRATOS_SERIALIZE_LOAD_BASE_CLASS( rSerializer, ConstitutiveLaw)
+        rSerializer.load("NodeIndex",mNodalIndex);
         rSerializer.load("ConstitutiveLawFlags",mConstitutiveLawFlags);
         rSerializer.load("TimeInterval",mTimeInterval);
     }

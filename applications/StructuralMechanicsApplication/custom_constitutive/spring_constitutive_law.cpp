@@ -183,6 +183,19 @@ void SpringConstitutiveLaw<TDim>::GetLawFeatures(Features& rFeatures)
 /***********************************************************************************/
 
 template<std::size_t TDim>
+bool SpringConstitutiveLaw<TDim>::Has(const Variable<int>& rThisVariable)
+{
+    if (rThisVariable == NODAL_INDEX) {
+        return true;
+    }
+
+    return false;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
 bool SpringConstitutiveLaw<TDim>::Has(const Variable<double>& rThisVariable)
 {
     if (rThisVariable == NODAL_MASS) {
@@ -191,6 +204,7 @@ bool SpringConstitutiveLaw<TDim>::Has(const Variable<double>& rThisVariable)
 
     return false;
 }
+
 /***********************************************************************************/
 /***********************************************************************************/
 
@@ -250,6 +264,38 @@ bool SpringConstitutiveLaw<TDim>::Has(const Variable<array_1d<double, 3>>& rThis
 /***********************************************************************************/
 
 template<std::size_t TDim>
+int& SpringConstitutiveLaw<TDim>::GetValue(
+    const Variable<int>& rThisVariable,
+    int& rValue
+    )
+{
+    if (rThisVariable == NODAL_INDEX) {
+        rValue = mNodalIndex;
+    }
+
+    rValue = 0;
+    return rValue;
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
+void SpringConstitutiveLaw<TDim>::SetValue(
+    const Variable<int>& rThisVariable,
+    const int& rValue,
+    const ProcessInfo& rCurrentProcessInfo
+    )
+{
+    if (rThisVariable == NODAL_INDEX) {
+        mNodalIndex = rValue;
+    }
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+template<std::size_t TDim>
 double& SpringConstitutiveLaw<TDim>::CalculateValue(
     ConstitutiveLaw::Parameters& rParameterValues,
     const Variable<double>& rThisVariable,
@@ -260,7 +306,7 @@ double& SpringConstitutiveLaw<TDim>::CalculateValue(
     const ProcessInfoType& process_info = rParameterValues.GetProcessInfo();
     const double time = process_info[TIME];
     if (rThisVariable == NODAL_MASS) {
-        rValue = mMassFuntion->CallFunction(geom[mNodeIndex], time);
+        rValue = mMassFuntion->CallFunction(geom[mNodalIndex], time);
     } else {
         rValue = 0.0;
     }
@@ -321,16 +367,16 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
     const double time = process_info[TIME];
     if (rThisVariable == NODAL_INERTIA) {
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_X))
-            rValue[0] = mInertiaFunction[0]->CallFunction(geom[mNodeIndex], time);
+            rValue[0] = mInertiaFunction[0]->CallFunction(geom[mNodalIndex], time);
         else
             rValue[0] = 0.0;
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Y))
-            rValue[1] = mInertiaFunction[1]->CallFunction(geom[mNodeIndex], time);
+            rValue[1] = mInertiaFunction[1]->CallFunction(geom[mNodalIndex], time);
         else
             rValue[1] = 0.0;
         if (TDim == 3) {
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Z))
-                rValue[2] = mInertiaFunction[2]->CallFunction(geom[mNodeIndex], time);
+                rValue[2] = mInertiaFunction[2]->CallFunction(geom[mNodalIndex], time);
             else
                 rValue[2] = 0.0;
         } else {
@@ -338,16 +384,16 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
         }
     } else if (rThisVariable == NODAL_STIFFNESS) {
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_X))
-            rValue[0] = mStiffnessunction[0]->CallFunction(geom[mNodeIndex], time);
+            rValue[0] = mStiffnessunction[0]->CallFunction(geom[mNodalIndex], time);
         else
             rValue[0] = 0.0;
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Y))
-            rValue[1] = mStiffnessunction[1]->CallFunction(geom[mNodeIndex], time);
+            rValue[1] = mStiffnessunction[1]->CallFunction(geom[mNodalIndex], time);
         else
             rValue[1] = 0.0;
         if (TDim == 3) {
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Z))
-                rValue[2] = mStiffnessunction[2]->CallFunction(geom[mNodeIndex], time);
+                rValue[2] = mStiffnessunction[2]->CallFunction(geom[mNodalIndex], time);
             else
                 rValue[2] = 0.0;
         } else {
@@ -355,16 +401,16 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
         }
     } else if (rThisVariable == NODAL_ROTATIONAL_STIFFNESS) {
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_X))
-            rValue[0] = mRotationalStiffnessunction[0]->CallFunction(geom[mNodeIndex], time);
+            rValue[0] = mRotationalStiffnessunction[0]->CallFunction(geom[mNodalIndex], time);
         else
             rValue[0] = 0.0;
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Y))
-            rValue[1] = mRotationalStiffnessunction[1]->CallFunction(geom[mNodeIndex], time);
+            rValue[1] = mRotationalStiffnessunction[1]->CallFunction(geom[mNodalIndex], time);
         else
             rValue[1] = 0.0;
         if (TDim == 3) {
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Z))
-                rValue[2] = mRotationalStiffnessunction[2]->CallFunction(geom[mNodeIndex], time);
+                rValue[2] = mRotationalStiffnessunction[2]->CallFunction(geom[mNodalIndex], time);
             else
                 rValue[2] = 0.0;
         } else {

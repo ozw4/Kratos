@@ -15,6 +15,7 @@ namespace Kratos
 typedef array_1d<double, 3> Vector3;
 
 // General pourpose
+KRATOS_CREATE_VARIABLE(int, NODAL_INDEX);       // The current node id (can be used for several pourposes)
 KRATOS_CREATE_VARIABLE(int, INTEGRATION_ORDER); // The integration order considered on the element
 
 // Generalized eigenvalue problem

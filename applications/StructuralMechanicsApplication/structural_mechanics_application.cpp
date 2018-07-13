@@ -174,6 +174,7 @@ void KratosStructuralMechanicsApplication::Register() {
                     << "            _____/ \\__|_|   \\__,_|\\___|\\__|\\__,_|_|  \\__,_|_| MECHANICS     " << std::endl;
 
     // General pourpose
+    KRATOS_REGISTER_VARIABLE(NODAL_INDEX);       // The current node id (can be used for several pourposes)
     KRATOS_REGISTER_VARIABLE(INTEGRATION_ORDER); // The integration order considered on the element
 
     // Generalized eigenvalue problem
