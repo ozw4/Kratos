@@ -41,11 +41,11 @@ const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_STIFFNESS_Y(Kratos::Flags:
 template<std::size_t TDim>
 const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_STIFFNESS_Z(Kratos::Flags::Create(6));
 template<std::size_t TDim>
-const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATTIONAL_STIFFNESS_X(Kratos::Flags::Create(7));
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATIONAL_STIFFNESS_X(Kratos::Flags::Create(7));
 template<std::size_t TDim>
-const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATTIONAL_STIFFNESS_Y(Kratos::Flags::Create(8));
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATIONAL_STIFFNESS_Y(Kratos::Flags::Create(8));
 template<std::size_t TDim>
-const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATTIONAL_STIFFNESS_Z(Kratos::Flags::Create(9));
+const Kratos::Flags SpringConstitutiveLaw<TDim>::NULL_ROTATIONAL_STIFFNESS_Z(Kratos::Flags::Create(9));
 
 //******************************CONSTRUCTOR*****************************************/
 /***********************************************************************************/
@@ -83,9 +83,9 @@ SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(Kratos::Parameters NewParamet
     mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_STIFFNESS_X, NewParameters["nodal_stiffness"][0].IsNull());
     mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_STIFFNESS_Y, NewParameters["nodal_stiffness"][1].IsNull());
     mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_STIFFNESS_Z, NewParameters["nodal_stiffness"][2].IsNull());
-    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_X, NewParameters["nodal_rotational_stiffness"][0].IsNull());
-    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Y, NewParameters["nodal_rotational_stiffness"][1].IsNull());
-    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Z, NewParameters["nodal_rotational_stiffness"][2].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_X, NewParameters["nodal_rotational_stiffness"][0].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Y, NewParameters["nodal_rotational_stiffness"][1].IsNull());
+    mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Z, NewParameters["nodal_rotational_stiffness"][2].IsNull());
 
     /// Creating the functions
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_MASS))
@@ -120,16 +120,16 @@ SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(Kratos::Parameters NewParamet
         else
             mStiffnessunction[2] = nullptr;
     }
-    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_X))
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_X))
         mRotationalStiffnessunction[0] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][0].GetString());
     else
         mRotationalStiffnessunction[0] = nullptr;
-    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Y))
+    if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Y))
         mRotationalStiffnessunction[1] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][1].GetString());
     else
         mRotationalStiffnessunction[1] = nullptr;
     if (TDim == 3) {
-        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Z))
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Z))
             mRotationalStiffnessunction[2] = Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][2].GetString());
         else
             mRotationalStiffnessunction[2] = nullptr;
@@ -234,9 +234,9 @@ bool SpringConstitutiveLaw<TDim>::Has(const Variable<array_1d<double, 3>>& rThis
             return true;
         }
     } else if (rThisVariable == NODAL_ROTATIONAL_STIFFNESS) {
-        if (mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_X) &&
-            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Y) &&
-            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATTIONAL_STIFFNESS_Z) ) {
+        if (mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_X) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Y) &&
+            mConstitutiveLawFlags.Is(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Z) ) {
             return false;
         } else {
             return true;
@@ -256,8 +256,11 @@ double& SpringConstitutiveLaw<TDim>::CalculateValue(
     double& rValue
     )
 {
-    if (Has(rThisVariable)) {
-
+    const GeometryType& geom = rParameterValues.GetElementGeometry();
+    const ProcessInfoType& process_info = rParameterValues.GetProcessInfo();
+    const double time = process_info[TIME];
+    if (rThisVariable == NODAL_MASS) {
+        rValue = mMassFuntion->CallFunction(geom[mNodeIndex], time);
     } else {
         rValue = 0.0;
     }
@@ -275,11 +278,11 @@ Vector& SpringConstitutiveLaw<TDim>::CalculateValue(
     Vector& rValue
     )
 {
-    if (Has(rThisVariable)) {
-
-    } else {
+//     if (Has(rThisVariable)) {
+//
+//     } else {
         rValue = ZeroVector(2 * TDim);
-    }
+//     }
 
     return rValue;
 }
@@ -294,11 +297,11 @@ Matrix& SpringConstitutiveLaw<TDim>::CalculateValue(
     Matrix& rValue
     )
 {
-    if (Has(rThisVariable)) {
-
-    } else {
+//     if (Has(rThisVariable)) {
+//
+//     } else {
         rValue = ZeroMatrix(TDim, TDim);
-    }
+//     }
 
     return rValue;
 }
@@ -313,8 +316,60 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
     array_1d<double, 3 > & rValue
     )
 {
-    if (Has(rThisVariable)) {
-
+    const GeometryType& geom = rParameterValues.GetElementGeometry();
+    const ProcessInfoType& process_info = rParameterValues.GetProcessInfo();
+    const double time = process_info[TIME];
+    if (rThisVariable == NODAL_INERTIA) {
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_X))
+            rValue[0] = mInertiaFunction[0]->CallFunction(geom[mNodeIndex], time);
+        else
+            rValue[0] = 0.0;
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Y))
+            rValue[1] = mInertiaFunction[1]->CallFunction(geom[mNodeIndex], time);
+        else
+            rValue[1] = 0.0;
+        if (TDim == 3) {
+            if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Z))
+                rValue[2] = mInertiaFunction[2]->CallFunction(geom[mNodeIndex], time);
+            else
+                rValue[2] = 0.0;
+        } else {
+            rValue[2] = 0.0;
+        }
+    } else if (rThisVariable == NODAL_STIFFNESS) {
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_X))
+            rValue[0] = mStiffnessunction[0]->CallFunction(geom[mNodeIndex], time);
+        else
+            rValue[0] = 0.0;
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Y))
+            rValue[1] = mStiffnessunction[1]->CallFunction(geom[mNodeIndex], time);
+        else
+            rValue[1] = 0.0;
+        if (TDim == 3) {
+            if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Z))
+                rValue[2] = mStiffnessunction[2]->CallFunction(geom[mNodeIndex], time);
+            else
+                rValue[2] = 0.0;
+        } else {
+            rValue[2] = 0.0;
+        }
+    } else if (rThisVariable == NODAL_ROTATIONAL_STIFFNESS) {
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_X))
+            rValue[0] = mRotationalStiffnessunction[0]->CallFunction(geom[mNodeIndex], time);
+        else
+            rValue[0] = 0.0;
+        if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Y))
+            rValue[1] = mRotationalStiffnessunction[1]->CallFunction(geom[mNodeIndex], time);
+        else
+            rValue[1] = 0.0;
+        if (TDim == 3) {
+            if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Z))
+                rValue[2] = mRotationalStiffnessunction[2]->CallFunction(geom[mNodeIndex], time);
+            else
+                rValue[2] = 0.0;
+        } else {
+            rValue[2] = 0.0;
+        }
     } else {
         rValue = ZeroVector(3);
     }

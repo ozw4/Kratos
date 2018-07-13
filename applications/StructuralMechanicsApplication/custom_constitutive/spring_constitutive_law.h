@@ -264,9 +264,9 @@ public:
     KRATOS_DEFINE_LOCAL_FLAG( NULL_STIFFNESS_X );
     KRATOS_DEFINE_LOCAL_FLAG( NULL_STIFFNESS_Y );
     KRATOS_DEFINE_LOCAL_FLAG( NULL_STIFFNESS_Z );
-    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATTIONAL_STIFFNESS_X );
-    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATTIONAL_STIFFNESS_Y );
-    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATTIONAL_STIFFNESS_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_STIFFNESS_X );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_STIFFNESS_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_STIFFNESS_Z );
 
     ///@}
     ///@name Life Cycle
@@ -449,6 +449,8 @@ protected:
     array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mInertiaFunction;            /// The function of the inertia
     array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mStiffnessunction;           /// The function of the stiffness
     array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mRotationalStiffnessunction; /// The function of the rotational stiffness
+
+    IndexType mNodeIndex = 0;          /// The index of the current node on the geometry
 
     Flags mConstitutiveLawFlags;       /// Constitutive flags
 
