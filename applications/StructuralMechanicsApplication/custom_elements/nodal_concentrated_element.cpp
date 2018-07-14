@@ -370,7 +370,8 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
 
         // We check the nodal rotational stiffness
-        if (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS) || GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS))
+        if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+            (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS) || GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS)))
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
@@ -382,7 +383,8 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, false);
 
         // We check the nodal inertia
-        if (rconst_this.Has(NODAL_INERTIA) || GetProperties().Has(NODAL_INERTIA))
+        if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+            (rconst_this.Has(NODAL_INERTIA) || GetProperties().Has(NODAL_INERTIA)))
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, false);
@@ -394,7 +396,8 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DAMPING_RATIO, false);
 
         // We check the rotational damping ratio
-        if (rconst_this.Has(NODAL_ROTATIONAL_DAMPING_RATIO) || GetProperties().Has(NODAL_ROTATIONAL_DAMPING_RATIO))
+        if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+            (rconst_this.Has(NODAL_ROTATIONAL_DAMPING_RATIO) || GetProperties().Has(NODAL_ROTATIONAL_DAMPING_RATIO)))
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, false);
@@ -406,7 +409,8 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
 
         // We check the nodal rotational stiffness
-        if (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS))
+        if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+            rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS))
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
@@ -418,7 +422,8 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_MASS, false);
 
         // We check the nodal inertia
-        if (rconst_this.Has(NODAL_INERTIA))
+        if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+            rconst_this.Has(NODAL_INERTIA))
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, false);
@@ -430,7 +435,8 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DAMPING_RATIO, false);
 
         // We check the rotational damping ratio
-        if (rconst_this.Has(NODAL_ROTATIONAL_DAMPING_RATIO))
+        if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+            rconst_this.Has(NODAL_ROTATIONAL_DAMPING_RATIO))
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, false);

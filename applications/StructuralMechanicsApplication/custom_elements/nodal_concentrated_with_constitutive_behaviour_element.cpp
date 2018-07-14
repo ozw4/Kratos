@@ -143,7 +143,8 @@ void NodalConcentratedWithConstitutiveBehaviourElement::Initialize()
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
 
     // We check the nodal rotational stiffness
-    if (mpConstitutiveLaw->Has(NODAL_ROTATIONAL_STIFFNESS))
+    if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+        mpConstitutiveLaw->Has(NODAL_ROTATIONAL_STIFFNESS))
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
     else
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
@@ -155,7 +156,8 @@ void NodalConcentratedWithConstitutiveBehaviourElement::Initialize()
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS, false);
 
     // We check the nodal inertia
-    if (mpConstitutiveLaw->Has(NODAL_INERTIA))
+    if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+        mpConstitutiveLaw->Has(NODAL_INERTIA))
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, true);
     else
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, false);
@@ -167,7 +169,8 @@ void NodalConcentratedWithConstitutiveBehaviourElement::Initialize()
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DAMPING_RATIO, false);
 
     // We check the nodal rtotational damping
-    if (mpConstitutiveLaw->Has(NODAL_ROTATIONAL_DAMPING_RATIO))
+    if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
+        mpConstitutiveLaw->Has(NODAL_ROTATIONAL_DAMPING_RATIO))
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, true);
     else
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, false);
