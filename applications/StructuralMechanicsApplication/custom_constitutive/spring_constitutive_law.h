@@ -104,6 +104,7 @@ public:
      */
     double CallFunction(
         NodeType& ThisNode,
+        std::vector<std::string>& AdditionalVariables,
         const double Time
         )
     {
@@ -183,6 +184,24 @@ public:
 
         /// Time
         mMainNameSpace["t"] = Time;
+
+        /// Additional variables
+        for (auto& variable_name : AdditionalVariables) {
+            if (KratosComponents< Variable< array_1d< double, 3> > >::Has(variable_name)) {
+                Variable<array_1d< double, 3>> variable = KratosComponents< Variable<array_1d< double, 3>> >::Get(variable_name);
+                const array_1d<double, 3>& value_var = ThisNode.FastGetSolutionStepValue(variable);
+                std::string aux_string = variable_name + "_X";
+                mMainNameSpace[aux_string.c_str()] = value_var[0];
+                aux_string = variable_name + "_Y";
+                mMainNameSpace[aux_string.c_str()] = value_var[1];
+                aux_string = variable_name + "_Z";
+                mMainNameSpace[aux_string.c_str()] = value_var[2];
+            } else {
+                Variable<double> variable = KratosComponents< Variable<double> >::Get(variable_name);
+                const double value_var = ThisNode.FastGetSolutionStepValue(variable);
+                mMainNameSpace[variable_name.c_str()] = value_var;
+            }
+        }
 
         return pybind11::eval(mFunctionBody, mMainNameSpace).cast<double>();
     }
@@ -514,6 +533,8 @@ protected:
     /* The definition of the functions */
     std::unordered_map<IndexType, PythonConstitutiveLawFunction::Pointer> mFunctions; /// This map stores the defined functions
     std::unordered_map<IndexType, double> mConstantValues;                            /// This method stores the constant values
+
+    std::vector<std::string> mAdditionalDependenceVariables;                          /// Variables to include additional dependence
 
     IndexType mNodalIndex = 0;          /// The index of the current node on the geometry
 

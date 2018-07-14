@@ -116,10 +116,19 @@ SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(Kratos::Parameters NewParamet
         "nodal_rotational_stiffness"     : [null, null, null],
         "nodal_damping_ratio"            : [null, null, null],
         "nodal_rotational_damping_ratio" : [null, null, null],
+        "additional_dependence_variables": [],
         "interval"                       : [0.0, 1e30]
     })" );
 
     NewParameters.ValidateAndAssignDefaults(default_parameters);
+
+    /// The list of additional additional dependence variables
+    const SizeType n_variables = NewParameters["additional_dependence_variables"].size();
+    mAdditionalDependenceVariables.resize(n_variables);
+    for (IndexType i_var = 0; i_var < n_variables; ++i_var){
+        const std::string& variable_name = NewParameters["additional_dependence_variables"].GetArrayItem(i_var).GetString();
+        mAdditionalDependenceVariables[i_var] = variable_name;
+    }
 
     /// Setting the flags
     mConstitutiveLawFlags.Set(SpringConstitutiveLaw::NULL_MASS, NewParameters["nodal_mass"].IsNull());
@@ -476,7 +485,7 @@ double& SpringConstitutiveLaw<TDim>::CalculateValue(
         if (rThisVariable == NODAL_MASS) {
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_X)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_INERTIA_X))
-                    rValue = mFunctions[NODAL_MASS.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue = mFunctions[NODAL_MASS.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue = mConstantValues[NODAL_MASS.Key()];
             } else {
@@ -555,14 +564,14 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
         if (rThisVariable == NODAL_INERTIA) {
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_X)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_INERTIA_X))
-                    rValue[0] = mFunctions[NODAL_INERTIA_X.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[0] = mFunctions[NODAL_INERTIA_X.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[0] = mConstantValues[NODAL_INERTIA_X.Key()];
             } else
                 rValue[0] = 0.0;
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Y)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_INERTIA_Y))
-                    rValue[1] = mFunctions[NODAL_INERTIA_Y.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[1] = mFunctions[NODAL_INERTIA_Y.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[1] = mConstantValues[NODAL_INERTIA_Y.Key()];
             } else
@@ -570,7 +579,7 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
             if (TDim == 3) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Z)) {
                     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_INERTIA_Z))
-                        rValue[2] = mFunctions[NODAL_INERTIA_Z.Key()]->CallFunction(geom[mNodalIndex], time);
+                        rValue[2] = mFunctions[NODAL_INERTIA_Z.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                     else
                         rValue[2] = mConstantValues[NODAL_INERTIA_Z.Key()];
                 } else
@@ -581,14 +590,14 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
         } else if (rThisVariable == NODAL_STIFFNESS) {
            if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_X)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_STIFFNESS_X))
-                    rValue[0] = mFunctions[NODAL_STIFFNESS_X.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[0] = mFunctions[NODAL_STIFFNESS_X.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[0] = mConstantValues[NODAL_STIFFNESS_X.Key()];
            } else
                 rValue[0] = 0.0;
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Y)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_STIFFNESS_Y))
-                    rValue[1] = mFunctions[NODAL_STIFFNESS_Y.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[1] = mFunctions[NODAL_STIFFNESS_Y.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[1] = mConstantValues[NODAL_STIFFNESS_Y.Key()];
             } else
@@ -596,7 +605,7 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
             if (TDim == 3) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Z)) {
                     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_STIFFNESS_Z))
-                        rValue[2] = mFunctions[NODAL_STIFFNESS_Z.Key()]->CallFunction(geom[mNodalIndex], time);
+                        rValue[2] = mFunctions[NODAL_STIFFNESS_Z.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                     else
                         rValue[2] = mConstantValues[NODAL_STIFFNESS_Z.Key()];
                 } else
@@ -607,14 +616,14 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
         } else if (rThisVariable == NODAL_ROTATIONAL_STIFFNESS) {
            if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_X)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_X))
-                    rValue[0] = mFunctions[NODAL_ROTATIONAL_STIFFNESS_X.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[0] = mFunctions[NODAL_ROTATIONAL_STIFFNESS_X.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[0] = mConstantValues[NODAL_ROTATIONAL_STIFFNESS_X.Key()];
             } else
                 rValue[0] = 0.0;
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Y)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_Y))
-                    rValue[1] = mFunctions[NODAL_ROTATIONAL_STIFFNESS_Y.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[1] = mFunctions[NODAL_ROTATIONAL_STIFFNESS_Y.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[1] = mConstantValues[NODAL_ROTATIONAL_STIFFNESS_Y.Key()];
             } else
@@ -622,7 +631,7 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
             if (TDim == 3) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Z)) {
                     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_Z))
-                        rValue[2] = mFunctions[NODAL_ROTATIONAL_STIFFNESS_Z.Key()]->CallFunction(geom[mNodalIndex], time);
+                        rValue[2] = mFunctions[NODAL_ROTATIONAL_STIFFNESS_Z.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                     else
                         rValue[2] = mConstantValues[NODAL_ROTATIONAL_STIFFNESS_Z.Key()];
                 } else
@@ -633,14 +642,14 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
         } else if (rThisVariable == NODAL_DAMPING_RATIO) {
            if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_DAMPING_RATIO_X)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_X))
-                    rValue[0] = mFunctions[NODAL_DAMPING_RATIO_X.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[0] = mFunctions[NODAL_DAMPING_RATIO_X.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[0] = mConstantValues[NODAL_DAMPING_RATIO_X.Key()];
             } else
                 rValue[0] = 0.0;
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_DAMPING_RATIO_Y)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_Y))
-                    rValue[1] = mFunctions[NODAL_DAMPING_RATIO_Y.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[1] = mFunctions[NODAL_DAMPING_RATIO_Y.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[1] = mConstantValues[NODAL_DAMPING_RATIO_Y.Key()];
             } else
@@ -648,7 +657,7 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
             if (TDim == 3) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_DAMPING_RATIO_Z)) {
                     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_Z))
-                        rValue[2] = mFunctions[NODAL_DAMPING_RATIO_Z.Key()]->CallFunction(geom[mNodalIndex], time);
+                        rValue[2] = mFunctions[NODAL_DAMPING_RATIO_Z.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                     else
                         rValue[2] = mConstantValues[NODAL_DAMPING_RATIO_Z.Key()];
                 } else
@@ -659,14 +668,14 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
         } else if (rThisVariable == NODAL_ROTATIONAL_DAMPING_RATIO) {
            if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_DAMPING_RATIO_X)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_X))
-                    rValue[0] = mFunctions[NODAL_ROTATIONAL_DAMPING_RATIO_X.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[0] = mFunctions[NODAL_ROTATIONAL_DAMPING_RATIO_X.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[0] = mConstantValues[NODAL_ROTATIONAL_DAMPING_RATIO_X.Key()];
             } else
                 rValue[0] = 0.0;
             if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_DAMPING_RATIO_Y)) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_Y))
-                    rValue[1] = mFunctions[NODAL_ROTATIONAL_DAMPING_RATIO_Y.Key()]->CallFunction(geom[mNodalIndex], time);
+                    rValue[1] = mFunctions[NODAL_ROTATIONAL_DAMPING_RATIO_Y.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                 else
                     rValue[1] = mConstantValues[NODAL_ROTATIONAL_DAMPING_RATIO_Y.Key()];
             } else
@@ -674,7 +683,7 @@ array_1d<double, 3 > & SpringConstitutiveLaw<TDim>::CalculateValue(
             if (TDim == 3) {
                 if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_DAMPING_RATIO_Z)) {
                     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_Z))
-                        rValue[2] = mFunctions[NODAL_ROTATIONAL_DAMPING_RATIO_Z.Key()]->CallFunction(geom[mNodalIndex], time);
+                        rValue[2] = mFunctions[NODAL_ROTATIONAL_DAMPING_RATIO_Z.Key()]->CallFunction(geom[mNodalIndex], mAdditionalDependenceVariables, time);
                     else
                         rValue[2] = mConstantValues[NODAL_ROTATIONAL_DAMPING_RATIO_Z.Key()];
                 } else
