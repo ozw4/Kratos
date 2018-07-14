@@ -439,12 +439,21 @@ void SpringDamperElement3D2N::CalculateDampingMatrix( MatrixType& rDampingMatrix
 
     rDampingMatrix = ZeroMatrix( system_size, system_size );
 
-    if ( this->Has( NODAL_DAMPING_RATIO ) ) {
+    if ( this->Has( NODAL_DAMPING_RATIO ) || this->Has( NODAL_ROTATIONAL_DAMPING_RATIO )) {
         array_1d<double, 2*OPT_NUM_DIMS> elemental_damping_ratio = ZeroVector( 2*OPT_NUM_DIMS );
-        const array_1d<double, 3> nodal_damping = this->GetValue( NODAL_DAMPING_RATIO );
-        elemental_damping_ratio[0] = nodal_damping[0];
-        elemental_damping_ratio[1] = nodal_damping[1];
-        elemental_damping_ratio[2] = nodal_damping[2];
+        if (this->Has( NODAL_DAMPING_RATIO )) {
+            const array_1d<double, 3>& nodal_damping = this->GetValue( NODAL_DAMPING_RATIO );
+            elemental_damping_ratio[0] = nodal_damping[0];
+            elemental_damping_ratio[1] = nodal_damping[1];
+            elemental_damping_ratio[2] = nodal_damping[2];
+        }
+
+        if (this->Has( NODAL_ROTATIONAL_DAMPING_RATIO )) {
+            const array_1d<double, 3>& nodal_rotational_damping = this->GetValue( NODAL_ROTATIONAL_DAMPING_RATIO );
+            elemental_damping_ratio[3] = nodal_rotational_damping[0];
+            elemental_damping_ratio[4] = nodal_rotational_damping[1];
+            elemental_damping_ratio[5] = nodal_rotational_damping[2];
+        }
         
         for ( std::size_t i = 0; i < 2*OPT_NUM_DIMS; ++i ) {
             rDampingMatrix(i    , i   ) += elemental_damping_ratio[i];
@@ -481,6 +490,7 @@ int SpringDamperElement3D2N::Check( const ProcessInfo& rCurrentProcessInfo )
     KRATOS_CHECK_VARIABLE_KEY(NODAL_ROTATIONAL_STIFFNESS)
 
     KRATOS_CHECK_VARIABLE_KEY(NODAL_DAMPING_RATIO)
+    KRATOS_CHECK_VARIABLE_KEY(NODAL_ROTATIONAL_DAMPING_RATIO)
     KRATOS_CHECK_VARIABLE_KEY(VOLUME_ACCELERATION)
 
     // Verify that the dofs exist

@@ -26,12 +26,14 @@ namespace Kratos
 /**
  * Flags related to the element computation
  */
-KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_DISPLACEMENT_STIFFNESS, 0 );
-KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_NODAL_MASS,             1 );
-KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ROTATIONAL_STIFFNESS,   2 );
-KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_NODAL_INERTIA,          3 );
-KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_RAYLEIGH_DAMPING,       4 );
-KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ACTIVE_NODE_FLAG,       5 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_DISPLACEMENT_STIFFNESS,   0 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_NODAL_MASS,               1 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ROTATIONAL_STIFFNESS,     2 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_NODAL_INERTIA,            3 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_DAMPING_RATIO,            4 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ROTATIONAL_DAMPING_RATIO, 5 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_RAYLEIGH_DAMPING,         6 );
+KRATOS_CREATE_LOCAL_FLAG( NodalConcentratedElement, COMPUTE_ACTIVE_NODE_FLAG,         7 );
 
 //***********************DEFAULT CONSTRUCTOR******************************************
 /***********************************************************************************/
@@ -384,6 +386,18 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, false);
+
+        // We check the damping ratio
+        if (rconst_this.Has(NODAL_DAMPING_RATIO) || GetProperties().Has(NODAL_DAMPING_RATIO))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DAMPING_RATIO, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DAMPING_RATIO, false);
+
+        // We check the rotational damping ratio
+        if (rconst_this.Has(NODAL_ROTATIONAL_DAMPING_RATIO) || GetProperties().Has(NODAL_ROTATIONAL_DAMPING_RATIO))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, false);
     } else {
         // We check the nodal stiffness
         if (rconst_this.Has(NODAL_STIFFNESS))
@@ -408,6 +422,18 @@ void NodalConcentratedElement::Initialize()
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, true);
         else
             mELementalFlags.Set(NodalConcentratedElement::COMPUTE_NODAL_INERTIA, false);
+
+        // We check the damping ratio
+        if (rconst_this.Has(NODAL_DAMPING_RATIO))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DAMPING_RATIO, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_DAMPING_RATIO, false);
+
+        // We check the rotational damping ratio
+        if (rconst_this.Has(NODAL_ROTATIONAL_DAMPING_RATIO))
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, true);
+        else
+            mELementalFlags.Set(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, false);
     }
 
     KRATOS_CATCH( "" );
@@ -515,13 +541,18 @@ void NodalConcentratedElement::CalculateRightHandSide(
 
     rRightHandSideVector = ZeroVector( system_size ); //resetting RHS
 
-    array_1d<double, 3 > volume_acceleration = ZeroVector(3);
-
-    if( GetGeometry()[0].SolutionStepsDataHas(VOLUME_ACCELERATION) )
-        volume_acceleration = GetGeometry()[0].FastGetSolutionStepValue(VOLUME_ACCELERATION);
-
     // We get the reference
     const auto& rconst_this = *this;
+
+    // Volume acceleration
+    if (mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS) && GetGeometry()[0].SolutionStepsDataHas(VOLUME_ACCELERATION)) {
+        const array_1d<double, 3 >& volume_acceleration = GetGeometry()[0].FastGetSolutionStepValue(VOLUME_ACCELERATION);
+
+        // Compute and add external forces
+        const double nodal_mass = HasProperties() ? GetProperties().Has(NODAL_MASS) : rconst_this.GetValue(NODAL_MASS);
+        for ( IndexType j = 0; j < dimension; ++j )
+            rRightHandSideVector[j]  += volume_acceleration[j] * nodal_mass;
+    }
 
     // Auxiliar index
     IndexType aux_index = 0;
@@ -529,11 +560,6 @@ void NodalConcentratedElement::CalculateRightHandSide(
     // The displacement terms
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS)) {
-
-        // Compute and add external forces
-        const double nodal_mass = rconst_this.GetValue(NODAL_MASS);
-        for ( IndexType j = 0; j < dimension; ++j )
-            rRightHandSideVector[j]  += volume_acceleration[j] * nodal_mass;
 
         // Compute and add internal forces
         const array_1d<double, 3 >& current_displacement = GetGeometry()[0].FastGetSolutionStepValue(DISPLACEMENT);
@@ -665,6 +691,9 @@ void NodalConcentratedElement::CalculateDampingMatrix(
 {
     KRATOS_TRY;
 
+    // The domain size
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
+
     // Resizing as needed the LHS
     const SizeType system_size = ComputeSizeOfSystem();
 
@@ -708,9 +737,22 @@ void NodalConcentratedElement::CalculateDampingMatrix(
         rDampingMatrix  = mass_matrix;
         rDampingMatrix += stiffness_matrix;
     } else {
-        const array_1d<double, 3 >& nodal_damping_ratio = this->GetValue(NODAL_DAMPING_RATIO);
-        for ( IndexType j = 0; j < system_size; ++j )
-            rDampingMatrix(j, j) += nodal_damping_ratio[j];
+        // We get the reference
+        const auto& rconst_this = *this;
+
+        IndexType aux_index = 0;
+        if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DAMPING_RATIO) ) {
+            const array_1d<double, 3 >& nodal_damping_ratio = HasProperties() ? (GetProperties().Has(NODAL_DAMPING_RATIO) ? GetProperties().GetValue(NODAL_DAMPING_RATIO) : rconst_this.GetValue(NODAL_DAMPING_RATIO)) : rconst_this.GetValue(NODAL_DAMPING_RATIO);
+            for ( IndexType j = 0; j < dimension; ++j )
+                rDampingMatrix(j, j) += nodal_damping_ratio[j];
+
+            aux_index += dimension;
+        }
+        if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO) ) {
+            const array_1d<double, 3 >& nodal_rotational_damping_ratio = HasProperties() ? (GetProperties().Has(NODAL_ROTATIONAL_DAMPING_RATIO) ? GetProperties().GetValue(NODAL_ROTATIONAL_DAMPING_RATIO) : rconst_this.GetValue(NODAL_ROTATIONAL_DAMPING_RATIO)) : rconst_this.GetValue(NODAL_ROTATIONAL_DAMPING_RATIO);
+            for ( IndexType j = 0; j < dimension; ++j )
+                rDampingMatrix(aux_index + j, aux_index+ j) += nodal_rotational_damping_ratio[j];
+        }
     }
 
     KRATOS_CATCH( "" );
@@ -770,6 +812,7 @@ int NodalConcentratedElement::Check( const ProcessInfo& rCurrentProcessInfo )
     }
 
     KRATOS_CHECK_VARIABLE_KEY(NODAL_DAMPING_RATIO)
+    KRATOS_CHECK_VARIABLE_KEY(NODAL_ROTATIONAL_DAMPING_RATIO)
     KRATOS_CHECK_VARIABLE_KEY(VOLUME_ACCELERATION)
     
     // Check that the element's nodes contain all required SolutionStepData and Degrees of freedom

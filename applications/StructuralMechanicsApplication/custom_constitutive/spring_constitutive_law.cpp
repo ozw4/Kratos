@@ -70,6 +70,7 @@ SpringConstitutiveLaw<TDim>::SpringConstitutiveLaw(Kratos::Parameters NewParamet
         "nodal_inertia"              : [null, null, null],
         "nodal_stiffness"            : [null, null, null],
         "nodal_rotational_stiffness" : [null, null, null],
+        "nodal_damping_ratio"        : [null, null, null],
         "interval"                   : [0.0, 1e30]
     })" );
 
@@ -482,6 +483,7 @@ int SpringConstitutiveLaw<TDim>::Check(
     KRATOS_CHECK_VARIABLE_KEY(NODAL_STIFFNESS)
     KRATOS_CHECK_VARIABLE_KEY(NODAL_INERTIA)
     KRATOS_CHECK_VARIABLE_KEY(NODAL_ROTATIONAL_STIFFNESS)
+    KRATOS_CHECK_VARIABLE_KEY(NODAL_DAMPING_RATIO)
 
     return 0;
 

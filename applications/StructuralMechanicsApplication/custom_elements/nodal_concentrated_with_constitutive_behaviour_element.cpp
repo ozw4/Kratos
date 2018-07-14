@@ -136,58 +136,41 @@ void NodalConcentratedWithConstitutiveBehaviourElement::Initialize()
 {
     KRATOS_TRY;
 
-    // We get the reference
-    const auto& rconst_this = *this;
+    // We check the nodal stiffness
+    if (mpConstitutiveLaw->Has(NODAL_STIFFNESS))
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, true);
+    else
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
 
-    if (HasProperties()) {
-        // We check the nodal stiffness
-        if (rconst_this.Has(NODAL_STIFFNESS) || GetProperties().Has(NODAL_STIFFNESS))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
+    // We check the nodal rotational stiffness
+    if (mpConstitutiveLaw->Has(NODAL_ROTATIONAL_STIFFNESS))
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
+    else
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
 
-        // We check the nodal rotational stiffness
-        if (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS) || GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
+    // We check the nodal mass
+    if (mpConstitutiveLaw->Has(NODAL_MASS))
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS, true);
+    else
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS, false);
 
-        // We check the nodal mass
-        if (rconst_this.Has(NODAL_MASS) || GetProperties().Has(NODAL_MASS))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS, false);
+    // We check the nodal inertia
+    if (mpConstitutiveLaw->Has(NODAL_INERTIA))
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, true);
+    else
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, false);
 
-        // We check the nodal inertia
-        if (rconst_this.Has(NODAL_INERTIA) || GetProperties().Has(NODAL_INERTIA))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, false);
-    } else {
-        // We check the nodal stiffness
-        if (rconst_this.Has(NODAL_STIFFNESS))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
+    // We check the nodal damping
+    if (mpConstitutiveLaw->Has(NODAL_DAMPING_RATIO))
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DAMPING_RATIO, true);
+    else
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DAMPING_RATIO, false);
 
-        // We check the nodal rotational stiffness
-        if (rconst_this.Has(NODAL_ROTATIONAL_STIFFNESS))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
-
-        // We check the nodal mass
-        if (rconst_this.Has(NODAL_MASS))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS, false);
-
-        // We check the nodal inertia
-        if (rconst_this.Has(NODAL_INERTIA))
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, true);
-        else
-            mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA, false);
-    }
+    // We check the nodal rtotational damping
+    if (mpConstitutiveLaw->Has(NODAL_ROTATIONAL_DAMPING_RATIO))
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, true);
+    else
+        mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_DAMPING_RATIO, false);
 
     KRATOS_CATCH( "" );
 }
@@ -272,7 +255,11 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateRightHandSide(
     ProcessInfo& rCurrentProcessInfo
     )
 {
+    // The domain size
     const SizeType dimension = GetGeometry().WorkingSpaceDimension();
+
+    // Create constitutive law parameters:
+    ConstitutiveLaw::Parameters constitutive_law_parameters(GetGeometry(),GetProperties(),rCurrentProcessInfo);
 
     // Resizing as needed the RHS
     const SizeType system_size = ComputeSizeOfSystem();
@@ -282,13 +269,16 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateRightHandSide(
 
     rRightHandSideVector = ZeroVector( system_size ); //resetting RHS
 
-    array_1d<double, 3 > volume_acceleration = ZeroVector(3);
+    // Volume acceleration
+    if (mELementalFlags.Is(NodalConcentratedElement::COMPUTE_NODAL_MASS) && GetGeometry()[0].SolutionStepsDataHas(VOLUME_ACCELERATION)) {
 
-    if( GetGeometry()[0].SolutionStepsDataHas(VOLUME_ACCELERATION) )
-        volume_acceleration = GetGeometry()[0].FastGetSolutionStepValue(VOLUME_ACCELERATION);
+        const array_1d<double, 3 >& volume_acceleration = GetGeometry()[0].FastGetSolutionStepValue(VOLUME_ACCELERATION);
 
-    // We get the reference
-    const auto& rconst_this = *this;
+        // Compute and add external forces
+        double nodal_mass = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_MASS, nodal_mass);
+        for ( IndexType j = 0; j < dimension; ++j )
+            rRightHandSideVector[j]  += volume_acceleration[j] * nodal_mass;
+    }
 
     // Auxiliar index
     IndexType aux_index = 0;
@@ -297,14 +287,9 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateRightHandSide(
     if( mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS)) {
 
-        // Compute and add external forces
-        const double nodal_mass = rconst_this.GetValue(NODAL_MASS);
-        for ( IndexType j = 0; j < dimension; ++j )
-            rRightHandSideVector[j]  += volume_acceleration[j] * nodal_mass;
-
         // Compute and add internal forces
         const array_1d<double, 3 >& current_displacement = GetGeometry()[0].FastGetSolutionStepValue(DISPLACEMENT);
-        const array_1d<double, 3 >& nodal_stiffness = HasProperties() ? (GetProperties().Has(NODAL_STIFFNESS) ? GetProperties().GetValue(NODAL_STIFFNESS) : rconst_this.GetValue(NODAL_STIFFNESS)) : rconst_this.GetValue(NODAL_STIFFNESS);
+        array_1d<double, 3> nodal_stiffness = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_STIFFNESS, nodal_stiffness) ;
 
         for ( IndexType j = 0; j < dimension; ++j )
             rRightHandSideVector[j]  -= nodal_stiffness[j] * current_displacement[j];
@@ -318,7 +303,7 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateRightHandSide(
 
         // Compute and add internal forces
         const array_1d<double, 3 >& current_rotation = GetGeometry()[0].FastGetSolutionStepValue(ROTATION);
-        const array_1d<double, 3 >& nodal_rotational_stiffness = HasProperties() ? (GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS) ? GetProperties().GetValue(NODAL_ROTATIONAL_STIFFNESS) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS)) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS);
+        array_1d<double, 3 > nodal_rotational_stiffness = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_ROTATIONAL_STIFFNESS, nodal_rotational_stiffness);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rRightHandSideVector[aux_index + j]  -= nodal_rotational_stiffness[j] * current_rotation[j];
@@ -333,7 +318,11 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateLeftHandSide(
     ProcessInfo& rCurrentProcessInfo
     )
 {
+    // The domain size
     const SizeType dimension = GetGeometry().WorkingSpaceDimension();
+
+    // Create constitutive law parameters:
+    ConstitutiveLaw::Parameters constitutive_law_parameters(GetGeometry(),GetProperties(),rCurrentProcessInfo);
 
     // Resizing as needed the LHS
     const SizeType system_size = ComputeSizeOfSystem();
@@ -342,9 +331,6 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateLeftHandSide(
         rLeftHandSideMatrix.resize( system_size, system_size, false );
 
     noalias( rLeftHandSideMatrix ) = ZeroMatrix( system_size, system_size ); //resetting LHS
-
-    // We get the reference
-    const auto& rconst_this = *this;
     
     // Auxiliar index
     IndexType aux_index = 0;
@@ -353,7 +339,7 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateLeftHandSide(
     if( mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS)) {
 
-        const array_1d<double, 3 >& nodal_stiffness = HasProperties() ? (GetProperties().Has(NODAL_STIFFNESS) ? GetProperties().GetValue(NODAL_STIFFNESS) : rconst_this.GetValue(NODAL_STIFFNESS)) : rconst_this.GetValue(NODAL_STIFFNESS);
+        array_1d<double, 3 > nodal_stiffness = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_STIFFNESS, nodal_stiffness);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rLeftHandSideMatrix( j, j ) += nodal_stiffness[j];
@@ -365,7 +351,7 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateLeftHandSide(
     if( mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA)) {
 
-        const array_1d<double, 3 >& nodal_rotational_stiffness = HasProperties() ? (GetProperties().Has(NODAL_ROTATIONAL_STIFFNESS) ? GetProperties().GetValue(NODAL_ROTATIONAL_STIFFNESS) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS)) : rconst_this.GetValue(NODAL_ROTATIONAL_STIFFNESS);
+        array_1d<double, 3 > nodal_rotational_stiffness = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_ROTATIONAL_STIFFNESS, nodal_rotational_stiffness);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rLeftHandSideMatrix( aux_index + j, aux_index + j ) += nodal_rotational_stiffness[j];
@@ -382,6 +368,9 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateMassMatrix(
 {
     KRATOS_TRY
 
+    // Create constitutive law parameters:
+    ConstitutiveLaw::Parameters constitutive_law_parameters(GetGeometry(),GetProperties(),rCurrentProcessInfo);
+
     // Lumped (by definition)
     const SizeType dimension = GetGeometry().WorkingSpaceDimension();
     const SizeType system_size = ComputeSizeOfSystem();
@@ -391,9 +380,6 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateMassMatrix(
 
     rMassMatrix = ZeroMatrix( system_size, system_size );
     
-    // We get the reference
-    const auto& rconst_this = *this;
-    
     // Auxiliar index
     IndexType aux_index = 0;
 
@@ -401,7 +387,7 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateMassMatrix(
     if( mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_MASS)) {
 
-        const double nodal_mass = HasProperties() ? (GetProperties().Has(NODAL_MASS) ? GetProperties().GetValue(NODAL_MASS) : rconst_this.GetValue(NODAL_MASS)) : rconst_this.GetValue(NODAL_MASS);
+        double nodal_mass = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_MASS, nodal_mass);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rMassMatrix( j, j ) = nodal_mass;
@@ -413,7 +399,7 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateMassMatrix(
     if( mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS) ||
         mELementalFlags.Is(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_NODAL_INERTIA)) {
 
-        const array_1d<double, 3>& nodal_inertia =  HasProperties() ? (GetProperties().Has(NODAL_INERTIA) ? GetProperties().GetValue(NODAL_INERTIA) : rconst_this.GetValue(NODAL_INERTIA)) : rconst_this.GetValue(NODAL_INERTIA);
+        array_1d<double, 3> nodal_inertia = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_INERTIA, nodal_inertia);
 
         for ( IndexType j = 0; j < dimension; ++j )
             rMassMatrix( aux_index + j, aux_index + j ) = nodal_inertia[j];
@@ -431,6 +417,9 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateDampingMatrix(
     )
 {
     KRATOS_TRY;
+
+    // The domain size
+    const SizeType dimension = GetGeometry().WorkingSpaceDimension();
 
     // Resizing as needed the LHS
     const SizeType system_size = ComputeSizeOfSystem();
@@ -475,9 +464,22 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateDampingMatrix(
         rDampingMatrix  = mass_matrix;
         rDampingMatrix += stiffness_matrix;
     } else {
-        const array_1d<double, 3 >& nodal_damping_ratio = this->GetValue(NODAL_DAMPING_RATIO);
-        for ( IndexType j = 0; j < system_size; ++j )
-            rDampingMatrix(j, j) += nodal_damping_ratio[j];
+        // Create constitutive law parameters:
+        ConstitutiveLaw::Parameters constitutive_law_parameters(GetGeometry(),GetProperties(),rCurrentProcessInfo);
+
+        IndexType aux_index = 0;
+        if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_DAMPING_RATIO) ) {
+            array_1d<double, 3> nodal_damping_ratio = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_DAMPING_RATIO, nodal_damping_ratio);
+            for ( IndexType j = 0; j < dimension; ++j )
+                rDampingMatrix(j, j) += nodal_damping_ratio[j];
+
+            aux_index += dimension;
+        }
+        if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ROTATIONAL_DAMPING_RATIO) ) {
+            array_1d<double, 3> nodal_rotational_damping_ratio = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_ROTATIONAL_DAMPING_RATIO, nodal_rotational_damping_ratio);
+            for ( IndexType j = 0; j < dimension; ++j )
+                rDampingMatrix(aux_index + j, aux_index+ j) += nodal_rotational_damping_ratio[j];
+        }
     }
 
     KRATOS_CATCH( "" );
