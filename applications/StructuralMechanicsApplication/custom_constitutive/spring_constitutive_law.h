@@ -13,6 +13,7 @@
 #define  KRATOS_SPRING_LAW_H_INCLUDED
 
 // System includes
+#include <unordered_map>
 
 // External includes
 
@@ -110,61 +111,75 @@ public:
         mMainNameSpace["x"] = ThisNode.X();
         mMainNameSpace["y"] = ThisNode.Y();
         mMainNameSpace["z"] = ThisNode.Z();
-        mMainNameSpace["X"] = ThisNode.X0();
-        mMainNameSpace["Y"] = ThisNode.Y0();
-        mMainNameSpace["Z"] = ThisNode.Z0();
+        mMainNameSpace["X0"] = ThisNode.X0();
+        mMainNameSpace["Y0"] = ThisNode.Y0();
+        mMainNameSpace["Z0"] = ThisNode.Z0();
 
         /// Values
         const array_1d<double, 3>& disp = ThisNode.FastGetSolutionStepValue(DISPLACEMENT);
-        mMainNameSpace["disp0"] = disp[0];
-        mMainNameSpace["disp1"] = disp[1];
-        mMainNameSpace["disp2"] = disp[2];
-        const array_1d<double, 3>& vel = ThisNode.FastGetSolutionStepValue(VELOCITY);
-        mMainNameSpace["vel0"] = vel[0];
-        mMainNameSpace["vel1"] = vel[1];
-        mMainNameSpace["vel2"] = vel[2];
-        const array_1d<double, 3>& accel = ThisNode.FastGetSolutionStepValue(ACCELERATION);
-        mMainNameSpace["accel0"] = accel[0];
-        mMainNameSpace["accel1"] = accel[1];
-        mMainNameSpace["accel2"] = accel[2];
-        const array_1d<double, 3>& theta = ThisNode.FastGetSolutionStepValue(ROTATION);
-        mMainNameSpace["theta0"] = theta[0];
-        mMainNameSpace["theta1"] = theta[1];
-        mMainNameSpace["theta2"] = theta[2];
-        const array_1d<double, 3>& vang = ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY);
-        mMainNameSpace["vang0"] = vang[0];
-        mMainNameSpace["vang1"] = vang[1];
-        mMainNameSpace["vang2"] = vang[2];
-        const array_1d<double, 3>& aang = ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION);
-        mMainNameSpace["aang0"] = aang[0];
-        mMainNameSpace["aang1"] = aang[1];
-        mMainNameSpace["aang2"] = aang[2];
-
+        mMainNameSpace["DISPLACEMENT_X"] = disp[0];
+        mMainNameSpace["DISPLACEMENT_Y"] = disp[1];
+        mMainNameSpace["DISPLACEMENT_Z"] = disp[2];
         /// Increment of values
         const array_1d<double, 3>& dispDelta = ThisNode.FastGetSolutionStepValue(DISPLACEMENT) - ThisNode.FastGetSolutionStepValue(DISPLACEMENT, 1);
-        mMainNameSpace["dispDelta0"] = dispDelta[0];
-        mMainNameSpace["dispDelta1"] = dispDelta[1];
-        mMainNameSpace["dispDelta2"] = dispDelta[2];
-        const array_1d<double, 3>& velDelta = ThisNode.FastGetSolutionStepValue(VELOCITY) - ThisNode.FastGetSolutionStepValue(VELOCITY, 1);
-        mMainNameSpace["velDelta0"] = velDelta[0];
-        mMainNameSpace["velDelta1"] = velDelta[1];
-        mMainNameSpace["velDelta2"] = velDelta[2];
-        const array_1d<double, 3>& accelDelta = ThisNode.FastGetSolutionStepValue(ACCELERATION) - ThisNode.FastGetSolutionStepValue(ACCELERATION, 1);
-        mMainNameSpace["accelDelta0"] = accelDelta[0];
-        mMainNameSpace["accelDelta1"] = accelDelta[1];
-        mMainNameSpace["accelDelta2"] = accelDelta[2];
-        const array_1d<double, 3>& thetaDelta = ThisNode.FastGetSolutionStepValue(ROTATION) - ThisNode.FastGetSolutionStepValue(ROTATION, 1);
-        mMainNameSpace["thetaDelta0"] = thetaDelta[0];
-        mMainNameSpace["thetaDelta1"] = thetaDelta[1];
-        mMainNameSpace["thetaDelta2"] = thetaDelta[2];
-        const array_1d<double, 3>& vangDelta = ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY) - ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY, 1);
-        mMainNameSpace["vangDelta0"] = vangDelta[0];
-        mMainNameSpace["vangDelta1"] = vangDelta[1];
-        mMainNameSpace["vangDelta2"] = vangDelta[2];
-        const array_1d<double, 3>& aangDelta = ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION) - ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION, 1);
-        mMainNameSpace["aangDelta0"] = aangDelta[0];
-        mMainNameSpace["aangDelta1"] = aangDelta[1];
-        mMainNameSpace["aangDelta2"] = aangDelta[2];
+        mMainNameSpace["DISPLACEMENT_DELTA_X"] = dispDelta[0];
+        mMainNameSpace["DISPLACEMENT_DELTA_Y"] = dispDelta[1];
+        mMainNameSpace["DISPLACEMENT_DELTA_Z"] = dispDelta[2];
+        if (ThisNode.SolutionStepsDataHas(VELOCITY_X)) {
+            const array_1d<double, 3>& vel = ThisNode.FastGetSolutionStepValue(VELOCITY);
+            mMainNameSpace["VELOCITY_X"] = vel[0];
+            mMainNameSpace["VELOCITY_Y"] = vel[1];
+            mMainNameSpace["VELOCITY_Z"] = vel[2];
+            /// Increment of values
+            const array_1d<double, 3>& velDelta = ThisNode.FastGetSolutionStepValue(VELOCITY) - ThisNode.FastGetSolutionStepValue(VELOCITY, 1);
+            mMainNameSpace["VELOCITY_DELTA_X"] = velDelta[0];
+            mMainNameSpace["VELOCITY_DELTA_Y"] = velDelta[1];
+            mMainNameSpace["VELOCITY_DELTA_Z"] = velDelta[2];
+        }
+        if (ThisNode.SolutionStepsDataHas(ACCELERATION_X)) {
+            const array_1d<double, 3>& accel = ThisNode.FastGetSolutionStepValue(ACCELERATION);
+            mMainNameSpace["ACCELERATION_X"] = accel[0];
+            mMainNameSpace["ACCELERATION_Y"] = accel[1];
+            mMainNameSpace["ACCELERATION_Z"] = accel[2];
+            /// Increment of values
+            const array_1d<double, 3>& accelDelta = ThisNode.FastGetSolutionStepValue(ACCELERATION) - ThisNode.FastGetSolutionStepValue(ACCELERATION, 1);
+            mMainNameSpace["ACCELERATION_DELTA_X"] = accelDelta[0];
+            mMainNameSpace["ACCELERATION_DELTA_Y"] = accelDelta[1];
+            mMainNameSpace["ACCELERATION_DELTA_Z"] = accelDelta[2];
+        }
+        if (ThisNode.SolutionStepsDataHas(ROTATION_X)) {
+            const array_1d<double, 3>& theta = ThisNode.FastGetSolutionStepValue(ROTATION);
+            mMainNameSpace["ROTATION_X"] = theta[0];
+            mMainNameSpace["ROTATION_Y"] = theta[1];
+            mMainNameSpace["ROTATION_Z"] = theta[2];
+            /// Increment of values
+            const array_1d<double, 3>& thetaDelta = ThisNode.FastGetSolutionStepValue(ROTATION) - ThisNode.FastGetSolutionStepValue(ROTATION, 1);
+            mMainNameSpace["ROTATION_DELTA_X"] = thetaDelta[0];
+            mMainNameSpace["ROTATION_DELTA_Y"] = thetaDelta[1];
+            mMainNameSpace["ROTATION_DELTA_Z"] = thetaDelta[2];
+        }
+        if (ThisNode.SolutionStepsDataHas(ANGULAR_VELOCITY_X)) {
+            const array_1d<double, 3>& vang = ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY);
+            mMainNameSpace["ANGULAR_VELOCITY_X"] = vang[0];
+            mMainNameSpace["ANGULAR_VELOCITY_Y"] = vang[1];
+            mMainNameSpace["ANGULAR_VELOCITY_Z"] = vang[2];
+            /// Increment of values
+            const array_1d<double, 3>& vangDelta = ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY) - ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY, 1);
+            mMainNameSpace["ANGULAR_VELOCITY_DELTA_X"] = vangDelta[0];
+            mMainNameSpace["ANGULAR_VELOCITY_DELTA_Y"] = vangDelta[1];
+            mMainNameSpace["ANGULAR_VELOCITY_DELTA_Z"] = vangDelta[2];
+        }
+        if (ThisNode.SolutionStepsDataHas(ANGULAR_ACCELERATION_X)) {
+            const array_1d<double, 3>& aang = ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION);
+            mMainNameSpace["ANGULAR_ACCELERATION_X"] = aang[0];
+            mMainNameSpace["ANGULAR_ACCELERATION_Y"] = aang[1];
+            mMainNameSpace["ANGULAR_ACCELERATION_Z"] = aang[2];
+            /// Increment of values
+            const array_1d<double, 3>& aangDelta = ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION) - ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION, 1);
+            mMainNameSpace["ANGULAR_ACCELERATION_DELTA_X"] = aangDelta[0];
+            mMainNameSpace["ANGULAR_ACCELERATION_DELTA_Y"] = aangDelta[1];
+            mMainNameSpace["ANGULAR_ACCELERATION_DELTA_Z"] = aangDelta[2];
+        }
 
         /// Time
         mMainNameSpace["t"] = Time;
@@ -267,6 +282,28 @@ public:
     KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_STIFFNESS_X );
     KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_STIFFNESS_Y );
     KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_STIFFNESS_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_DAMPING_RATIO_X );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_DAMPING_RATIO_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_DAMPING_RATIO_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_DAMPING_RATIO_X );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_DAMPING_RATIO_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( NULL_ROTATIONAL_DAMPING_RATIO_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_MASS );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_INERTIA_X );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_INERTIA_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_INERTIA_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_STIFFNESS_X );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_STIFFNESS_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_STIFFNESS_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_ROTATIONAL_STIFFNESS_X );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_ROTATIONAL_STIFFNESS_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_ROTATIONAL_STIFFNESS_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_DAMPING_RATIO_X );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_DAMPING_RATIO_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_DAMPING_RATIO_Z );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_ROTATIONAL_DAMPING_RATIO_X );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_ROTATIONAL_DAMPING_RATIO_Y );
+    KRATOS_DEFINE_LOCAL_FLAG( CONSTANT_ROTATIONAL_DAMPING_RATIO_Z );
 
     ///@}
     ///@name Life Cycle
@@ -474,11 +511,9 @@ protected:
     ///@name Protected member Variables
     ///@{
     
-    /* The definition of the functions */ // TODO: Add to serializer
-    PythonConstitutiveLawFunction::Pointer mMassFuntion = nullptr;                      /// The function of the mass
-    array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mInertiaFunction;            /// The function of the inertia
-    array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mStiffnessunction;           /// The function of the stiffness
-    array_1d<PythonConstitutiveLawFunction::Pointer, TDim> mRotationalStiffnessunction; /// The function of the rotational stiffness
+    /* The definition of the functions */
+    std::unordered_map<IndexType, PythonConstitutiveLawFunction::Pointer> mFunctions; /// This map stores the defined functions
+    std::unordered_map<IndexType, double> mConstantValues;                            /// This method stores the constant values
 
     IndexType mNodalIndex = 0;          /// The index of the current node on the geometry
 
