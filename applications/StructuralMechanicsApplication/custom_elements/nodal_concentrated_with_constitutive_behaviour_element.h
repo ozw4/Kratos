@@ -76,6 +76,8 @@ public:
     /// Default constructors
     NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, ConstitutiveLaw::Pointer pConstitutiveLaw, bool UseRayleighDamping = false);
 
+    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, bool UseRayleighDamping = false);
+
     NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties, bool UseRayleighDamping = false);
 
     ///Copy constructor

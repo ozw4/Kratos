@@ -82,6 +82,10 @@ KratosStructuralMechanicsApplication::KratosStructuralMechanicsApplication()
       mNodalConcentratedDampedElement2D1N(0, Element::GeometryType::Pointer(new Point2D<NodeType >(Element::GeometryType::PointsArrayType(1))), false),
       mNodalConcentratedElement3D1N(0, Element::GeometryType::Pointer(new Point3D<NodeType >(Element::GeometryType::PointsArrayType(1))), true),
       mNodalConcentratedDampedElement3D1N(0, Element::GeometryType::Pointer(new Point3D<NodeType >(Element::GeometryType::PointsArrayType(1))), false),
+      mNodalConcentratedWithConstitutiveBehaviourElement2D1N(0, Element::GeometryType::Pointer(new Point2D<NodeType >(Element::GeometryType::PointsArrayType(1))), true),
+      mNodalConcentratedWithConstitutiveBehaviourDampedElement2D1N(0, Element::GeometryType::Pointer(new Point2D<NodeType >(Element::GeometryType::PointsArrayType(1))), false),
+      mNodalConcentratedWithConstitutiveBehaviourElement3D1N(0, Element::GeometryType::Pointer(new Point3D<NodeType >(Element::GeometryType::PointsArrayType(1))), true),
+      mNodalConcentratedWithConstitutiveBehaviourDampedElement3D1N(0, Element::GeometryType::Pointer(new Point3D<NodeType >(Element::GeometryType::PointsArrayType(1))), false),
       // Adding the kinematic linear elements
       mSmallDisplacement2D3N(0, Element::GeometryType::Pointer(new Triangle2D3<NodeType >(Element::GeometryType::PointsArrayType(3)))),
       mSmallDisplacement2D4N(0, Element::GeometryType::Pointer(new Quadrilateral2D4<NodeType >(Element::GeometryType::PointsArrayType(4)))),
@@ -359,6 +363,10 @@ void KratosStructuralMechanicsApplication::Register() {
     KRATOS_REGISTER_ELEMENT("NodalConcentratedDampedElement2D1N", mNodalConcentratedDampedElement2D1N);
     KRATOS_REGISTER_ELEMENT("NodalConcentratedElement3D1N", mNodalConcentratedElement3D1N);
     KRATOS_REGISTER_ELEMENT("NodalConcentratedDampedElement3D1N", mNodalConcentratedDampedElement3D1N);
+    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourElement2D1N", mNodalConcentratedWithConstitutiveBehaviourElement2D1N);
+    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourDampedElement2D1N", mNodalConcentratedWithConstitutiveBehaviourDampedElement2D1N);
+    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourElement3D1N", mNodalConcentratedWithConstitutiveBehaviourElement3D1N);
+    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourDampedElement3D1N", mNodalConcentratedWithConstitutiveBehaviourDampedElement3D1N);
 
     // SOLID ELEMENTS
     // Small displacement elements
@@ -458,10 +466,12 @@ void KratosStructuralMechanicsApplication::Register() {
 
     KRATOS_REGISTER_VARIABLE(INELASTIC_FLAG)
     KRATOS_REGISTER_VARIABLE(INFINITY_YIELD_STRESS)
+
     // Register linear elastics laws
     KRATOS_REGISTER_CONSTITUTIVE_LAW("TrussConstitutiveLaw", mTrussConstitutiveLaw);
     KRATOS_REGISTER_CONSTITUTIVE_LAW("TrussPlasticityConstitutiveLaw", mTrussPlasticityConstitutiveLaw);
     KRATOS_REGISTER_CONSTITUTIVE_LAW("BeamConstitutiveLaw", mBeamConstitutiveLaw);
+//     KRATOS_REGISTER_CONSTITUTIVE_LAW("SpringConstitutiveLaw", mSpringConstitutiveLaw);
     KRATOS_REGISTER_CONSTITUTIVE_LAW("LinearElastic3DLaw", mElasticIsotropic3D);
     KRATOS_REGISTER_CONSTITUTIVE_LAW("LinearElasticPlaneStrain2DLaw", mLinearPlaneStrain);
     KRATOS_REGISTER_CONSTITUTIVE_LAW("LinearElasticPlaneStress2DLaw", mLinearPlaneStress);

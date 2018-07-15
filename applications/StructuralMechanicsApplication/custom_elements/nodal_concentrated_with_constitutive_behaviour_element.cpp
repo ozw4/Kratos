@@ -42,17 +42,23 @@ NodalConcentratedWithConstitutiveBehaviourElement::NodalConcentratedWithConstitu
 NodalConcentratedWithConstitutiveBehaviourElement::NodalConcentratedWithConstitutiveBehaviourElement(
     IndexType NewId,
     GeometryType::Pointer pGeometry,
+    const bool UseRayleighDamping
+    )
+    : NodalConcentratedElement( NewId, pGeometry, UseRayleighDamping)
+{
+}
+
+//******************************CONSTRUCTOR*******************************************
+/***********************************************************************************/
+
+NodalConcentratedWithConstitutiveBehaviourElement::NodalConcentratedWithConstitutiveBehaviourElement(
+    IndexType NewId,
+    GeometryType::Pointer pGeometry,
     PropertiesType::Pointer pProperties, 
     const bool UseRayleighDamping
     )
     : NodalConcentratedElement( NewId, pGeometry, UseRayleighDamping)
 {
-    KRATOS_ERROR_IF_NOT(pProperties->Has(CONSTITUTIVE_LAW)) << "NodalConcentratedWithConstitutiveBehaviourElement requires the definition of a constitutive law in the properties" << std::endl;
-    if ( (*pProperties)[CONSTITUTIVE_LAW] != nullptr ) {
-            mpConstitutiveLaw = GetProperties()[CONSTITUTIVE_LAW]->Clone();
-    } else {
-        KRATOS_ERROR << "A constitutive law needs to be specified for the element with ID " << this->Id() << std::endl;
-    }
 }
 
 //******************************COPY CONSTRUCTOR**************************************
@@ -135,6 +141,16 @@ NodalConcentratedWithConstitutiveBehaviourElement::~NodalConcentratedWithConstit
 void NodalConcentratedWithConstitutiveBehaviourElement::Initialize()
 {
     KRATOS_TRY;
+
+    // We get the constitutive law from properties if not directly defined
+    if (mpConstitutiveLaw == nullptr) {
+        KRATOS_ERROR_IF_NOT(GetProperties().Has(CONSTITUTIVE_LAW)) << "NodalConcentratedWithConstitutiveBehaviourElement requires the definition of a constitutive law in the properties" << std::endl;
+        if ( GetProperties()[CONSTITUTIVE_LAW] != nullptr ) {
+                mpConstitutiveLaw = GetProperties()[CONSTITUTIVE_LAW]->Clone();
+        } else {
+            KRATOS_ERROR << "A constitutive law needs to be specified for the element with ID " << this->Id() << std::endl;
+        }
+    }
 
     // We check the nodal stiffness
     if (mpConstitutiveLaw->Has(NODAL_STIFFNESS))
