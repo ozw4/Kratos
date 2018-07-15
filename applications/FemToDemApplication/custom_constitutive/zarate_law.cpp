@@ -10,7 +10,7 @@
 #include <iostream>
 
 // External includes
-#include<cmath>
+#include <cmath>
 
 // Project includes
 #include "includes/properties.h"
@@ -21,36 +21,36 @@
 namespace Kratos
 {
 
-	//******************************CONSTRUCTOR*******************************************
-	//************************************************************************************
+//******************************CONSTRUCTOR*******************************************
+//************************************************************************************
 
-	ZarateLaw::ZarateLaw()
-		: LinearElasticPlaneStrain2DLaw()
-	{
-	}
-
-	//******************************COPY CONSTRUCTOR**************************************
-	//************************************************************************************
-
-	ZarateLaw::ZarateLaw(const ZarateLaw& rOther)
-		: LinearElasticPlaneStrain2DLaw(rOther)
-	{
-	}
-
-	//********************************CLONE***********************************************
-	//************************************************************************************
-
-	ConstitutiveLaw::Pointer ZarateLaw::Clone() const
-	{
-		ZarateLaw::Pointer p_clone(new ZarateLaw(*this));
-		return p_clone;
-	}
-
-	//*******************************DESTRUCTOR*******************************************
-	//************************************************************************************
-
-	ZarateLaw ::~ZarateLaw()
-	{
-	}
-
+ZarateLaw::ZarateLaw()
+	: LinearElasticPlaneStrain2DLaw()
+{
 }
+
+//******************************COPY CONSTRUCTOR**************************************
+//************************************************************************************
+
+ZarateLaw::ZarateLaw(const ZarateLaw &rOther)
+	: LinearElasticPlaneStrain2DLaw(rOther)
+{
+}
+
+//********************************CLONE***********************************************
+//************************************************************************************
+
+ConstitutiveLaw::Pointer ZarateLaw::Clone() const
+{
+	ZarateLaw::Pointer p_clone(new ZarateLaw(*this));
+	return p_clone;
+}
+
+//*******************************DESTRUCTOR*******************************************
+//************************************************************************************
+
+ZarateLaw ::~ZarateLaw()
+{
+}
+
+} // namespace Kratos
