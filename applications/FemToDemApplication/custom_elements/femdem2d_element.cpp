@@ -769,7 +769,7 @@ double FemDem2DElement::CalculateLchar(FemDem2DElement *CurrentElement, const El
 	}
 	else
 	{ // Edge element
-		double ElementArea = abs(this->GetGeometry().Area());
+		double ElementArea = std::abs(this->GetGeometry().Area());
 		l_char = sqrt(4 * ElementArea / sqrt(3)); // Cervera's Formula
 	}											  // l_char computed
 
@@ -984,7 +984,7 @@ double FemDem2DElement::GetMaxAbsValue(Vector Strain)
 
 	for (int cont = 0; cont < n; cont++)
 	{
-		V[cont] = abs(Strain[cont]);
+		V[cont] = std::abs(Strain[cont]);
 	}
 
 	int imin = 0;
@@ -1009,9 +1009,9 @@ double FemDem2DElement::GetMinAbsValue(Vector Strain)
 {
 	Vector V;
 	V.resize(3);
-	V[0] = abs(Strain[0]);
-	V[1] = abs(Strain[1]);
-	V[2] = abs(Strain[2]);
+	V[1] = std::abs(Strain[1]);
+	V[0] = std::abs(Strain[0]);
+	V[2] = std::abs(Strain[2]);
 	int n = 3, imin = 0;
 
 	for (int i = 0; i < n; i++)
@@ -1340,7 +1340,7 @@ void FemDem2DElement::ModifiedMohrCoulombCriterion(Vector &rIntegratedStress, do
 	}
 	else
 	{
-		damage = 1 - (c_max / f) * exp(A * (1 - f / c_max)); // Exponential softening law
+		damage = 1 - (c_max / f) * std::exp(A * (1 - f / c_max)); // Exponential softening law
 		if (damage > 0.99)
 		{
 			damage = 0.99;
@@ -1398,7 +1398,7 @@ void FemDem2DElement::RankineCriterion(
 	}
 	else
 	{
-		damage = 1 - (c_max / f) * exp(A * (1 - f / c_max)); // Exponential softening law
+		damage = 1 - (c_max / f) * std::exp(A * (1 - f / c_max)); // Exponential softening law
 		if (damage > 0.99)
 		{
 			damage = 0.99;
@@ -1569,14 +1569,14 @@ void FemDem2DElement::SimoJuCriterion(
 	}
 	else
 	{
-		damage = 1 - (c_max / f) * exp(A * (1 - f / c_max)); // Exponential softening law
+		damage = 1.0 - (c_max / f) * std::exp(A * (1.0 - f / c_max)); // Exponential softening law
 		if (damage > 0.99)
 		{
 			damage = 0.99;
 		}
 	}
 	rIntegratedStress = StressVector;
-	rIntegratedStress *= (1 - damage);
+	rIntegratedStress *= (1.0 - damage);
 }
 
 void FemDem2DElement::RankineFragileLaw(
