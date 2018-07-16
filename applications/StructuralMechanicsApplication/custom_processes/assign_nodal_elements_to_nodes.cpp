@@ -108,8 +108,16 @@ AssignNodalElementsToNodes::AssignNodalElementsToNodes(
 /***********************************************************************************/
 /***********************************************************************************/
 
-
 void AssignNodalElementsToNodes::Execute()
+{
+    // We execute the different steps of the process
+    ExecuteInitialize();
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+void AssignNodalElementsToNodes::ExecuteInitialize()
 {
     KRATOS_TRY
 
