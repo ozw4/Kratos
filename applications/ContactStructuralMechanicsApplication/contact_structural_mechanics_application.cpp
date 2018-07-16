@@ -34,10 +34,6 @@ namespace Kratos {
 KratosContactStructuralMechanicsApplication::KratosContactStructuralMechanicsApplication():
     KratosApplication("ContactStructuralMechanicsApplication"),
     /* ELEMENTS */
-    mNodalConcentratedWithConstitutiveBehaviourElement2D1N(0, Element::GeometryType::Pointer(new Point2D<NodeType >(Element::GeometryType::PointsArrayType(1))), true),
-    mNodalConcentratedWithConstitutiveBehaviourDampedElement2D1N(0, Element::GeometryType::Pointer(new Point2D<NodeType >(Element::GeometryType::PointsArrayType(1))), false),
-    mNodalConcentratedWithConstitutiveBehaviourElement3D1N(0, Element::GeometryType::Pointer(new Point3D<NodeType >(Element::GeometryType::PointsArrayType(1))), true),
-    mNodalConcentratedWithConstitutiveBehaviourDampedElement3D1N(0, Element::GeometryType::Pointer(new Point3D<NodeType >(Element::GeometryType::PointsArrayType(1))), false),
     /* CONDITIONS */
     // Mesh tying mortar conditions
     // 2D Scalar
@@ -127,11 +123,6 @@ void KratosContactStructuralMechanicsApplication::Register()
     KRATOS_REGISTER_CONSTITUTIVE_LAW("SpringConstitutiveLaw", mSpringConstitutiveLaw);
 
     // ELEMENTS
-    // Register the nodal concentrated element
-    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourElement2D1N", mNodalConcentratedWithConstitutiveBehaviourElement2D1N);
-    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourDampedElement2D1N", mNodalConcentratedWithConstitutiveBehaviourDampedElement2D1N);
-    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourElement3D1N", mNodalConcentratedWithConstitutiveBehaviourElement3D1N);
-    KRATOS_REGISTER_ELEMENT("NodalConcentratedWithConstitutiveBehaviourDampedElement3D1N", mNodalConcentratedWithConstitutiveBehaviourDampedElement3D1N);
 
     // CONDITIONS
     // Mesh tying mortar condition

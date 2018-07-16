@@ -28,8 +28,6 @@
 #include "custom_constitutive/spring_constitutive_law.h"
 
 /* ELEMENTS */
-/* Springs elements */
-#include "custom_elements/nodal_concentrated_with_constitutive_behaviour_element.h"
 
 /* CONDITIONS */
 // Mortar conditions
@@ -199,11 +197,6 @@ private:
     const SpringConstitutiveLaw mSpringConstitutiveLaw;
 
     /* ELEMENTS */
-    // Adding the nodal concentrated element
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourElement2D1N;
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourDampedElement2D1N;
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourElement3D1N;
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourDampedElement3D1N;
 
     /* CONDITIONS*/
     // Mesh tying mortar condition    

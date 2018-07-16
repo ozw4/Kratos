@@ -41,8 +41,6 @@ set( KRATOS_CONTACT_STRUCTURAL_MECHANICS_APPLICATION_SOURCES
   ## EXTERNAL LIBRARIES
 
   ## ELEMENTS
-  # Adding the nodal concentrated element (generalized spring)
-  ${CMAKE_CURRENT_SOURCE_DIR}/custom_elements/nodal_concentrated_with_constitutive_behaviour_element.cpp
 
   ## CONDITIONS
   # Mortar condition
