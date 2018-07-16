@@ -1,0 +1,305 @@
+// KRATOS  ___|  |                   |                   |
+//       \___ \  __|  __| |   |  __| __| |   |  __| _` | |
+//             | |   |    |   | (    |   |   | |   (   | |
+//       _____/ \__|_|   \__,_|\___|\__|\__,_|_|  \__,_|_| MECHANICS
+//
+//  License:             BSD License
+//                                       license: StructuralMechanicsApplication/license.txt
+//
+//  Main authors:    Vicente Mataix Ferrandiz
+//
+
+// System includes
+
+// External includes
+
+// Project includes
+#include "custom_processes/assign_nodal_elements_to_nodes.h"
+#include "custom_elements/nodal_concentrated_element.h"
+#include "custom_elements/nodal_concentrated_with_constitutive_behaviour_element.h"
+#include "structural_mechanics_application_variables.h"
+#include "geometries/point_2d.h"
+#include "geometries/point_3d.h"
+
+namespace Kratos
+{
+AssignNodalElementsToNodes::AssignNodalElementsToNodes(
+        ModelPart& rThisModelPart,
+        Parameters ThisParameters
+        ):mrThisModelPart(rThisModelPart),
+          mThisParameters(ThisParameters)
+{
+    KRATOS_TRY
+
+    Parameters default_parameters = Parameters(R"(
+    {
+        "model_part_name"                : "",
+        "rayleigh_damping"               : false,
+        "assign_active_flag_node"        : true,
+        "nodal_mass"                     : null,
+        "nodal_inertia"                  : [null, null, null],
+        "nodal_stiffness"                : [null, null, null],
+        "nodal_rotational_stiffness"     : [null, null, null],
+        "nodal_damping_ratio"            : [null, null, null],
+        "nodal_rotational_damping_ratio" : [null, null, null],
+        "additional_dependence_variables": [],
+        "interval"                       : [0.0, 1e30]
+    })" );
+
+    mThisParameters.ValidateAndAssignDefaults(default_parameters);
+
+    // We check if there is any string in the values
+    if (!mThisParameters["nodal_mass"].IsNull())
+        if (mThisParameters["nodal_mass"].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_inertia"][0].IsNull())
+        if (mThisParameters["nodal_inertia"][0].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_inertia"][1].IsNull())
+        if (mThisParameters["nodal_inertia"][1].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_inertia"][2].IsNull())
+        if (mThisParameters["nodal_inertia"][2].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_stiffness"][0].IsNull())
+        if (mThisParameters["nodal_stiffness"][0].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_stiffness"][1].IsNull())
+        if (mThisParameters["nodal_stiffness"][1].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_stiffness"][2].IsNull())
+        if (mThisParameters["nodal_stiffness"][2].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_rotational_stiffness"][0].IsNull())
+        if (mThisParameters["nodal_rotational_stiffness"][0].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_rotational_stiffness"][1].IsNull())
+        if (mThisParameters["nodal_rotational_stiffness"][1].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_rotational_stiffness"][2].IsNull())
+        if (mThisParameters["nodal_rotational_stiffness"][2].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_damping_ratio"][0].IsNull())
+        if (mThisParameters["nodal_damping_ratio"][0].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_damping_ratio"][1].IsNull())
+        if (mThisParameters["nodal_damping_ratio"][1].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_damping_ratio"][2].IsNull())
+        if (mThisParameters["nodal_damping_ratio"][2].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_rotational_damping_ratio"][0].IsNull())
+        if (mThisParameters["nodal_rotational_damping_ratio"][0].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_rotational_damping_ratio"][1].IsNull())
+        if (mThisParameters["nodal_rotational_damping_ratio"][1].IsString())
+            mConstantValues = false;
+    if (!mThisParameters["nodal_rotational_damping_ratio"][2].IsNull())
+        if (mThisParameters["nodal_rotational_damping_ratio"][2].IsString())
+            mConstantValues = false;
+
+    // Check the interval
+    if (mThisParameters["interval"][0].GetDouble() > 0.0 || mThisParameters["interval"][0].GetDouble() < 1e30)
+        mConstantValues = false;
+
+    KRATOS_CATCH("")
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+
+void AssignNodalElementsToNodes::Execute()
+{
+    KRATOS_TRY
+
+    // Assuming the number of properties is ordered
+    ModelPart& r_root_model_part = mrThisModelPart.GetRootModelPart();
+    const SizeType number_properties = r_root_model_part.NumberOfProperties();
+    Properties::Pointer p_properties = r_root_model_part.pGetProperties(number_properties + 1);
+
+    // Domain size
+    const SizeType domain_size = r_root_model_part.GetProcessInfo()[DOMAIN_SIZE];
+
+    // We get the proper model part
+    const std::string& model_part_name = mThisParameters["model_part_name"].GetString();
+    ModelPart& r_model_part = (model_part_name == "") ? mrThisModelPart : mrThisModelPart.GetSubModelPart(model_part_name);
+    r_model_part.AddProperties(p_properties);
+
+    // The constitutive law
+    if (!mConstantValues) {
+        KRATOS_ERROR_IF_NOT(KratosComponents<ConstitutiveLaw>::Has("SpringConstitutiveLaw")) << "Please compile the ContactStructuralMechanicsApplication in order to use the SpringConstitutiveLaw" << std::endl;
+
+        Kratos::Parameters constitutive_law_parameters = Kratos::Parameters(R"({})" );
+        constitutive_law_parameters.AddValue("nodal_mass", mThisParameters["nodal_mass"]);
+        constitutive_law_parameters.AddValue("nodal_inertia", mThisParameters["nodal_inertia"]);
+        constitutive_law_parameters.AddValue("nodal_stiffness", mThisParameters["nodal_stiffness"]);
+        constitutive_law_parameters.AddValue("nodal_rotational_stiffness", mThisParameters["nodal_rotational_stiffness"]);
+        constitutive_law_parameters.AddValue("nodal_damping_ratio", mThisParameters["nodal_damping_ratio"]);
+        constitutive_law_parameters.AddValue("nodal_rotational_damping_ratio", mThisParameters["nodal_rotational_damping_ratio"]);
+        constitutive_law_parameters.AddValue("additional_dependence_variables", mThisParameters["additional_dependence_variables"]);
+        constitutive_law_parameters.AddValue("interval", mThisParameters["interval"]);
+
+        ConstitutiveLaw::Pointer this_constitutive_law = KratosComponents<ConstitutiveLaw>::Get("SpringConstitutiveLaw").Create(constitutive_law_parameters);
+
+        p_properties->SetValue(CONSTITUTIVE_LAW, this_constitutive_law);
+    } else {
+        if (!mThisParameters["nodal_mass"].IsNull())
+                p_properties->SetValue(NODAL_MASS, mThisParameters["nodal_mass"].GetDouble());
+        if (!mThisParameters["nodal_inertia"][0].IsNull() || !mThisParameters["nodal_inertia"][1].IsNull() || !mThisParameters["nodal_inertia"][2].IsNull()) {
+            array_1d<double, 3> nodal_inertia(3, 0.0);
+            if (!mThisParameters["nodal_inertia"][0].IsNull())
+                nodal_inertia[0] = mThisParameters["nodal_inertia"][0].GetDouble();
+            if (!mThisParameters["nodal_inertia"][1].IsNull())
+                nodal_inertia[1] = mThisParameters["nodal_inertia"][1].GetDouble();
+            if (!mThisParameters["nodal_inertia"][2].IsNull())
+                nodal_inertia[2] = mThisParameters["nodal_inertia"][2].GetDouble();
+
+            p_properties->SetValue(NODAL_INERTIA, nodal_inertia);
+        }
+        if (!mThisParameters["nodal_stiffness"][0].IsNull() || !mThisParameters["nodal_stiffness"][1].IsNull() || !mThisParameters["nodal_stiffness"][2].IsNull()) {
+            array_1d<double, 3> nodal_stiffness(3, 0.0);
+            if (!mThisParameters["nodal_stiffness"][0].IsNull())
+                nodal_stiffness[0] = mThisParameters["nodal_stiffness"][0].GetDouble();
+            if (!mThisParameters["nodal_stiffness"][1].IsNull())
+                nodal_stiffness[1] = mThisParameters["nodal_stiffness"][1].GetDouble();
+            if (!mThisParameters["nodal_stiffness"][2].IsNull())
+                nodal_stiffness[2] = mThisParameters["nodal_stiffness"][2].GetDouble();
+
+            p_properties->SetValue(NODAL_STIFFNESS, nodal_stiffness);
+        }
+        if (!mThisParameters["nodal_rotational_stiffness"][0].IsNull() || !mThisParameters["nodal_rotational_stiffness"][1].IsNull() || !mThisParameters["nodal_rotational_stiffness"][2].IsNull()) {
+            array_1d<double, 3> nodal_rotational_stiffness(3, 0.0);
+            if (!mThisParameters["nodal_rotational_stiffness"][0].IsNull())
+                nodal_rotational_stiffness[0] = mThisParameters["nodal_rotational_stiffness"][0].GetDouble();
+            if (!mThisParameters["nodal_rotational_stiffness"][1].IsNull())
+                nodal_rotational_stiffness[1] = mThisParameters["nodal_rotational_stiffness"][1].GetDouble();
+            if (!mThisParameters["nodal_rotational_stiffness"][2].IsNull())
+                nodal_rotational_stiffness[2] = mThisParameters["nodal_rotational_stiffness"][2].GetDouble();
+
+            p_properties->SetValue(NODAL_ROTATIONAL_STIFFNESS, nodal_rotational_stiffness);
+        }
+        if (!mThisParameters["nodal_damping_ratio"][0].IsNull() || !mThisParameters["nodal_damping_ratio"][1].IsNull() || !mThisParameters["nodal_damping_ratio"][2].IsNull()) {
+            array_1d<double, 3> nodal_damping_ratio(3, 0.0);
+            if (!mThisParameters["nodal_damping_ratio"][0].IsNull())
+                nodal_damping_ratio[0] = mThisParameters["nodal_damping_ratio"][0].GetDouble();
+            if (!mThisParameters["nodal_damping_ratio"][1].IsNull())
+                nodal_damping_ratio[1] = mThisParameters["nodal_damping_ratio"][1].GetDouble();
+            if (!mThisParameters["nodal_damping_ratio"][2].IsNull())
+                nodal_damping_ratio[2] = mThisParameters["nodal_damping_ratio"][2].GetDouble();
+
+            p_properties->SetValue(NODAL_DAMPING_RATIO, nodal_damping_ratio);
+        }
+        if (!mThisParameters["nodal_rotational_damping_ratio"][0].IsNull() || !mThisParameters["nodal_rotational_damping_ratio"][1].IsNull() || !mThisParameters["nodal_rotational_damping_ratio"][2].IsNull()) {
+            array_1d<double, 3> nodal_rotational_damping_ratio(3, 0.0);
+            if (!mThisParameters["nodal_rotational_damping_ratio"][0].IsNull())
+                nodal_rotational_damping_ratio[0] = mThisParameters["nodal_rotational_damping_ratio"][0].GetDouble();
+            if (!mThisParameters["nodal_rotational_damping_ratio"][1].IsNull())
+                nodal_rotational_damping_ratio[1] = mThisParameters["nodal_rotational_damping_ratio"][1].GetDouble();
+            if (!mThisParameters["nodal_rotational_damping_ratio"][2].IsNull())
+                nodal_rotational_damping_ratio[2] = mThisParameters["nodal_rotational_damping_ratio"][2].GetDouble();
+
+            p_properties->SetValue(NODAL_ROTATIONAL_DAMPING_RATIO, nodal_rotational_damping_ratio);
+        }
+    }
+
+    // The number of elements
+    const SizeType number_elements = r_root_model_part.NumberOfElements();
+    // Reorder ids
+    #pragma omp parallel for
+    for(int i=0; i< static_cast<int>(r_root_model_part.Elements().size()); i++) {
+        auto it_elem = r_model_part.ElementsBegin() + i;
+        it_elem->SetId(i + 1);
+    }
+
+    // We get the reference element
+    const bool rayleigh_damping = mThisParameters["rayleigh_damping"].GetBool();
+    const bool assign_active_flag_node = mThisParameters["assign_active_flag_node"].GetBool();
+    std::vector<NodeType::Pointer> aux_node_array(1);
+    aux_node_array[0] = *(r_model_part.NodesBegin()).base();
+
+    if (domain_size == 2) {
+        GeometryType::Pointer p_dummy_geom = Kratos::make_shared<Point2D<NodeType>>(aux_node_array);
+        const Element& rReferenceElement = mConstantValues ? NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node) : NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node);
+
+        std::vector<Element::Pointer> auxiliar_elements_vector;
+
+        #pragma omp parallel
+        {
+            // Buffer for new elements if created
+            std::vector<Element::Pointer> auxiliar_elements_vector_buffer;
+
+            #pragma omp for private(aux_node_array)
+            for(int i=0; i< static_cast<int>(r_model_part.Nodes().size()); i++) {
+                auto it_node = r_model_part.NodesBegin() + i;
+
+                aux_node_array[0] = *(it_node).base();
+
+                auto p_element = rReferenceElement.Create(number_elements + 1 + i, Kratos::make_shared<Point2D<NodeType>>(aux_node_array), p_properties);
+
+                // Deep copy elemental data and flags
+//                 p_element->Data() = it_node->Data();
+                p_element->Set(Flags(*it_node));
+            }
+
+            // Combine buffers together
+            #pragma omp critical
+            {
+                std::move(auxiliar_elements_vector_buffer.begin(),auxiliar_elements_vector_buffer.end(),back_inserter(auxiliar_elements_vector));
+            }
+        }
+    } else {
+        GeometryType::Pointer p_dummy_geom = Kratos::make_shared<Point3D<NodeType>>(aux_node_array);
+        const Element& rReferenceElement = mConstantValues ? NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node) : NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node);
+
+        std::vector<Element::Pointer> auxiliar_elements_vector;
+
+        #pragma omp parallel
+        {
+            // Buffer for new elements if created
+            std::vector<Element::Pointer> auxiliar_elements_vector_buffer;
+
+            #pragma omp for private(aux_node_array)
+            for(int i=0; i< static_cast<int>(r_model_part.Nodes().size()); i++) {
+                auto it_node = r_model_part.NodesBegin() + i;
+
+                aux_node_array[0] = *(it_node).base();
+
+                auto p_element = rReferenceElement.Create(number_elements + 1 + i, Kratos::make_shared<Point3D<NodeType>>(aux_node_array), p_properties);
+
+                // Deep copy elemental data and flags
+//                 p_element->Data() = it_node->Data();
+                p_element->Set(Flags(*it_node));
+            }
+
+            // Combine buffers together
+            #pragma omp critical
+            {
+                std::move(auxiliar_elements_vector_buffer.begin(),auxiliar_elements_vector_buffer.end(),back_inserter(auxiliar_elements_vector));
+            }
+        }
+
+        // Adding to the model part
+        ElementsArrayType aux_elems;
+        aux_elems.GetContainer() = auxiliar_elements_vector;
+        r_model_part.AddElements(aux_elems.begin(), aux_elems.end());
+    }
+
+    // We Initialize the elements
+    InitializeElements(r_model_part);
+
+    KRATOS_CATCH("")
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+void AssignNodalElementsToNodes::InitializeElements(ModelPart& rModelPart)
+{
+    ElementsArrayType& element_array = rModelPart.Elements();
+    for(SizeType i = 0; i < element_array.size(); ++i)
+        (element_array.begin() + i)->Initialize();
+}
+
+// class AssignNodalElementsToNodes
+} // namespace Kratos
