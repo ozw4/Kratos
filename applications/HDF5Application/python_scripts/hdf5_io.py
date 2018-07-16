@@ -33,7 +33,7 @@ class HDF5SerialFileFactory(FileFactory):
         self.settings = settings.Clone()
         self.settings.ValidateAndAssignDefaults(default_settings)
         self.settings.AddEmptyValue("file_name")
-    
+
     def Open(self, file_name):
         self.settings["file_name"].SetString(file_name)
         return KratosHDF5.HDF5FileSerial(self.settings)
@@ -52,7 +52,7 @@ class HDF5ParallelFileFactory(FileFactory):
         self.settings = settings.Clone()
         self.settings.ValidateAndAssignDefaults(default_settings)
         self.settings.AddEmptyValue("file_name")
-    
+
     def Open(self, file_name):
         self.settings["file_name"].SetString(file_name)
         return KratosHDF5.HDF5FileParallel(self.settings)
@@ -141,7 +141,7 @@ class PartitionedModelPartOutput(IOObject):
         self.settings.ValidateAndAssignDefaults(default_settings)
 
     def Execute(self, model_part, hdf5_file):
-        KratosHDF5.HDF5PartitionedModelPartIO(hdf5_file, self.settings["prefix"].GetString()).WriteModelPart(model_part)
+        KratosHDF5.HDF5PartitionedModelPartIO(hdf5_file, self.settings["prefix"].GetString(), self.settings["write_elements"].GetBool()).WriteModelPart(model_part)
 
 
 class StaticOutputProcess(KratosMultiphysics.Process):
@@ -165,7 +165,7 @@ class StaticOutputProcess(KratosMultiphysics.Process):
 
 class TemporalOutputProcess(KratosMultiphysics.Process):
     """A process for writing temporal simulation results.
-    
+
     Responsible for the output step control logic. Output objects to be executed
     at regular time intervals are attached using AddOutput().
     """

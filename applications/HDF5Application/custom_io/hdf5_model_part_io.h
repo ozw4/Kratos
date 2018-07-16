@@ -51,7 +51,7 @@ public:
     ///@{
 
     /// Constructor.
-    ModelPartIO(File::Pointer pFile, std::string const& rPrefix);
+    ModelPartIO(File::Pointer pFile, std::string const& rPrefix, const bool& rWriteElements);
 
     ///@}
     ///@name Operations
@@ -100,6 +100,7 @@ protected:
 
     File::Pointer mpFile;
     const std::string mPrefix;
+    const bool mWriteElements;
 
     ///@}
 

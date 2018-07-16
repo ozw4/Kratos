@@ -53,8 +53,8 @@ int GlobalNumberOfConditions(ModelPart const& rModelPart)
 }
 }
 
-ModelPartIO::ModelPartIO(File::Pointer pFile, std::string const& rPrefix)
-: mpFile(pFile), mPrefix(rPrefix)
+ModelPartIO::ModelPartIO(File::Pointer pFile, std::string const& rPrefix, const bool& rWriteElements)
+: mpFile(pFile), mPrefix(rPrefix), mWriteElements(rWriteElements)
 {
 }
 
@@ -202,9 +202,13 @@ void ModelPartIO::WriteModelPart(ModelPart& rModelPart)
     rModelPart.Nodes().Sort(); // Avoid inadvertently reordering partway through
                                // the writing process.
     WriteNodes(rModelPart.Nodes());
-    WriteElements(rModelPart.Elements());
-    WriteConditions(rModelPart.Conditions());
-    WriteSubModelParts(rModelPart);
+
+    if (mWriteElements)
+    {
+        WriteElements(rModelPart.Elements());
+        WriteConditions(rModelPart.Conditions());
+        WriteSubModelParts(rModelPart);
+    }
 
     if (mpFile->GetEchoLevel() == 1 && mpFile->GetPID() == 0)
         std::cout << "Time to write model part \"" << rModelPart.Name() << "\": " << timer.ElapsedSeconds() << " seconds." << std::endl;

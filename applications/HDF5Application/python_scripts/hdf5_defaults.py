@@ -13,7 +13,8 @@ hdf5_default_settings = """
 
 model_part_output_default_settings = """
             {
-                "prefix" : "/ModelData"
+                "prefix" : "/ModelData",
+                "write_elements": true
             }
             """
 
