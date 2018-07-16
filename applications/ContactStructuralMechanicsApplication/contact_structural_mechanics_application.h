@@ -24,6 +24,13 @@
 
 #include "includes/variables.h"
 
+/* CONSTITUTIVE LAWS */
+#include "custom_constitutive/spring_constitutive_law.h"
+
+/* ELEMENTS */
+/* Springs elements */
+#include "custom_elements/nodal_concentrated_with_constitutive_behaviour_element.h"
+
 /* CONDITIONS */
 // Mortar conditions
 #include "custom_conditions/mesh_tying_mortar_condition.h"
@@ -188,6 +195,16 @@ private:
     ///@name Member Variables
     ///@{
     
+    /* CONSTITUTIVE LAWS */
+    const SpringConstitutiveLaw mSpringConstitutiveLaw;
+
+    /* ELEMENTS */
+    // Adding the nodal concentrated element
+    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourElement2D1N;
+    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourDampedElement2D1N;
+    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourElement3D1N;
+    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourDampedElement3D1N;
+
     /* CONDITIONS*/
     // Mesh tying mortar condition    
     const MeshTyingMortarCondition<2, 3, ScalarValue> mMeshTyingMortarCondition2D2NTriangleScalar;            // 2DLine/Triangle for scalar variables

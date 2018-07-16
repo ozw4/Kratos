@@ -19,6 +19,7 @@
 
 // Project includes
 #include "includes/constitutive_law.h"
+#include "custom_python/python_constitutive_law_function.h"
 
 namespace Kratos
 {
@@ -36,114 +37,6 @@ namespace Kratos
 ///@}
 ///@name Kratos Classes
 ///@{
-
-/**
- * @class PythonConstitutiveLawFunction
- * @ingroup StructuralMechanicsApplication
- * @brief This function allows to call a function method of type f(x, y, z, t) implemented in python.
- * @details Uses python functions to evaluate the bahaviour of the CL
- * The functions can be constructed by providing a python-defined method of the type
- *
- *  class aux_object_cpp_callback:
- *    def __init__(self, function_string ):
- *        #TODO: check python version
- *        self.compiled_function = compile(function_string, '', 'eval', optimize=2)
- *
- *    def f(self,x,y,z,t):
- *        return  eval(self.compiled_function)
- *
- * the object is then insantiated as
- * aux_function = PythonConstitutiveLawFunction(aux_object_cpp_callback(self.function_string))
- * @note Based on python_function_callback_utility
- * @note This makes this file to depend on python
- * @author Riccardo Rossi
- * @author Vicente Mataix Ferrandiz
- */
-class PythonConstitutiveLawFunction
-{
-public:
-    ///@name Type Definitions
-    ///@{
-
-    /// The node defintion
-    typedef Node<3> NodeType;
-
-    /// Counted pointer of PythonConstitutiveLawFunction
-    KRATOS_CLASS_POINTER_DEFINITION(PythonConstitutiveLawFunction);
-
-    ///@}
-    ///@name Life Cycle
-    ///@{
-
-    /**
-     * @brief Default constructor
-     * @param rFunctionBody The text containing the function
-     */
-    PythonConstitutiveLawFunction( const std::string& rFunctionBody);
-
-    ///@}
-    ///@name Operators
-    ///@{
-
-    /**
-     * @brief This methods returns the value of the function
-     * @param ThisNode The node whre to evaluate
-     * @param Time The current time
-     * @return The resulting value of the function
-     */
-    double CallFunction(
-        const NodeType& ThisNode,
-        std::vector<std::string>& AdditionalVariables,
-        const double Time
-        );
-
-    ///@}
-    ///@name Access
-    ///@{
-    ///@}
-    ///@name Inquiry
-    ///@{
-    ///@}
-    ///@name Input and output
-    ///@{
-    ///@}
-    ///@name Friends
-    ///@{
-    ///@}
-
-private:
-    ///@name Static Member Variables
-    ///@{
-
-    ///@}
-    ///@name Member Variables
-    ///@{
-
-    ///@}
-    ///@name Private Operators
-    ///@{
-
-    ///@}
-    ///@name Private Operations
-    ///@{
-
-    ///@}
-    ///@name Private  Access
-    ///@{
-
-    ///@}
-    ///@name Serialization
-    ///@{
-
-    ///@name Private Inquiry
-    ///@{
-
-    ///@}
-    ///@name Un accessible methods
-    ///@{
-    ///@}
-}; // PythonConstitutiveLawFunction
-
 /**
  * @class SpringConstitutiveLaw
  * @ingroup StructuralMechanicsApplication
@@ -169,6 +62,9 @@ public:
 
     /// The index type
     typedef std::size_t             IndexType;
+
+    /// Shorting name
+    typedef Python::ConstitutiveLawFunction ConstitutiveLawFunction;
 
     /// Counted pointer of SpringConstitutiveLaw
     KRATOS_CLASS_POINTER_DEFINITION( SpringConstitutiveLaw );
@@ -416,10 +312,10 @@ protected:
     ///@{
     
     /* The definition of the functions */
-    std::unordered_map<IndexType, PythonConstitutiveLawFunction::Pointer> mFunctions; /// This map stores the defined functions
-    std::unordered_map<IndexType, double> mConstantValues;                            /// This method stores the constant values
+    std::unordered_map<IndexType, ConstitutiveLawFunction::Pointer> mFunctions; /// This map stores the defined functions
+    std::unordered_map<IndexType, double> mConstantValues;                      /// This method stores the constant values
 
-    std::vector<std::string> mAdditionalDependenceVariables;                          /// Variables to include additional dependence
+    std::vector<std::string> mAdditionalDependenceVariables;                    /// Variables to include additional dependence
 
     IndexType mNodalIndex = 0;          /// The index of the current node on the geometry
 

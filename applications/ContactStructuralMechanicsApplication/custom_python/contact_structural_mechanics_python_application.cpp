@@ -6,7 +6,7 @@
 //  License:		 BSD License
 //					 license: StructuralMechanicsApplication/license.txt
 //
-//  Main authors:    Vicente Mataix
+//  Main authors:    Vicente Mataix Ferrandiz
 //
 
 // System includes
@@ -25,6 +25,7 @@
 #include "custom_python/add_custom_utilities_to_python.h"
 #include "custom_python/add_mappers_to_python.h"
 #include "custom_python/add_custom_linear_solvers_to_python.h"
+#include "custom_python/add_custom_constitutive_laws_to_python.h"
 
 namespace Kratos
 {
@@ -50,6 +51,7 @@ PYBIND11_MODULE(KratosContactStructuralMechanicsApplication, m)
     AddCustomProcessesToPython(m);
     AddCustomMappersToPython(m);
     AddCustomLinearSolversToPython(m);
+    AddCustomConstitutiveLawsToPython(m);
 
     // Adding enums
     enum_<NormalDerivativesComputation>(m, "NormalDerivativesComputation")

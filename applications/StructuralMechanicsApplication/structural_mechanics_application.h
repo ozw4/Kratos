@@ -48,7 +48,6 @@
 
 /* Springs elements */
 #include "custom_elements/nodal_concentrated_element.h"
-#include "custom_elements/nodal_concentrated_with_constitutive_behaviour_element.h"
 
 /* Adding the spring damper element */
 #include "custom_elements/spring_damper_element_3D2N.hpp"
@@ -79,7 +78,6 @@
 #include "custom_constitutive/truss_plasticity_constitutive_law.h"
 #include "custom_constitutive/truss_constitutive_law.h"
 #include "custom_constitutive/beam_constitutive_law.h"
-// #include "custom_constitutive/spring_constitutive_law.h"
 #include "custom_constitutive/elastic_isotropic_3d.h"
 #include "custom_constitutive/axisym_elastic_isotropic.h"
 #include "custom_constitutive/linear_plane_strain.h"
@@ -291,10 +289,6 @@ private:
     const NodalConcentratedElement mNodalConcentratedDampedElement2D1N;
     const NodalConcentratedElement mNodalConcentratedElement3D1N;
     const NodalConcentratedElement mNodalConcentratedDampedElement3D1N;
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourElement2D1N;
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourDampedElement2D1N;
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourElement3D1N;
-    const NodalConcentratedWithConstitutiveBehaviourElement mNodalConcentratedWithConstitutiveBehaviourDampedElement3D1N;
 
     // Linear kinematic elements
     const SmallDisplacement mSmallDisplacement2D3N;
@@ -393,7 +387,6 @@ private:
     const TrussConstitutiveLaw mTrussConstitutiveLaw;
     const TrussPlasticityConstitutiveLaw mTrussPlasticityConstitutiveLaw;
     const BeamConstitutiveLaw mBeamConstitutiveLaw;
-//     const SpringConstitutiveLaw mSpringConstitutiveLaw;
     const ElasticIsotropic3D mElasticIsotropic3D;
     const AxisymElasticIsotropic mAxisymElasticIsotropic;
     const LinearPlaneStrain  mLinearPlaneStrain;

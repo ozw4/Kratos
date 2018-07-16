@@ -12,8 +12,6 @@
 // System includes
 
 // External includes
-#include <pybind11/pybind11.h>
-#include <pybind11/eval.h>
 
 // Project includes
 #include "includes/checks.h"
@@ -22,139 +20,6 @@
 
 namespace Kratos
 {
-/**
- * PythonConstitutiveLawFunction memeber variables definitions
- */
-pybind11::object mMainModule;    /// The python main module
-pybind11::object mMainNameSpace; /// The variables that generate the dependence of the function
-std::string mFunctionBody;       /// The text definting the function
-
-/**
- * PythonConstitutiveLawFunction methods definitions
- */
-PythonConstitutiveLawFunction::PythonConstitutiveLawFunction( const std::string& rFunctionBody)
-{
-    // Compile the function starting from the string function body
-    try {
-        mMainModule = pybind11::module::import("__main__");
-        mMainNameSpace = mMainModule.attr("__dict__");
-        pybind11::exec("from math import *", mMainNameSpace);
-        mFunctionBody = rFunctionBody;
-    } catch(pybind11::error_already_set const&) {
-        PyErr_Print();
-    }
-}
-
-/***********************************************************************************/
-/***********************************************************************************/
-
-double PythonConstitutiveLawFunction::CallFunction(
-    const NodeType& ThisNode,
-    std::vector<std::string>& AdditionalVariables,
-    const double Time
-    )
-{
-    /// Position
-    mMainNameSpace["x"] = ThisNode.X();
-    mMainNameSpace["y"] = ThisNode.Y();
-    mMainNameSpace["z"] = ThisNode.Z();
-    mMainNameSpace["X0"] = ThisNode.X0();
-    mMainNameSpace["Y0"] = ThisNode.Y0();
-    mMainNameSpace["Z0"] = ThisNode.Z0();
-
-    /// Values
-    const array_1d<double, 3>& disp = ThisNode.FastGetSolutionStepValue(DISPLACEMENT);
-    mMainNameSpace["DISPLACEMENT_X"] = disp[0];
-    mMainNameSpace["DISPLACEMENT_Y"] = disp[1];
-    mMainNameSpace["DISPLACEMENT_Z"] = disp[2];
-    /// Increment of values
-    const array_1d<double, 3>& dispDelta = ThisNode.FastGetSolutionStepValue(DISPLACEMENT) - ThisNode.FastGetSolutionStepValue(DISPLACEMENT, 1);
-    mMainNameSpace["DISPLACEMENT_DELTA_X"] = dispDelta[0];
-    mMainNameSpace["DISPLACEMENT_DELTA_Y"] = dispDelta[1];
-    mMainNameSpace["DISPLACEMENT_DELTA_Z"] = dispDelta[2];
-    if (ThisNode.SolutionStepsDataHas(VELOCITY_X)) {
-        const array_1d<double, 3>& vel = ThisNode.FastGetSolutionStepValue(VELOCITY);
-        mMainNameSpace["VELOCITY_X"] = vel[0];
-        mMainNameSpace["VELOCITY_Y"] = vel[1];
-        mMainNameSpace["VELOCITY_Z"] = vel[2];
-        /// Increment of values
-        const array_1d<double, 3>& velDelta = ThisNode.FastGetSolutionStepValue(VELOCITY) - ThisNode.FastGetSolutionStepValue(VELOCITY, 1);
-        mMainNameSpace["VELOCITY_DELTA_X"] = velDelta[0];
-        mMainNameSpace["VELOCITY_DELTA_Y"] = velDelta[1];
-        mMainNameSpace["VELOCITY_DELTA_Z"] = velDelta[2];
-    }
-    if (ThisNode.SolutionStepsDataHas(ACCELERATION_X)) {
-        const array_1d<double, 3>& accel = ThisNode.FastGetSolutionStepValue(ACCELERATION);
-        mMainNameSpace["ACCELERATION_X"] = accel[0];
-        mMainNameSpace["ACCELERATION_Y"] = accel[1];
-        mMainNameSpace["ACCELERATION_Z"] = accel[2];
-        /// Increment of values
-        const array_1d<double, 3>& accelDelta = ThisNode.FastGetSolutionStepValue(ACCELERATION) - ThisNode.FastGetSolutionStepValue(ACCELERATION, 1);
-        mMainNameSpace["ACCELERATION_DELTA_X"] = accelDelta[0];
-        mMainNameSpace["ACCELERATION_DELTA_Y"] = accelDelta[1];
-        mMainNameSpace["ACCELERATION_DELTA_Z"] = accelDelta[2];
-    }
-    if (ThisNode.SolutionStepsDataHas(ROTATION_X)) {
-        const array_1d<double, 3>& theta = ThisNode.FastGetSolutionStepValue(ROTATION);
-        mMainNameSpace["ROTATION_X"] = theta[0];
-        mMainNameSpace["ROTATION_Y"] = theta[1];
-        mMainNameSpace["ROTATION_Z"] = theta[2];
-        /// Increment of values
-        const array_1d<double, 3>& thetaDelta = ThisNode.FastGetSolutionStepValue(ROTATION) - ThisNode.FastGetSolutionStepValue(ROTATION, 1);
-        mMainNameSpace["ROTATION_DELTA_X"] = thetaDelta[0];
-        mMainNameSpace["ROTATION_DELTA_Y"] = thetaDelta[1];
-        mMainNameSpace["ROTATION_DELTA_Z"] = thetaDelta[2];
-    }
-    if (ThisNode.SolutionStepsDataHas(ANGULAR_VELOCITY_X)) {
-        const array_1d<double, 3>& vang = ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY);
-        mMainNameSpace["ANGULAR_VELOCITY_X"] = vang[0];
-        mMainNameSpace["ANGULAR_VELOCITY_Y"] = vang[1];
-        mMainNameSpace["ANGULAR_VELOCITY_Z"] = vang[2];
-        /// Increment of values
-        const array_1d<double, 3>& vangDelta = ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY) - ThisNode.FastGetSolutionStepValue(ANGULAR_VELOCITY, 1);
-        mMainNameSpace["ANGULAR_VELOCITY_DELTA_X"] = vangDelta[0];
-        mMainNameSpace["ANGULAR_VELOCITY_DELTA_Y"] = vangDelta[1];
-        mMainNameSpace["ANGULAR_VELOCITY_DELTA_Z"] = vangDelta[2];
-    }
-    if (ThisNode.SolutionStepsDataHas(ANGULAR_ACCELERATION_X)) {
-        const array_1d<double, 3>& aang = ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION);
-        mMainNameSpace["ANGULAR_ACCELERATION_X"] = aang[0];
-        mMainNameSpace["ANGULAR_ACCELERATION_Y"] = aang[1];
-        mMainNameSpace["ANGULAR_ACCELERATION_Z"] = aang[2];
-        /// Increment of values
-        const array_1d<double, 3>& aangDelta = ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION) - ThisNode.FastGetSolutionStepValue(ANGULAR_ACCELERATION, 1);
-        mMainNameSpace["ANGULAR_ACCELERATION_DELTA_X"] = aangDelta[0];
-        mMainNameSpace["ANGULAR_ACCELERATION_DELTA_Y"] = aangDelta[1];
-        mMainNameSpace["ANGULAR_ACCELERATION_DELTA_Z"] = aangDelta[2];
-    }
-
-    /// Time
-    mMainNameSpace["t"] = Time;
-
-    /// Additional variables
-    for (auto& variable_name : AdditionalVariables) {
-        if (KratosComponents< Variable< array_1d< double, 3> > >::Has(variable_name)) {
-            Variable<array_1d< double, 3>> variable = KratosComponents< Variable<array_1d< double, 3>> >::Get(variable_name);
-            const array_1d<double, 3>& value_var = ThisNode.FastGetSolutionStepValue(variable);
-            std::string aux_string = variable_name + "_X";
-            mMainNameSpace[aux_string.c_str()] = value_var[0];
-            aux_string = variable_name + "_Y";
-            mMainNameSpace[aux_string.c_str()] = value_var[1];
-            aux_string = variable_name + "_Z";
-            mMainNameSpace[aux_string.c_str()] = value_var[2];
-        } else {
-            Variable<double> variable = KratosComponents< Variable<double> >::Get(variable_name);
-            const double value_var = ThisNode.FastGetSolutionStepValue(variable);
-            mMainNameSpace[variable_name.c_str()] = value_var;
-        }
-    }
-
-    return pybind11::eval(mFunctionBody, mMainNameSpace).cast<double>();
-}
-
-/***********************************************************************************/
-/***********************************************************************************/
-
 /**
  * Flags related to the CL computation
  */
@@ -252,7 +117,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_MASS)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_MASS, NewParameters["nodal_mass"].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_MASS)) {
-            mFunctions.insert({NODAL_MASS.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_mass"].GetString())});
+            mFunctions.insert({NODAL_MASS.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_mass"].GetString())});
         } else {
             mConstantValues.insert({NODAL_MASS.Key(), NewParameters["nodal_mass"].GetDouble()});
         }
@@ -260,7 +125,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_X)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_INERTIA_X, NewParameters["nodal_inertia"][0].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_INERTIA_X)) {
-            mFunctions.insert({NODAL_INERTIA_X.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_inertia"][0].GetString())});
+            mFunctions.insert({NODAL_INERTIA_X.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_inertia"][0].GetString())});
         } else {
             mConstantValues.insert({NODAL_INERTIA_X.Key(), NewParameters["nodal_inertia"][0].GetDouble()});
         }
@@ -268,7 +133,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Y)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_INERTIA_Y, NewParameters["nodal_inertia"][1].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_INERTIA_Y)) {
-            mFunctions.insert({NODAL_INERTIA_Y.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_inertia"][1].GetString())});
+            mFunctions.insert({NODAL_INERTIA_Y.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_inertia"][1].GetString())});
         } else {
             mConstantValues.insert({NODAL_INERTIA_Y.Key(), NewParameters["nodal_inertia"][1].GetDouble()});
         }
@@ -276,7 +141,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_INERTIA_Z)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_INERTIA_Z, NewParameters["nodal_inertia"][2].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_INERTIA_Z)) {
-            mFunctions.insert({NODAL_INERTIA_Z.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_inertia"][2].GetString())});
+            mFunctions.insert({NODAL_INERTIA_Z.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_inertia"][2].GetString())});
         } else {
             mConstantValues.insert({NODAL_INERTIA_Z.Key(), NewParameters["nodal_inertia"][2].GetDouble()});
         }
@@ -284,7 +149,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_X)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_STIFFNESS_X, NewParameters["nodal_stiffness"][0].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_STIFFNESS_X)) {
-            mFunctions.insert({NODAL_STIFFNESS_X.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_stiffness"][0].GetString())});
+            mFunctions.insert({NODAL_STIFFNESS_X.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_stiffness"][0].GetString())});
         } else {
             mConstantValues.insert({NODAL_STIFFNESS_X.Key(), NewParameters["nodal_stiffness"][0].GetDouble()});
         }
@@ -292,7 +157,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Y)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_STIFFNESS_Y, NewParameters["nodal_stiffness"][1].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_STIFFNESS_Y)) {
-            mFunctions.insert({NODAL_STIFFNESS_Y.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_stiffness"][1].GetString())});
+            mFunctions.insert({NODAL_STIFFNESS_Y.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_stiffness"][1].GetString())});
         } else {
             mConstantValues.insert({NODAL_STIFFNESS_Y.Key(), NewParameters["nodal_stiffness"][1].GetDouble()});
         }
@@ -300,7 +165,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_STIFFNESS_Z)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_STIFFNESS_Z, NewParameters["nodal_stiffness"][2].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_STIFFNESS_Z)) {
-            mFunctions.insert({NODAL_STIFFNESS_Z.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_stiffness"][2].GetString())});
+            mFunctions.insert({NODAL_STIFFNESS_Z.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_stiffness"][2].GetString())});
         } else {
             mConstantValues.insert({NODAL_STIFFNESS_Z.Key(), NewParameters["nodal_stiffness"][2].GetDouble()});
         }
@@ -308,7 +173,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_X)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_X, NewParameters["nodal_rotational_stiffness"][0].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_X)) {
-            mFunctions.insert({NODAL_ROTATIONAL_STIFFNESS_X.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][0].GetString())});
+            mFunctions.insert({NODAL_ROTATIONAL_STIFFNESS_X.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][0].GetString())});
         } else {
             mConstantValues.insert({NODAL_ROTATIONAL_STIFFNESS_X.Key(), NewParameters["nodal_rotational_stiffness"][0].GetDouble()});
         }
@@ -316,7 +181,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Y)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_Y, NewParameters["nodal_rotational_stiffness"][1].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_Y)) {
-            mFunctions.insert({NODAL_ROTATIONAL_STIFFNESS_Y.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][1].GetString())});
+            mFunctions.insert({NODAL_ROTATIONAL_STIFFNESS_Y.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][1].GetString())});
         } else {
             mConstantValues.insert({NODAL_ROTATIONAL_STIFFNESS_Y.Key(), NewParameters["nodal_rotational_stiffness"][1].GetDouble()});
         }
@@ -324,7 +189,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_STIFFNESS_Z)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_Z, NewParameters["nodal_rotational_stiffness"][2].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_STIFFNESS_Z)) {
-            mFunctions.insert({NODAL_ROTATIONAL_STIFFNESS_Z.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][2].GetString())});
+            mFunctions.insert({NODAL_ROTATIONAL_STIFFNESS_Z.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_rotational_stiffness"][2].GetString())});
         } else {
             mConstantValues.insert({NODAL_ROTATIONAL_STIFFNESS_Z.Key(), NewParameters["nodal_rotational_stiffness"][2].GetDouble()});
         }
@@ -332,7 +197,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_DAMPING_RATIO_X)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_X, NewParameters["nodal_damping_ratio"][0].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_X)) {
-            mFunctions.insert({NODAL_DAMPING_RATIO_X.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_damping_ratio"][0].GetString())});
+            mFunctions.insert({NODAL_DAMPING_RATIO_X.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_damping_ratio"][0].GetString())});
         } else {
             mConstantValues.insert({NODAL_DAMPING_RATIO_X.Key(), NewParameters["nodal_damping_ratio"][0].GetDouble()});
         }
@@ -340,7 +205,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_DAMPING_RATIO_Y)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_Y, NewParameters["nodal_damping_ratio"][1].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_Y)) {
-            mFunctions.insert({NODAL_DAMPING_RATIO_Y.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_damping_ratio"][1].GetString())});
+            mFunctions.insert({NODAL_DAMPING_RATIO_Y.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_damping_ratio"][1].GetString())});
         } else {
             mConstantValues.insert({NODAL_DAMPING_RATIO_Y.Key(), NewParameters["nodal_damping_ratio"][1].GetDouble()});
         }
@@ -348,7 +213,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_DAMPING_RATIO_Z)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_Z, NewParameters["nodal_damping_ratio"][2].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_DAMPING_RATIO_Z)) {
-            mFunctions.insert({NODAL_DAMPING_RATIO_Z.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_damping_ratio"][2].GetString())});
+            mFunctions.insert({NODAL_DAMPING_RATIO_Z.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_damping_ratio"][2].GetString())});
         } else {
             mConstantValues.insert({NODAL_DAMPING_RATIO_Z.Key(), NewParameters["nodal_damping_ratio"][2].GetDouble()});
         }
@@ -356,7 +221,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_DAMPING_RATIO_X)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_X, NewParameters["nodal_rotational_damping_ratio"][0].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_X)) {
-            mFunctions.insert({NODAL_ROTATIONAL_DAMPING_RATIO_X.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_damping_ratio"][0].GetString())});
+            mFunctions.insert({NODAL_ROTATIONAL_DAMPING_RATIO_X.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_rotational_damping_ratio"][0].GetString())});
         } else {
             mConstantValues.insert({NODAL_ROTATIONAL_DAMPING_RATIO_X.Key(), NewParameters["nodal_rotational_damping_ratio"][0].GetDouble()});
         }
@@ -364,7 +229,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_DAMPING_RATIO_Y)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_Y, NewParameters["nodal_rotational_damping_ratio"][1].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_Y)) {
-            mFunctions.insert({NODAL_ROTATIONAL_DAMPING_RATIO_Y.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_damping_ratio"][1].GetString())});
+            mFunctions.insert({NODAL_ROTATIONAL_DAMPING_RATIO_Y.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_rotational_damping_ratio"][1].GetString())});
         } else {
             mConstantValues.insert({NODAL_ROTATIONAL_DAMPING_RATIO_Y.Key(), NewParameters["nodal_rotational_damping_ratio"][1].GetDouble()});
         }
@@ -372,7 +237,7 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
     if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::NULL_ROTATIONAL_DAMPING_RATIO_Z)) {
         mConstitutiveLawFlags.Set(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_Z, NewParameters["nodal_rotational_damping_ratio"][2].IsDouble());
         if (mConstitutiveLawFlags.IsNot(SpringConstitutiveLaw::CONSTANT_ROTATIONAL_DAMPING_RATIO_Z)) {
-            mFunctions.insert({NODAL_ROTATIONAL_DAMPING_RATIO_Z.Key(),  Kratos::make_shared<PythonConstitutiveLawFunction>(NewParameters["nodal_rotational_damping_ratio"][2].GetString())});
+            mFunctions.insert({NODAL_ROTATIONAL_DAMPING_RATIO_Z.Key(),  Kratos::make_shared<ConstitutiveLawFunction>(NewParameters["nodal_rotational_damping_ratio"][2].GetString())});
         } else {
             mConstantValues.insert({NODAL_ROTATIONAL_DAMPING_RATIO_Z.Key(), NewParameters["nodal_rotational_damping_ratio"][2].GetDouble()});
         }
