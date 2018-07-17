@@ -84,7 +84,15 @@ SpringConstitutiveLaw::SpringConstitutiveLaw(Kratos::Parameters NewParameters)
         "interval"                       : [0.0, 1e30]
     })" );
 
-    NewParameters.ValidateAndAssignDefaults(default_parameters);
+    // Setting the default values manually
+    if (!NewParameters.Has("nodal_mass")) NewParameters.AddValue("nodal_mass", default_parameters["nodal_mass"]);
+    if (!NewParameters.Has("nodal_inertia")) NewParameters.AddValue("nodal_inertia", default_parameters["nodal_inertia"]);
+    if (!NewParameters.Has("nodal_stiffness")) NewParameters.AddValue("nodal_stiffness", default_parameters["nodal_stiffness"]);
+    if (!NewParameters.Has("nodal_rotational_stiffness")) NewParameters.AddValue("nodal_rotational_stiffness", default_parameters["nodal_rotational_stiffness"]);
+    if (!NewParameters.Has("nodal_damping_ratio")) NewParameters.AddValue("nodal_damping_ratio", default_parameters["nodal_damping_ratio"]);
+    if (!NewParameters.Has("nodal_rotational_damping_ratio")) NewParameters.AddValue("nodal_rotational_damping_ratio", default_parameters["nodal_rotational_damping_ratio"]);
+    if (!NewParameters.Has("additional_dependence_variables")) NewParameters.AddValue("additional_dependence_variables", default_parameters["additional_dependence_variables"]);
+    if (!NewParameters.Has("interval")) NewParameters.AddValue("interval", default_parameters["interval"]);
 
     /// The list of additional additional dependence variables
     const SizeType n_variables = NewParameters["additional_dependence_variables"].size();
