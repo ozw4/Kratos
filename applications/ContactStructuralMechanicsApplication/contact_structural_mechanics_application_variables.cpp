@@ -22,6 +22,9 @@ typedef array_1d<double,3> Vector3;
 typedef Geometry<Node<3>> GeometryType;
 
 // VARIABLES
+// General pourpose
+KRATOS_CREATE_VARIABLE(int, NODAL_INDEX);                                            // The current node id (can be used for several pourposes)
+
 /* Mortar method general variables */
 KRATOS_CREATE_VARIABLE( int , INTEGRATION_ORDER_CONTACT )                            // The integration order computed in the contact
 KRATOS_CREATE_VARIABLE( double, DISTANCE_THRESHOLD )                                 // The distance threshold considered

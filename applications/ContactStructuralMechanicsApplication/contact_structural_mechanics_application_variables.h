@@ -46,6 +46,9 @@ namespace Kratos
 ///@{
 
 // VARIABLES
+// General pourpose
+KRATOS_DEFINE_APPLICATION_VARIABLE( CONTACT_STRUCTURAL_MECHANICS_APPLICATION, int, NODAL_INDEX);                                          // The current node id (can be used for
+
 /* Mortar method */
 KRATOS_DEFINE_APPLICATION_VARIABLE( CONTACT_STRUCTURAL_MECHANICS_APPLICATION, int , INTEGRATION_ORDER_CONTACT )                           // The integration order computed in the contact
 KRATOS_DEFINE_APPLICATION_VARIABLE( CONTACT_STRUCTURAL_MECHANICS_APPLICATION, double, DISTANCE_THRESHOLD )                                // The distance threshold considered

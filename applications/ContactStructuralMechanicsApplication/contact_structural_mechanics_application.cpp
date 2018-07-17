@@ -88,6 +88,9 @@ void KratosContactStructuralMechanicsApplication::Register()
     // Calling base class register to register Kratos components
     KratosApplication::Register();
 
+    // General pourpose
+    KRATOS_REGISTER_VARIABLE(NODAL_INDEX);                                            // The current node id (can be used for several pourposes)
+
     // VARIABLES
     /* Mortar method general variables */
     KRATOS_REGISTER_VARIABLE( INTEGRATION_ORDER_CONTACT )                             // The integration order computed in the contact

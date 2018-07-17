@@ -17,6 +17,7 @@
 #include "includes/checks.h"
 #include "custom_constitutive/spring_constitutive_law.h"
 #include "structural_mechanics_application_variables.h"
+#include "contact_structural_mechanics_application_variables.h"
 
 namespace Kratos
 {
