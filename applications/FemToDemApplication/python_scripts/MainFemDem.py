@@ -232,8 +232,6 @@ class FEM_Solution(MainSolidFEM.Solution):
 			self.SolveSolutionStep()
 			self.FinalizeSolutionStep()
 	  
-
-
 #============================================================================================================================
 	def InitializeSolutionStep(self):
 

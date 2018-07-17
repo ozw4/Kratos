@@ -128,8 +128,8 @@ class FEMDEM_Solution:
           if self.create_initial_dem_skin and self.FEM_Solution.step == 1:
               self.CreateInitialSkinDEM()
 
-          if self.DoRemeshing and is_remeshing:
-              self.GenerateDemAfterRemeshing()
+          # if self.DoRemeshing and is_remeshing:
+          #     self.GenerateDemAfterRemeshing()
 
 
 

@@ -55,14 +55,11 @@ class DemAfterRemeshIdentificatorProcess : public Process
 
         for (ModelPart::NodeIterator it = (*p_skin_model_part).NodesBegin(); it != (*p_skin_model_part).NodesEnd(); ++it)
         {
-
             const double &nodal_damage = it->GetSolutionStepValue(NODAL_DAMAGE);
-
             if (nodal_damage > 0.94)
             {
                 p_auxiliar_model_part->AddNode(*(it.base()));
             }
-
         } // DemAfterRemeshingNodes SubModelPart Filled with nodes
 
         // Let's assign the DEM radius to those nodes...
@@ -71,7 +68,6 @@ class DemAfterRemeshIdentificatorProcess : public Process
 
         for (ModelPart::NodeIterator it = (*p_auxiliar_model_part).NodesBegin(); it != (*p_auxiliar_model_part).NodesEnd(); ++it)
         {
-
             WeakPointerVector<Node<3>> &rneigh = (*it).GetValue(NEIGHBOUR_NODES);
             KRATOS_ERROR_IF(rneigh.size() == 0) << "Nodal neighbours not computed..." << std::endl;
             std::vector<double> radius_is_dems, radius_not_dem;
