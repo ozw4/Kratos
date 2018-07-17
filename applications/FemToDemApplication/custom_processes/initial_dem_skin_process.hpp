@@ -49,9 +49,21 @@ class InitialDemSkinProcess : public Process
             mrModelPart.RemoveSubModelPart(name_dem_model_part);
         }
 
+        FindNodalNeighboursProcess neighbour_finder = FindNodalNeighboursProcess(mrModelPart, 4, 4);
+        neighbour_finder.Execute();
+
         mrModelPart.CreateSubModelPart(name_dem_model_part);
         ModelPart::Pointer p_auxiliar_model_part = mrModelPart.pGetSubModelPart(name_dem_model_part);
-        ModelPart::Pointer p_skin_model_part = mrModelPart.pGetSubModelPart("SkinDEMModelPart");
+
+        ModelPart::Pointer p_skin_model_part;
+        if (mrModelPart.HasSubModelPart("SkinDEMModelPart"))
+        {
+            p_skin_model_part = mrModelPart.pGetSubModelPart("SkinDEMModelPart");
+        }
+        else
+        {
+            KRATOS_ERROR << "The initial skin is not computed..." << std::endl;
+        }
 
         for (ModelPart::NodeIterator it = (*p_skin_model_part).NodesBegin(); it != (*p_skin_model_part).NodesEnd(); ++it)
         {
@@ -59,13 +71,10 @@ class InitialDemSkinProcess : public Process
         } // InitialDemSkin SubModelPart Filled with nodes
 
         // Let's assign the DEM radius to those nodes...
-        Process neighbour_finder = FindNodalNeighboursProcess(mrModelPart, 4, 4);
-        neighbour_finder.Execute();
-
         for (ModelPart::NodeIterator it = (*p_auxiliar_model_part).NodesBegin(); it != (*p_auxiliar_model_part).NodesEnd(); ++it)
         {
-
             WeakPointerVector<Node<3>> &rneigh = (*it).GetValue(NEIGHBOUR_NODES);
+            KRATOS_ERROR_IF(rneigh.size() == 0) << "Nodal neighbours not computed..." << std::endl;
             std::vector<double> radius_is_dems, radius_not_dem;
             double distance, radius_dem, min_radius, min_radius_is_dem, min_radius_no_dem;
 
@@ -92,7 +101,6 @@ class InitialDemSkinProcess : public Process
             }
             else
             {
-
                 if (radius_is_dems.size() != 0)
                     min_radius_is_dem = this->GetMinimumValue(radius_is_dems);
                 else
@@ -128,6 +136,7 @@ class InitialDemSkinProcess : public Process
     double GetMinimumValue(std::vector<double> array_values)
     {
         int size = array_values.size();
+
         double aux = array_values[0];
         for (int i = 1; i < size; i++)
         {

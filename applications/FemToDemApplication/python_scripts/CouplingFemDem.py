@@ -123,19 +123,13 @@ class FEMDEM_Solution:
 
           self.FEM_Solution.InitializeSolutionStep()
 
-          '''self.create_initial_dem_skin = True  # Hard Coded TODO
+          # Create initial skin of DEM's
+          self.create_initial_dem_skin = False  # Hard Coded TODO
           if self.create_initial_dem_skin and self.FEM_Solution.step == 1:
-               self.CreateInitialSkinDEM()
+              self.CreateInitialSkinDEM()
 
           if self.DoRemeshing and is_remeshing:
-               self.GenerateDemAfterRemeshing()'''
-
-
-
-          # just for testing ->Remove
-          #self.FEM_Solution.GraphicalOutputPrintOutput()
-          # ***********************
-          #KratosMultiphysics.ModelPartIO("MDPA_Vicente_step_" + str(self.FEM_Solution.step), KratosMultiphysics.IO.WRITE).WriteModelPart(self.FEM_Solution.main_model_part)
+              self.GenerateDemAfterRemeshing()
 
 
 

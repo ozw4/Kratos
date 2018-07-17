@@ -66,21 +66,20 @@ class DemAfterRemeshIdentificatorProcess : public Process
         } // DemAfterRemeshingNodes SubModelPart Filled with nodes
 
         // Let's assign the DEM radius to those nodes...
-        Process neighbour_finder = FindNodalNeighboursProcess(mrModelPart, 4, 4);
+        FindNodalNeighboursProcess neighbour_finder = FindNodalNeighboursProcess(mrModelPart, 4, 4);
         neighbour_finder.Execute();
 
         for (ModelPart::NodeIterator it = (*p_auxiliar_model_part).NodesBegin(); it != (*p_auxiliar_model_part).NodesEnd(); ++it)
         {
 
             WeakPointerVector<Node<3>> &rneigh = (*it).GetValue(NEIGHBOUR_NODES);
+            KRATOS_ERROR_IF(rneigh.size() == 0) << "Nodal neighbours not computed..." << std::endl;
             std::vector<double> radius_is_dems, radius_not_dem;
             double distance, radius_dem, min_radius, min_radius_is_dem, min_radius_no_dem;
 
             for (int i = 0; i < rneigh.size(); i++)
             {
-
                 distance = this->CalculateDistanceBetweenNodes((*it), rneigh[i]);
-
                 if (rneigh[i].GetValue(DEM_RADIUS) != 0.0)
                 {
                     radius_dem = distance - rneigh[i].GetValue(DEM_RADIUS);
@@ -99,7 +98,6 @@ class DemAfterRemeshIdentificatorProcess : public Process
             }
             else
             {
-
                 if (radius_is_dems.size() != 0)
                     min_radius_is_dem = this->GetMinimumValue(radius_is_dems);
                 else
