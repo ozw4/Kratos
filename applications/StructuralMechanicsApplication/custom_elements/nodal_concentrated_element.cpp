@@ -468,7 +468,7 @@ void NodalConcentratedElement::InitializeNonLinearIteration( ProcessInfo& rCurre
 
     // Setting flag according node
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ACTIVE_NODE_FLAG) ) {
-        const bool is_active = GetGeometry()[0].Is(ACTIVE);
+        const bool is_active = GetGeometry()[0].IsDefined(ACTIVE) ? GetGeometry()[0].Is(ACTIVE) : true;
         this->Set(ACTIVE, is_active);
     }
 
@@ -486,7 +486,7 @@ void NodalConcentratedElement::FinalizeNonLinearIteration( ProcessInfo& rCurrent
 
     // Setting flag according node
     if( mELementalFlags.Is(NodalConcentratedElement::COMPUTE_ACTIVE_NODE_FLAG) ) {
-        const bool is_active = GetGeometry()[0].Is(ACTIVE);
+        const bool is_active = GetGeometry()[0].IsDefined(ACTIVE) ? GetGeometry()[0].Is(ACTIVE) : true;
         this->Set(ACTIVE, is_active);
     }
 
@@ -555,7 +555,8 @@ void NodalConcentratedElement::CalculateRightHandSide(
         const array_1d<double, 3 >& volume_acceleration = GetGeometry()[0].FastGetSolutionStepValue(VOLUME_ACCELERATION);
 
         // Compute and add external forces
-        const double nodal_mass = HasProperties() ? GetProperties().Has(NODAL_MASS) : rconst_this.GetValue(NODAL_MASS);
+        const double nodal_mass = HasProperties() ? (GetProperties().Has(NODAL_MASS) ? GetProperties().GetValue(NODAL_MASS) : rconst_this.GetValue(NODAL_MASS)) : rconst_this.GetValue(NODAL_MASS);
+
         for ( IndexType j = 0; j < dimension; ++j )
             rRightHandSideVector[j]  += volume_acceleration[j] * nodal_mass;
     }
@@ -669,7 +670,7 @@ void NodalConcentratedElement::CalculateMassMatrix(
         const double nodal_mass = HasProperties() ? (GetProperties().Has(NODAL_MASS) ? GetProperties().GetValue(NODAL_MASS) : rconst_this.GetValue(NODAL_MASS)) : rconst_this.GetValue(NODAL_MASS);
 
         for ( IndexType j = 0; j < dimension; ++j )
-            rMassMatrix( j, j ) = nodal_mass;
+            rMassMatrix( j, j ) += nodal_mass;
 
         aux_index += dimension;
     }
@@ -681,7 +682,7 @@ void NodalConcentratedElement::CalculateMassMatrix(
         const array_1d<double, 3>& nodal_inertia =  HasProperties() ? (GetProperties().Has(NODAL_INERTIA) ? GetProperties().GetValue(NODAL_INERTIA) : rconst_this.GetValue(NODAL_INERTIA)) : rconst_this.GetValue(NODAL_INERTIA);
 
         for ( IndexType j = 0; j < dimension; ++j )
-            rMassMatrix( aux_index + j, aux_index + j ) = nodal_inertia[j];
+            rMassMatrix( aux_index + j, aux_index + j ) += nodal_inertia[j];
     }
 
     KRATOS_CATCH( "" );
