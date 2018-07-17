@@ -31,22 +31,67 @@ AssignNodalElementsToNodes::AssignNodalElementsToNodes(
 {
     KRATOS_TRY
 
+    // We create a list of parameters to partially validate, and we validate them
+    Parameters to_validate_parameters = Parameters(R"({})" );
+    if (mThisParameters.Has("model_part_name"))
+        to_validate_parameters.AddValue("model_part_name", mThisParameters["model_part_name"]);
+    if (mThisParameters.Has("rayleigh_damping"))
+        to_validate_parameters.AddValue("rayleigh_damping", mThisParameters["rayleigh_damping"]);
+    if (mThisParameters.Has("assign_active_flag_node"))
+        to_validate_parameters.AddValue("assign_active_flag_node", mThisParameters["assign_active_flag_node"]);
+    if (mThisParameters.Has("additional_dependence_variables"))
+        to_validate_parameters.AddValue("additional_dependence_variables", mThisParameters["additional_dependence_variables"]);
+    if (mThisParameters.Has("interval"))
+        to_validate_parameters.AddValue("interval", mThisParameters["interval"]);
+
     Parameters default_parameters = Parameters(R"(
     {
         "model_part_name"                : "",
         "rayleigh_damping"               : false,
         "assign_active_flag_node"        : true,
+        "additional_dependence_variables": [],
+        "interval"                       : [0.0, 1e30]
+    })" );
+
+    to_validate_parameters.ValidateAndAssignDefaults(default_parameters);
+    if (mThisParameters.Has("model_part_name"))
+        mThisParameters.SetValue("model_part_name", to_validate_parameters["model_part_name"]);
+    else
+        mThisParameters.AddValue("model_part_name", to_validate_parameters["model_part_name"]);
+    if (mThisParameters.Has("rayleigh_damping"))
+        mThisParameters.SetValue("rayleigh_damping", to_validate_parameters["rayleigh_damping"]);
+    else
+        mThisParameters.AddValue("rayleigh_damping", to_validate_parameters["rayleigh_damping"]);
+    if (mThisParameters.Has("assign_active_flag_node"))
+        mThisParameters.SetValue("assign_active_flag_node", to_validate_parameters["assign_active_flag_node"]);
+    else
+        mThisParameters.AddValue("assign_active_flag_node", to_validate_parameters["assign_active_flag_node"]);
+    if (mThisParameters.Has("additional_dependence_variables"))
+        mThisParameters.SetValue("additional_dependence_variables", to_validate_parameters["additional_dependence_variables"]);
+    else
+        mThisParameters.AddValue("additional_dependence_variables", to_validate_parameters["additional_dependence_variables"]);
+    if (mThisParameters.Has("interval"))
+        mThisParameters.SetValue("interval", to_validate_parameters["interval"]);
+    else
+        mThisParameters.AddValue("interval", to_validate_parameters["interval"]);
+
+    // List of auxiliar parameters to assign in case not defined
+    Parameters auxiliar_parameters = Parameters(R"(
+    {
         "nodal_mass"                     : null,
         "nodal_inertia"                  : [null, null, null],
         "nodal_stiffness"                : [null, null, null],
         "nodal_rotational_stiffness"     : [null, null, null],
         "nodal_damping_ratio"            : [null, null, null],
-        "nodal_rotational_damping_ratio" : [null, null, null],
-        "additional_dependence_variables": [],
-        "interval"                       : [0.0, 1e30]
+        "nodal_rotational_damping_ratio" : [null, null, null]
     })" );
 
-    mThisParameters.ValidateAndAssignDefaults(default_parameters);
+    if (!mThisParameters.Has("nodal_mass")) mThisParameters.AddValue("nodal_mass", auxiliar_parameters["nodal_mass"]);
+    if (!mThisParameters.Has("nodal_inertia")) mThisParameters.AddValue("nodal_inertia", auxiliar_parameters["nodal_inertia"]);
+    if (!mThisParameters.Has("nodal_stiffness")) mThisParameters.AddValue("nodal_stiffness", auxiliar_parameters["nodal_stiffness"]);
+    if (!mThisParameters.Has("nodal_rotational_stiffness")) mThisParameters.AddValue("nodal_rotational_stiffness", auxiliar_parameters["nodal_rotational_stiffness"]);
+    if (!mThisParameters.Has("nodal_damping_ratio")) mThisParameters.AddValue("nodal_damping_ratio", auxiliar_parameters["nodal_damping_ratio"]);
+    if (!mThisParameters.Has("nodal_rotational_damping_ratio")) mThisParameters.AddValue("nodal_rotational_damping_ratio", auxiliar_parameters["nodal_rotational_damping_ratio"]);
 
     // We check if there is any string in the values
     if (!mThisParameters["nodal_mass"].IsNull())
@@ -99,7 +144,7 @@ AssignNodalElementsToNodes::AssignNodalElementsToNodes(
             mConstantValues = false;
 
     // Check the interval
-    if (mThisParameters["interval"][0].GetDouble() > 0.0 || mThisParameters["interval"][0].GetDouble() < 1e30)
+    if (mThisParameters["interval"][0].GetDouble() > 0.0 || mThisParameters["interval"][1].GetDouble() < 1e30)
         mConstantValues = false;
 
     KRATOS_CATCH("")
