@@ -282,13 +282,14 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
             // Buffer for new elements if created
             std::vector<Element::Pointer> auxiliar_elements_vector_buffer;
 
-            #pragma omp for private(aux_node_array)
+            #pragma omp for
             for(int i=0; i< static_cast<int>(r_model_part.Nodes().size()); i++) {
                 auto it_node = r_model_part.NodesBegin() + i;
 
-                aux_node_array[0] = *(it_node).base();
+                std::vector<NodeType::Pointer> this_node_array(1);
+                this_node_array[0] = *(it_node).base();
 
-                auto p_element = rReferenceElement.Create(number_elements + 1 + i, Kratos::make_shared<Point2D<NodeType>>(aux_node_array), p_properties);
+                auto p_element = rReferenceElement.Create(number_elements + 1 + i, Kratos::make_shared<Point2D<NodeType>>(this_node_array), p_properties);
 
                 // Deep copy elemental data and flags
 //                 p_element->Data() = it_node->Data();
@@ -312,13 +313,14 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
             // Buffer for new elements if created
             std::vector<Element::Pointer> auxiliar_elements_vector_buffer;
 
-            #pragma omp for private(aux_node_array)
+            #pragma omp for
             for(int i=0; i< static_cast<int>(r_model_part.Nodes().size()); i++) {
                 auto it_node = r_model_part.NodesBegin() + i;
 
-                aux_node_array[0] = *(it_node).base();
+                std::vector<NodeType::Pointer> this_node_array(1);
+                this_node_array[0] = *(it_node).base();
 
-                auto p_element = rReferenceElement.Create(number_elements + 1 + i, Kratos::make_shared<Point3D<NodeType>>(aux_node_array), p_properties);
+                auto p_element = rReferenceElement.Create(number_elements + 1 + i, Kratos::make_shared<Point3D<NodeType>>(this_node_array), p_properties);
 
                 // Deep copy elemental data and flags
 //                 p_element->Data() = it_node->Data();
