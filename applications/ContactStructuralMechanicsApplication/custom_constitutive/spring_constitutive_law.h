@@ -44,7 +44,7 @@ namespace Kratos
  * @details Uses python functions to evaluate the bahaviour of the CL
  * @author Vicente Mataix Ferrandiz
  */
-class KRATOS_API(STRUCTURAL_MECHANICS_APPLICATION) SpringConstitutiveLaw
+class KRATOS_API(CONTACT_STRUCTURAL_MECHANICS_APPLICATION) SpringConstitutiveLaw
     : public ConstitutiveLaw
 {
 public:
