@@ -20,6 +20,7 @@
 #include "structural_mechanics_application_variables.h"
 #include "geometries/point_2d.h"
 #include "geometries/point_3d.h"
+#include "utilities/variable_utils.h"
 
 namespace Kratos
 {
@@ -49,6 +50,7 @@ AssignNodalElementsToNodes::AssignNodalElementsToNodes(
         "model_part_name"                : "",
         "rayleigh_damping"               : false,
         "assign_active_flag_node"        : true,
+        "constitutive_law_name"          : "SpringConstitutiveLaw",
         "additional_dependence_variables": [],
         "interval"                       : [0.0, 1e30]
     })" );
@@ -66,6 +68,10 @@ AssignNodalElementsToNodes::AssignNodalElementsToNodes(
         mThisParameters.SetValue("assign_active_flag_node", to_validate_parameters["assign_active_flag_node"]);
     else
         mThisParameters.AddValue("assign_active_flag_node", to_validate_parameters["assign_active_flag_node"]);
+    if (mThisParameters.Has("constitutive_law_name"))
+        mThisParameters.SetValue("constitutive_law_name", to_validate_parameters["constitutive_law_name"]);
+    else
+        mThisParameters.AddValue("constitutive_law_name", to_validate_parameters["constitutive_law_name"]);
     if (mThisParameters.Has("additional_dependence_variables"))
         mThisParameters.SetValue("additional_dependence_variables", to_validate_parameters["additional_dependence_variables"]);
     else
@@ -143,10 +149,6 @@ AssignNodalElementsToNodes::AssignNodalElementsToNodes(
         if (mThisParameters["nodal_rotational_damping_ratio"][2].IsString())
             mConstantValues = false;
 
-    // Check the interval
-    if (mThisParameters["interval"][0].GetDouble() > 0.0 || mThisParameters["interval"][1].GetDouble() < 1e30)
-        mConstantValues = false;
-
     KRATOS_CATCH("")
 }
 
@@ -157,6 +159,7 @@ void AssignNodalElementsToNodes::Execute()
 {
     // We execute the different steps of the process
     ExecuteInitialize();
+    ExecuteInitializeSolutionStep();
 }
 
 /***********************************************************************************/
@@ -181,7 +184,8 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
 
     // The constitutive law
     if (!mConstantValues) {
-        KRATOS_ERROR_IF_NOT(KratosComponents<ConstitutiveLaw>::Has("SpringConstitutiveLaw")) << "Please compile the ContactStructuralMechanicsApplication in order to use the SpringConstitutiveLaw" << std::endl;
+        const std::string& constitutive_law_name = mThisParameters["constitutive_law_name"].GetString();
+        KRATOS_ERROR_IF_NOT(KratosComponents<ConstitutiveLaw>::Has(constitutive_law_name)) << "Please define a constitutive law compatible with the NodalConcentratedWithConstitutiveBehaviourElement" << std::endl;
 
         Kratos::Parameters constitutive_law_parameters = Kratos::Parameters(R"({})" );
         constitutive_law_parameters.AddValue("nodal_mass", mThisParameters["nodal_mass"]);
@@ -193,7 +197,7 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
         constitutive_law_parameters.AddValue("additional_dependence_variables", mThisParameters["additional_dependence_variables"]);
         constitutive_law_parameters.AddValue("interval", mThisParameters["interval"]);
 
-        ConstitutiveLaw::Pointer this_constitutive_law = KratosComponents<ConstitutiveLaw>::Get("SpringConstitutiveLaw").Create(constitutive_law_parameters);
+        ConstitutiveLaw::Pointer this_constitutive_law = KratosComponents<ConstitutiveLaw>::Get(constitutive_law_name).Create(constitutive_law_parameters);
 
         p_properties->SetValue(CONSTITUTIVE_LAW, this_constitutive_law);
     } else {
@@ -273,7 +277,7 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
 
     if (domain_size == 2) {
         GeometryType::Pointer p_dummy_geom = Kratos::make_shared<Point2D<NodeType>>(aux_node_array);
-        const Element& rReferenceElement = mConstantValues ? NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node) : NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node);
+        const Element& rReferenceElement = mConstantValues ? NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node) : NodalConcentratedWithConstitutiveBehaviourElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node);
 
         std::vector<Element::Pointer> auxiliar_elements_vector;
 
@@ -304,7 +308,7 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
         }
     } else {
         GeometryType::Pointer p_dummy_geom = Kratos::make_shared<Point3D<NodeType>>(aux_node_array);
-        const Element& rReferenceElement = mConstantValues ? NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node) : NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node);
+        const Element& rReferenceElement = mConstantValues ? NodalConcentratedElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node) : NodalConcentratedWithConstitutiveBehaviourElement(0, p_dummy_geom, rayleigh_damping, assign_active_flag_node);
 
         std::vector<Element::Pointer> auxiliar_elements_vector;
 
@@ -343,6 +347,49 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
     // We Initialize the elements
     InitializeElements(r_model_part);
 
+    // Set the flag ACTIVE
+    this->Set(ACTIVE, false);
+
+    KRATOS_CATCH("")
+}
+
+/***********************************************************************************/
+/***********************************************************************************/
+
+void AssignNodalElementsToNodes::ExecuteInitializeSolutionStep()
+{
+    KRATOS_TRY
+
+    // We get the proper model part
+    const std::string& model_part_name = mThisParameters["model_part_name"].GetString();
+    ModelPart& r_model_part = (model_part_name == "") ? mrThisModelPart : mrThisModelPart.GetSubModelPart(model_part_name);
+
+    // Check the interval
+    if (mThisParameters["interval"][0].GetDouble() > 0.0 || mThisParameters["interval"][1].GetDouble() < 1e30) {
+        if (this->IsNot(ACTIVE)) {
+            // Initialize initial displacement and rotation
+            #pragma omp parallel for
+            for(int i=0; i< static_cast<int>(r_model_part.Elements().size()); i++) {
+                auto it_elem = r_model_part.ElementsBegin() + i;
+                if (it_elem->Has(INITIAL_DISPLACEMENT)) {
+                    it_elem->SetValue(INITIAL_DISPLACEMENT, it_elem->GetGeometry()[0].FastGetSolutionStepValue(DISPLACEMENT));
+                }
+                if (it_elem->Has(INITIAL_ROTATION)) {
+                    it_elem->SetValue(INITIAL_ROTATION, it_elem->GetGeometry()[0].FastGetSolutionStepValue(ROTATION));
+                }
+            }
+            // Set the flag ACTIVE
+            VariableUtils().SetFlag(ACTIVE, true, r_model_part.Elements());
+            this->Set(ACTIVE, true);
+        }
+    } else {
+        if (this->Is(ACTIVE)) {
+            // Set the flag ACTIVE
+            VariableUtils().SetFlag(ACTIVE, false, r_model_part.Elements());
+            this->Set(ACTIVE, false);
+        }
+    }
+
     KRATOS_CATCH("")
 }
 
@@ -352,8 +399,12 @@ void AssignNodalElementsToNodes::ExecuteInitialize()
 void AssignNodalElementsToNodes::InitializeElements(ModelPart& rModelPart)
 {
     ElementsArrayType& element_array = rModelPart.Elements();
-    for(SizeType i = 0; i < element_array.size(); ++i)
+    #pragma omp parallel for
+    for(int i=0; i< static_cast<int>(element_array.size()); i++)
         (element_array.begin() + i)->Initialize();
+
+    // Inactive by default
+    VariableUtils().SetFlag(ACTIVE, false, rModelPart.Elements());
 }
 
 // class AssignNodalElementsToNodes

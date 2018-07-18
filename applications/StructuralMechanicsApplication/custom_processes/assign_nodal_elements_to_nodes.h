@@ -128,6 +128,11 @@ public:
      */
     void ExecuteInitialize() override;
     
+    /**
+     * @brief This function will be executed at every time step BEFORE performing the solve phase
+     */
+    void ExecuteInitializeSolutionStep() override;
+
     ///@}
     ///@name Access
     ///@{

@@ -19,6 +19,7 @@ class AssignNodalElementsToNodes(KratosMultiphysics.Process):
             "sub_model_part_name"            : "",
             "rayleigh_damping"               : false,
             "assign_active_flag_node"        : true,
+            "constitutive_law_name"          : "SpringConstitutiveLaw",
             "additional_dependence_variables": [],
             "interval"                       : [0.0, 1e30]
         }
@@ -36,6 +37,8 @@ class AssignNodalElementsToNodes(KratosMultiphysics.Process):
             to_validate_parameters.AddValue("rayleigh_damping", settings["rayleigh_damping"])
         if (settings.Has("assign_active_flag_node")):
             to_validate_parameters.AddValue("assign_active_flag_node", settings["assign_active_flag_node"])
+        if (settings.Has("constitutive_law_name")):
+            to_validate_parameters.AddValue("constitutive_law_name", settings["constitutive_law_name"])
         if (settings.Has("additional_dependence_variables")):
             to_validate_parameters.AddValue("additional_dependence_variables", settings["additional_dependence_variables"])
         if (settings.Has("interval")):
@@ -63,6 +66,10 @@ class AssignNodalElementsToNodes(KratosMultiphysics.Process):
             settings.SetValue("assign_active_flag_node", to_validate_parameters["assign_active_flag_node"])
         else:
             settings.AddValue("assign_active_flag_node", to_validate_parameters["assign_active_flag_node"])
+        if (settings.Has("constitutive_law_name")):
+            settings.SetValue("constitutive_law_name", to_validate_parameters["constitutive_law_name"])
+        else:
+            settings.AddValue("constitutive_law_name", to_validate_parameters["constitutive_law_name"])
         if (settings.Has("additional_dependence_variables")):
             settings.SetValue("additional_dependence_variables", to_validate_parameters["additional_dependence_variables"])
         else:
@@ -122,3 +129,6 @@ class AssignNodalElementsToNodes(KratosMultiphysics.Process):
 
     def ExecuteInitialize(self):
         self.assign_nodal_elements_to_nodes.ExecuteInitialize()
+
+    def ExecuteInitializeSolutionStep(self):
+        self.assign_nodal_elements_to_nodes.ExecuteInitializeSolutionStep()

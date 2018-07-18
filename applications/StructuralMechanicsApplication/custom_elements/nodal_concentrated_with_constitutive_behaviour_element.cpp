@@ -28,9 +28,10 @@ NodalConcentratedWithConstitutiveBehaviourElement::NodalConcentratedWithConstitu
     IndexType NewId, 
     GeometryType::Pointer pGeometry, 
     ConstitutiveLaw::Pointer pConstitutiveLaw,
-    const bool UseRayleighDamping
+    const bool UseRayleighDamping,
+    const bool ComputeActiveNodeFlag
     )
-    : NodalConcentratedElement( NewId, pGeometry, UseRayleighDamping)
+    : NodalConcentratedElement( NewId, pGeometry, UseRayleighDamping, ComputeActiveNodeFlag)
     , mpConstitutiveLaw(pConstitutiveLaw)
 {
 
@@ -42,9 +43,10 @@ NodalConcentratedWithConstitutiveBehaviourElement::NodalConcentratedWithConstitu
 NodalConcentratedWithConstitutiveBehaviourElement::NodalConcentratedWithConstitutiveBehaviourElement(
     IndexType NewId,
     GeometryType::Pointer pGeometry,
-    const bool UseRayleighDamping
+    const bool UseRayleighDamping,
+    const bool ComputeActiveNodeFlag
     )
-    : NodalConcentratedElement( NewId, pGeometry, UseRayleighDamping)
+    : NodalConcentratedElement( NewId, pGeometry, UseRayleighDamping, ComputeActiveNodeFlag)
 {
 }
 
@@ -55,9 +57,10 @@ NodalConcentratedWithConstitutiveBehaviourElement::NodalConcentratedWithConstitu
     IndexType NewId,
     GeometryType::Pointer pGeometry,
     PropertiesType::Pointer pProperties, 
-    const bool UseRayleighDamping
+    const bool UseRayleighDamping,
+    const bool ComputeActiveNodeFlag
     )
-    : NodalConcentratedElement( NewId, pGeometry, UseRayleighDamping)
+    : NodalConcentratedElement( NewId, pGeometry, pProperties, UseRayleighDamping, ComputeActiveNodeFlag)
 {
 }
 
@@ -152,17 +155,22 @@ void NodalConcentratedWithConstitutiveBehaviourElement::Initialize()
         }
     }
 
+    // Defining auxiliar zero array
+    const array_1d<double, 3> zero_array(3, 0.0);
+
     // We check the nodal stiffness
-    if (mpConstitutiveLaw->Has(NODAL_STIFFNESS))
+    if (mpConstitutiveLaw->Has(NODAL_STIFFNESS)) {
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, true);
-    else
+        this->SetValue(INITIAL_DISPLACEMENT, zero_array);
+    } else
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_DISPLACEMENT_STIFFNESS, false);
 
     // We check the nodal rotational stiffness
     if (GetGeometry()[0].SolutionStepsDataHas(ROTATION_X) &&
-        mpConstitutiveLaw->Has(NODAL_ROTATIONAL_STIFFNESS))
+        mpConstitutiveLaw->Has(NODAL_ROTATIONAL_STIFFNESS)) {
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, true);
-    else
+        this->SetValue(INITIAL_ROTATION, zero_array);
+    } else
         mELementalFlags.Set(NodalConcentratedWithConstitutiveBehaviourElement::COMPUTE_ROTATIONAL_STIFFNESS, false);
 
     // We check the nodal mass
@@ -308,10 +316,11 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateRightHandSide(
 
         // Compute and add internal forces
         const array_1d<double, 3 >& current_displacement = GetGeometry()[0].FastGetSolutionStepValue(DISPLACEMENT);
+        const array_1d<double, 3 >& initial_displacement = this->GetValue(INITIAL_DISPLACEMENT);
         array_1d<double, 3> nodal_stiffness = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_STIFFNESS, nodal_stiffness) ;
 
         for ( IndexType j = 0; j < dimension; ++j )
-            rRightHandSideVector[j]  -= nodal_stiffness[j] * current_displacement[j];
+            rRightHandSideVector[j]  -= nodal_stiffness[j] * (current_displacement[j] - initial_displacement[j]);
 
         aux_index += dimension;
     }
@@ -322,10 +331,11 @@ void NodalConcentratedWithConstitutiveBehaviourElement::CalculateRightHandSide(
 
         // Compute and add internal forces
         const array_1d<double, 3 >& current_rotation = GetGeometry()[0].FastGetSolutionStepValue(ROTATION);
+        const array_1d<double, 3 >& initial_rotation = this->GetValue(INITIAL_ROTATION);
         array_1d<double, 3 > nodal_rotational_stiffness = mpConstitutiveLaw->CalculateValue(constitutive_law_parameters, NODAL_ROTATIONAL_STIFFNESS, nodal_rotational_stiffness);
 
         for ( IndexType j = 0; j < dimension; ++j )
-            rRightHandSideVector[aux_index + j]  -= nodal_rotational_stiffness[j] * current_rotation[j];
+            rRightHandSideVector[aux_index + j]  -= nodal_rotational_stiffness[j] * (current_rotation[j] - initial_rotation[j]);
     }
 }
 

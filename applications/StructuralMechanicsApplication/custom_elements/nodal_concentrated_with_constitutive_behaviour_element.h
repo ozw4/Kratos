@@ -74,11 +74,11 @@ public:
     ///@{
 
     /// Default constructors
-    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, ConstitutiveLaw::Pointer pConstitutiveLaw, bool UseRayleighDamping = false);
+    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, ConstitutiveLaw::Pointer pConstitutiveLaw, bool UseRayleighDamping = false, const bool ComputeActiveNodeFlag = true);
 
-    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, bool UseRayleighDamping = false);
+    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, bool UseRayleighDamping = false, const bool ComputeActiveNodeFlag = true);
 
-    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties, bool UseRayleighDamping = false);
+    NodalConcentratedWithConstitutiveBehaviourElement(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties, bool UseRayleighDamping = false, const bool ComputeActiveNodeFlag = true);
 
     ///Copy constructor
     NodalConcentratedWithConstitutiveBehaviourElement(NodalConcentratedWithConstitutiveBehaviourElement const& rOther);
