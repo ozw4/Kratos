@@ -31,6 +31,7 @@ SkinDetectionProcess<TDim>::SkinDetectionProcess(
         "name_auxiliar_model_part"              : "SkinModelPart",
         "name_auxiliar_condition"               : "Condition",
         "list_model_parts_to_assign_conditions" : [],
+        "clean_previous_conditions"             : true,
         "echo_level"                            : 0
     })" );
 
@@ -48,6 +49,24 @@ void SkinDetectionProcess<TDim>::Execute()
     // Auxiliar values
     const SizeType number_of_elements = mrModelPart.Elements().size();
     const SizeType echo_level = mThisParameters["echo_level"].GetInt();
+
+    const bool clean_previous_conditions = mThisParameters["clean_previous_conditions"].GetBool();
+    if (clean_previous_conditions) {
+        const SizeType n_model_parts = mThisParameters["list_model_parts_to_assign_conditions"].size();
+        ModelPart& root_model_part = mrModelPart.GetRootModelPart();
+        for (IndexType i_mp = 0; i_mp < n_model_parts; ++i_mp){
+            const std::string& model_part_name = mThisParameters["list_model_parts_to_assign_conditions"].GetArrayItem(i_mp).GetString();
+            ModelPart& sub_model_part = root_model_part.GetSubModelPart(model_part_name);
+
+            auto& conditions_array = sub_model_part.Conditions();
+
+            #pragma omp parallel for
+            for(int i = 0; i < static_cast<int>(conditions_array.size()); ++i)
+                (conditions_array.begin() + i)->Set(TO_ERASE, true);
+
+            sub_model_part.RemoveConditionsFromAllLevels(TO_ERASE);
+        }
+    }
 
     /* NEIGHBOUR ELEMENTS */
     // Create the inverse_face_map
