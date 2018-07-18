@@ -495,7 +495,8 @@ void RomFemDem3DElement::IntegrateStressPlasticity(
 
 	// Compute Plastic variables
 	this->CalculatePlasticParameters(PredictiveStress, Yield, Kp,
-									 PlasticDenominator, FluxVector, Capap, PlasticStrainIncr, C);
+									 PlasticDenominator, FluxVector, Capap,
+									 PlasticStrainIncr, C);
 
 	double F = Yield - Kp;
 
@@ -510,7 +511,7 @@ void RomFemDem3DElement::IntegrateStressPlasticity(
 	}
 	else
 	{ // Plastic case
-		rIntegratedStress = PredictiveStress;
+		noalias(rIntegratedStress) = PredictiveStress;
 		double DLambda;
 		Vector DS = ZeroVector(6), DESIG = ZeroVector(6);
 
@@ -520,11 +521,11 @@ void RomFemDem3DElement::IntegrateStressPlasticity(
 			// if (DLambda < 0.0)
 			// 	DLambda = 0.0;
 
-			PlasticStrainIncr = DLambda * FluxVector;
-			PlasticStrain += PlasticStrainIncr;
-			DS = prod(C, PlasticStrainIncr);
-			DESIG -= DS;
-			rIntegratedStress -= DS;
+			noalias(PlasticStrainIncr) = DLambda * FluxVector;
+			noalias(PlasticStrain) += PlasticStrainIncr;
+			noalias(DS) = prod(C, PlasticStrainIncr);
+			noalias(DESIG) -= DS;
+			noalias(rIntegratedStress) -= DS;
 
 			this->CalculatePlasticParameters(rIntegratedStress, Yield, Kp,
 											 PlasticDenominator, FluxVector,
@@ -775,6 +776,7 @@ void RomFemDem3DElement::HardSoftCalculateThreshold(
 		const double Phi = std::pow((1.0 - Ro), 2) + ((3.0 - Ro) * (1.0 + Ro) * PlasticDissipation * (std::pow(alpha, (1.0 - PlasticDissipation))));
 
 		rEqThreshold = peak_stress * (2.0 * std::sqrt(Phi) - Phi);
+		
 		rSlope = peak_stress * ((1.0 / std::sqrt(Phi)) - 1.0) * (3.0 - Ro) * (1.0 + Ro) * (std::pow(alpha, (1.0 - PlasticDissipation))) *
 				 (1.0 - std::log(alpha) * PlasticDissipation);
 	}
