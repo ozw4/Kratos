@@ -478,12 +478,12 @@ void RomFemDem3DElement::IntegrateStressPlasticity(
 	const Vector &PredictiveStress,
 	const Matrix &C)
 { // ecuua
-	int iter = 0;
+	int iteration = 0;
 	const int iter_max = 9000;
 
 	double Kp, Capap;
 	Vector PlasticStrain;
-	bool Conv = false;
+	bool is_converged = false;
 
 	// Get Converged values from the prev step
 	Kp = this->GetKp();
@@ -514,7 +514,7 @@ void RomFemDem3DElement::IntegrateStressPlasticity(
 		double DLambda;
 		Vector DS = ZeroVector(6), DESIG = ZeroVector(6);
 
-		while (Conv == false && iter <= iter_max)
+		while (is_converged == false && iteration <= iter_max)
 		{
 			DLambda = F * PlasticDenominator;
 			// if (DLambda < 0.0)
@@ -527,13 +527,14 @@ void RomFemDem3DElement::IntegrateStressPlasticity(
 			rIntegratedStress -= DS;
 
 			this->CalculatePlasticParameters(rIntegratedStress, Yield, Kp,
-											 PlasticDenominator, FluxVector, Capap, PlasticStrainIncr, C);
+											 PlasticDenominator, FluxVector,
+											 Capap, PlasticStrainIncr, C);
 
 			F = Yield - Kp;
 
 			if (F < std::abs(1.0e-8 * Kp)) // Has converged
 			{
-				Conv = true;
+				is_converged = true;
 				// Update Int Vars
 				this->SetNonConvergedKp(Kp);
 				this->SetNonConvergedCapap(Capap);
@@ -541,9 +542,9 @@ void RomFemDem3DElement::IntegrateStressPlasticity(
 				this->SetValue(EQUIVALENT_STRESS_VM, Yield);
 			}
 			else
-				iter++;
+				iteration++;
 		}
-		if (iter == iter_max)
+		if (iteration == iter_max)
 			KRATOS_ERROR << "Reached Max iterations inside Plasticity Loop" << std::endl;
 	}
 }
@@ -769,13 +770,17 @@ void RomFemDem3DElement::HardSoftCalculateThreshold(
 	if (PlasticDissipation < 1.0)
 	{
 		const double Ro = std::sqrt(1.0 - initial_threshold / peak_stress);
-		double Alpha = std::log((1.0 - (1.0 - Ro) * (1.0 - Ro)) / ((3.0 - Ro) * (1.0 + Ro) * peak_stress_position));
-		Alpha = std::exp(Alpha / (1.0 - peak_stress_position));
-		const double Phi = std::pow((1.0 - Ro), 2) + ((3.0 - Ro) * (1.0 + Ro) * PlasticDissipation * (std::pow(Alpha, (1.0 - PlasticDissipation))));
+		double alpha = std::log((1.0 - (1.0 - Ro) * (1.0 - Ro)) / ((3.0 - Ro) * (1.0 + Ro) * peak_stress_position));
+		alpha = std::exp(alpha / (1.0 - peak_stress_position));
+		const double Phi = std::pow((1.0 - Ro), 2) + ((3.0 - Ro) * (1.0 + Ro) * PlasticDissipation * (std::pow(alpha, (1.0 - PlasticDissipation))));
 
 		rEqThreshold = peak_stress * (2.0 * std::sqrt(Phi) - Phi);
-		rSlope = peak_stress * ((1.0 / std::sqrt(Phi)) - 1.0) * (3.0 - Ro) * (1.0 + Ro) * (std::pow(Alpha, (1.0 - PlasticDissipation))) *
-				 (1.0 - std::log(Alpha) * PlasticDissipation);
+		rSlope = peak_stress * ((1.0 / std::sqrt(Phi)) - 1.0) * (3.0 - Ro) * (1.0 + Ro) * (std::pow(alpha, (1.0 - PlasticDissipation))) *
+				 (1.0 - std::log(alpha) * PlasticDissipation);
+	}
+	else 
+	{
+		KRATOS_ERROR << "The Plastic Dissipation is greater that 1.0 ..." << std::endl;
 	}
 }
 
