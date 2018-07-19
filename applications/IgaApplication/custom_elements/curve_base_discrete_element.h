@@ -104,54 +104,6 @@ protected:
 	///@}
 	///@name Operations
 	///@{
-	/**
-	* It initializes the material
-	*/
-	virtual void InitializeMaterial();
-
-	/**
-	* Called at the end of eahc solution step
-	* @param rCurrentProcessInfo: the current process info instance
-	*/
-	virtual void FinalizeSolutionStep(ProcessInfo& rCurrentProcessInfo) override;
-
-	/**
-	* This functions calculates both the RHS and the LHS
-	* @param rLeftHandSideMatrix: The LHS
-	* @param rRightHandSideVector: The RHS
-	* @param rCurrentProcessInfo: The current process info instance
-	* @param CalculateStiffnessMatrixFlag: The flag to set if compute the LHS
-	* @param CalculateResidualVectorFlag: The flag to set if compute the RHS
-	*/
-	virtual void CalculateAll(
-		MatrixType& rLeftHandSideMatrix,
-		VectorType& rRightHandSideVector,
-		ProcessInfo& rCurrentProcessInfo,
-		const bool CalculateStiffnessMatrixFlag,
-		const bool CalculateResidualVectorFlag
-	);
-
-	/**
-	* This function provides a more general interface to the element.
-	* It is designed so that rLHSvariables and rRHSvariables are passed to the element thus telling what is the desired output
-	* @param rLeftHandSideMatrices: container with the output left hand side matrices
-	* @param rLHSVariables: paramter describing the expected LHSs
-	* @param rRightHandSideVectors: container for the desired RHS output
-	* @param rRHSVariables: parameter describing the expected RHSs
-	*/
-	void CalculateLocalSystem(
-		MatrixType& rLeftHandSideMatrix,
-		VectorType& rRightHandSideVector,
-		ProcessInfo& rCurrentProcessInfo ) override;
-
-	/**
-	* This is called during the assembling process in order to calculate the elemental right hand side vector only
-	* @param rRightHandSideVector: the elemental right hand side vector
-	* @param rCurrentProcessInfo: the current process info instance
-	*/
-	void CalculateRightHandSide(
-		VectorType& rRightHandSideVector,
-		ProcessInfo& rCurrentProcessInfo ) override;
 	///@}
 
 	void GetBaseVector(
