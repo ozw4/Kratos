@@ -16,7 +16,7 @@
 // External includes
 
 // Project includes
-#include "custom_elements/iga_truss_element_3DXN.h"
+#include "custom_elements/truss_discrete_element.h"
 
 // Application includes
 #include "iga_structural_mechanics_application.h"
@@ -24,7 +24,7 @@
 
 namespace Kratos {
 
-IgaTrussElement3DXN::IgaTrussElement3DXN(
+TrussDiscreteElement::TrussDiscreteElement(
     IndexType NewId,
     GeometryType::Pointer pGeometry
 )
@@ -32,7 +32,7 @@ IgaTrussElement3DXN::IgaTrussElement3DXN(
 {
 }
 
-IgaTrussElement3DXN::IgaTrussElement3DXN(
+TrussDiscreteElement::TrussDiscreteElement(
     IndexType NewId,
     GeometryType::Pointer pGeometry,
     PropertiesType::Pointer pProperties
@@ -41,30 +41,30 @@ IgaTrussElement3DXN::IgaTrussElement3DXN(
 {
 }
 
-IgaTrussElement3DXN::IgaTrussElement3DXN(
+TrussDiscreteElement::TrussDiscreteElement(
 )
     : CurveBaseDiscreteElement()
 {
 }
 
-IgaTrussElement3DXN::~IgaTrussElement3DXN(
+TrussDiscreteElement::~TrussDiscreteElement(
 )
 {
 }
 
 Element::Pointer
-IgaTrussElement3DXN::Create(
+TrussDiscreteElement::Create(
     IndexType NewId,
     NodesArrayType const& ThisNodes,
     PropertiesType::Pointer pProperties
 ) const
 {
-    return Kratos::make_shared<IgaTrussElement3DXN>(NewId,
+    return Kratos::make_shared<TrussDiscreteElement>(NewId,
         GetGeometry().Create(ThisNodes), pProperties);
 };
 
 void
-IgaTrussElement3DXN::GetDofList(
+TrussDiscreteElement::GetDofList(
     DofsVectorType& rElementalDofList,
     ProcessInfo& rCurrentProcessInfo
 )
@@ -92,7 +92,7 @@ IgaTrussElement3DXN::GetDofList(
 };
 
 void
-IgaTrussElement3DXN::EquationIdVector(
+TrussDiscreteElement::EquationIdVector(
     EquationIdVectorType& rResult,
     ProcessInfo& rCurrentProcessInfo
 )
@@ -120,14 +120,14 @@ IgaTrussElement3DXN::EquationIdVector(
 };
 
 void
-IgaTrussElement3DXN::FinalizeSolutionStep(
+TrussDiscreteElement::FinalizeSolutionStep(
     ProcessInfo& rCurrentProcessInfo
 )
 {
 }
 
 void
-IgaTrussElement3DXN::InitializeMaterial(
+TrussDiscreteElement::InitializeMaterial(
 )
 {
     KRATOS_TRY
@@ -136,7 +136,7 @@ IgaTrussElement3DXN::InitializeMaterial(
 }
 
 void
-IgaTrussElement3DXN::CalculateAll(
+TrussDiscreteElement::CalculateAll(
     MatrixType& rLeftHandSideMatrix,
     VectorType& rRightHandSideVector,
     ProcessInfo& rCurrentProcessInfo,
@@ -220,7 +220,7 @@ IgaTrussElement3DXN::CalculateAll(
 }
 
 void
-IgaTrussElement3DXN::CalculateOnIntegrationPoints(
+TrussDiscreteElement::CalculateOnIntegrationPoints(
     const Variable<double>& rVariable,
     std::vector<double>& rOutput,
     const ProcessInfo& rCurrentProcessInfo
@@ -234,7 +234,7 @@ IgaTrussElement3DXN::CalculateOnIntegrationPoints(
 }
 
 void
-IgaTrussElement3DXN::CalculateOnIntegrationPoints(
+TrussDiscreteElement::CalculateOnIntegrationPoints(
     const Variable<Vector>& rVariable,
     std::vector<Vector>& rValues,
     const ProcessInfo& rCurrentProcessInfo
@@ -248,7 +248,7 @@ IgaTrussElement3DXN::CalculateOnIntegrationPoints(
 }
 
 void
-IgaTrussElement3DXN::save(
+TrussDiscreteElement::save(
     Serializer& rSerializer
 ) const
 {
@@ -256,7 +256,7 @@ IgaTrussElement3DXN::save(
 }
 
 void
-IgaTrussElement3DXN::load(
+TrussDiscreteElement::load(
     Serializer& rSerializer
 )
 {

@@ -8,8 +8,8 @@
 //                   Kratos default license: kratos/license.txt
 //
 
-#if !defined(KRATOS_IGA_TRUSS_ELEMENT_3DXN_H_INCLUDED)
-#define KRATOS_IGA_TRUSS_ELEMENT_3DXN_H_INCLUDED
+#if !defined(KRATOS_TRUSS_DISCRETE_ELEMENT_H_INCLUDED)
+#define KRATOS_TRUSS_DISCRETE_ELEMENT_H_INCLUDED
 
 
 // System includes
@@ -24,33 +24,33 @@
 namespace Kratos {
 
 /**
- * @class IgaTrussElement3DXN
+ * @class TrussDiscreteElement
  *
  * @brief This is a 3D-X-node isogeometric truss element with 3 translational
  * dofs per node
  */
-class IgaTrussElement3DXN
+class TrussDiscreteElement
     : public CurveBaseDiscreteElement
 {
 public:
-    KRATOS_CLASS_POINTER_DEFINITION(IgaTrussElement3DXN);
+    KRATOS_CLASS_POINTER_DEFINITION(TrussDiscreteElement);
 
 
-    IgaTrussElement3DXN(
+    TrussDiscreteElement(
     );
 
-    IgaTrussElement3DXN(
+    TrussDiscreteElement(
         IndexType NewId,
         GeometryType::Pointer pGeometry
     );
 
-    IgaTrussElement3DXN(
+    TrussDiscreteElement(
         IndexType NewId,
         GeometryType::Pointer pGeometry,
         PropertiesType::Pointer pProperties
     );
 
-    ~IgaTrussElement3DXN() override;
+    ~TrussDiscreteElement() override;
 
 
     Element::Pointer
@@ -154,8 +154,8 @@ private:
     load(
         Serializer& rSerializer
     ) override;
-}; // class IgaTrussElement3DXN
+}; // class TrussDiscreteElement
 
 } // namespace Kratos
 
-#endif // !defined(KRATOS_IGA_TRUSS_ELEMENT_3DXN_H_INCLUDED)
+#endif // !defined(KRATOS_TRUSS_DISCRETE_ELEMENT_H_INCLUDED)
