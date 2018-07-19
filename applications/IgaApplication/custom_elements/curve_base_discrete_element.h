@@ -24,7 +24,7 @@
 //#include "boost/smart_ptr.hpp"
 
 // Project includes
-#include "custom_elements/meshless_base_element.h"
+#include "custom_elements/base_discrete_element.h"
 
 namespace Kratos
 {
@@ -34,7 +34,7 @@ namespace Kratos
 /** CurveBaseDiscreteElement deals as base class for curve structured element formulations.
 */
 class  CurveBaseDiscreteElement
-    : public MeshlessBaseElement
+    : public BaseDiscreteElement
 {
 protected:
     using Vector3d = BoundedVector<double, 3>;
@@ -65,14 +65,14 @@ public:
     /// Default constructor.
 	 // Constructor using an array of nodes
 	CurveBaseDiscreteElement(IndexType NewId, GeometryType::Pointer pGeometry)
-		: MeshlessBaseElement(NewId, pGeometry)
+		: BaseDiscreteElement(NewId, pGeometry)
 	{};
 	 // Constructor using an array of nodes with properties
 	CurveBaseDiscreteElement(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties)
-		: MeshlessBaseElement(NewId, pGeometry, pProperties)
+		: BaseDiscreteElement(NewId, pGeometry, pProperties)
 	{};
 
-	CurveBaseDiscreteElement() : MeshlessBaseElement()
+	CurveBaseDiscreteElement() : BaseDiscreteElement()
 	{};
 
     /// Destructor.
