@@ -28,6 +28,12 @@
 namespace Kratos
 {
 
+/**
+ * @class TrussDiscreteElement
+ *
+ * @brief This is a 3D-X-node isogeometric truss element with 3 translational
+ * dofs per node
+ */
 class TrussDiscreteElement
     : public CurveBaseDiscreteElement
 {
