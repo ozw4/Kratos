@@ -207,21 +207,6 @@ class FEM_Solution(MainSolidFEM.Solution):
 		self.delta_time = self.ProjectParameters["problem_data"]["time_step"].GetDouble()
 
 
-
-
-		# Search the skin nodes for the remeshing TO BE REMOVED TODO
-		# skin_detection_process_param = KratosMultiphysics.Parameters("""
-        # {
-		# 	"name_auxiliar_model_part" : "SkinDEMModelPart",
-		# 	"name_auxiliar_condition"  : "Condition",
-		# 	"echo_level"               : 0
-        # }""")
-
-		# skin_detection_process = KratosMultiphysics.SkinDetectionProcess2D(self.main_model_part,
-		#                                                                    skin_detection_process_param)
-		# skin_detection_process.Execute()
-
-
 #============================================================================================================================
 	def RunMainTemporalLoop(self):
 		
@@ -368,25 +353,6 @@ class FEM_Solution(MainSolidFEM.Solution):
 
 	#============================================================================================================================
 
-	def InitializeAfterAMR(self):
-
-		#### INITIALIZE ####
-		# Add processes
-		self.model_processes = self.AddProcesses()
-		self.model_processes.ExecuteInitialize()
-
-		#### START SOLUTION ####
-		self.computing_model_part = self.solver.GetComputingModelPart()
-		## Sets strategies, builders, linear solvers, schemes and solving info, and fills the buffer
-		self.solver.Initialize()
-		#self.solver.InitializeStrategy()
-		self.solver.SetEchoLevel(self.echo_level)
-
-		
-		# Initialize GiD  I/O (gid outputs, file_lists)
-		self.SetGraphicalOutput()
-		self.GraphicalOutputExecuteInitialize()
-		self.GraphicalOutputExecuteBeforeSolutionLoop()		
 
 		
 

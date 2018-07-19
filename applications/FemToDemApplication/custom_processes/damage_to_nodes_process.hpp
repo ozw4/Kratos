@@ -1,9 +1,13 @@
-// KRATOS FEM2DEM Application
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ \.
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics FemDem Application
 //
-//  License:         BSD License
-//                   license: fem_to_dem_application/license.txt
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
 //
-//  Main authors:    Alejandro Cornejo
+//  Main authors:    Alejandro Cornejo Velázquez
 //
 
 #if !defined(KRATOS_DAMAGE_TO_NODES_PROCESS)
@@ -13,7 +17,6 @@
 #include <cmath>
 
 #include "includes/model_part.h"
-//#include "boost/smart_ptr.hpp"
 #include "processes/process.h"
 
 #include "fem_to_dem_application_variables.h"
@@ -79,7 +82,6 @@ class DamageToNodesProcess : public Process
         // Loop over elements to extrapolate the stress to the nodes
         for (ElementsArrayType::ptr_iterator it = mr_model_part.Elements().ptr_begin(); it != mr_model_part.Elements().ptr_end(); ++it)
         {
-
             bool condition_is_active = true;
             if ((*it)->IsDefined(ACTIVE))
             {
@@ -88,7 +90,6 @@ class DamageToNodesProcess : public Process
 
             if (condition_is_active)
             {
-
                 if ((*it)->GetGeometry().PointsNumber() == 3)
                 {
                     //GaussPointsStresses = (*it)->GetValue(STRESS_VECTOR);
@@ -123,8 +124,7 @@ class DamageToNodesProcess : public Process
         // Loop to compute the max eq. stress in order to normalize
         for (ModelPart::NodeIterator it = mr_model_part.NodesBegin(); it != mr_model_part.NodesEnd(); ++it)
         {
-
-            int Id = (*it).Id();
+            const int Id = (*it).Id();
             double &damage = it->GetSolutionStepValue(NODAL_DAMAGE);
             damage = pNodeStressesVector[Id - 1].Damage;
         }
