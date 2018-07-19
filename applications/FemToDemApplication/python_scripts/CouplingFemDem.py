@@ -85,6 +85,13 @@ class FEMDEM_Solution:
 #============================================================================================================================
     def InitializeSolutionStep(self):
 
+        # for node in self.FEM_Solution.main_model_part.Nodes:
+        #     if node.IsFixed(KratosMultiphysics.DISPLACEMENT_Y):
+        #         print(node.Id)
+
+        # Wait()
+
+
         # modified for the remeshing
         self.FEM_Solution.delta_time = self.FEM_Solution.main_model_part.ProcessInfo[KratosMultiphysics.DELTA_TIME]
         self.FEM_Solution.time = self.FEM_Solution.time + self.FEM_Solution.delta_time
@@ -94,7 +101,7 @@ class FEMDEM_Solution:
 
         if self.DoRemeshing:
             is_remeshing = self.CheckIfHasRemeshed()
-            # Perform remeshing
+            
             if is_remeshing:
                 # Extrapolate the VonMises normalized stress to nodes (remeshing)
                 KratosFemDem.StressToNodesProcess(self.FEM_Solution.main_model_part, 2).Execute()
@@ -103,7 +110,16 @@ class FEMDEM_Solution:
             # trap
             #  element = self.FEM_Solution.main_model_part.GetElement(1)
             #  element.SetValue(KratosFemDem.DAMAGE_ELEMENT, 0.56)
+
+            # Perform remeshing
             self.RemeshingProcessMMG.ExecuteInitializeSolutionStep()
+
+            # print("nodos fijados...")
+            # for node in self.FEM_Solution.main_model_part.Nodes:
+            #     if node.IsFixed(KratosMultiphysics.DISPLACEMENT_Y):
+            #         print(node.Id)
+            # Wait()
+
             if is_remeshing:
                    
                 # write output results GiD: (frequency writing is controlled internally) remove TODO
@@ -589,8 +605,8 @@ class FEMDEM_Solution:
             NumberOfActiveElements = node.GetValue(KratosFemDem.NUMBER_OF_ACTIVE_ELEMENTS)
             if NumberOfActiveElements == 0 and node.GetValue(KratosFemDem.INACTIVE_NODE) == False:
                 Id = node.Id
-                # print("nodo eliminado", Id)
-                # Wait()
+                print("nodo eliminado", Id)
+                Wait()
                 node.SetValue(KratosFemDem.INACTIVE_NODE, True)
                 node.Set(KratosMultiphysics.TO_ERASE, True) # added
                 DEMnode = self.SpheresModelPart.GetNode(Id)
