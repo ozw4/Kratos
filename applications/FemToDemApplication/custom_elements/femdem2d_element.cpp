@@ -296,7 +296,7 @@ void FemDem2DElement::CalculateLocalSystem(MatrixType &rLeftHandSideMatrix, Vect
 
 	const unsigned int number_of_nodes = GetGeometry().size();
 	const unsigned int dimension = GetGeometry().WorkingSpaceDimension();
-	unsigned int voigt_size = dimension * (dimension + 1) * 0.5;
+	unsigned int voigt_size = dimension * (dimension + 1) / 2;
 
 	const GeometryType::IntegrationPointsArrayType &integration_points = GetGeometry().IntegrationPoints(mThisIntegrationMethod);
 	unsigned int system_size = number_of_nodes * dimension;
@@ -322,7 +322,7 @@ void FemDem2DElement::CalculateLocalSystem(MatrixType &rLeftHandSideMatrix, Vect
 	{
 		const Matrix &Ncontainer = GetGeometry().ShapeFunctionsValues(mThisIntegrationMethod);
 		Vector N = row(Ncontainer, PointNumber);
-		double detJ = 0;
+		double detJ = 0.0;
 		Matrix InvJ(dimension, dimension);
 		noalias(InvJ) = ZeroMatrix(dimension, dimension);
 		MathUtils<double>::InvertMatrix(J[PointNumber], InvJ, detJ);
@@ -343,7 +343,7 @@ void FemDem2DElement::CalculateLocalSystem(MatrixType &rLeftHandSideMatrix, Vect
 		}
 
 		// Compute damage on each edge of the element
-		double damage[3] = {0, 0, 0};
+		double damage[3] = {0.0, 0.0, 0.0};
 
 		// Loop Over Edges
 		for (int cont = 0; cont < 3; cont++)
@@ -770,7 +770,7 @@ double FemDem2DElement::CalculateLchar(FemDem2DElement *CurrentElement, const El
 	else
 	{ // Edge element
 		double ElementArea = std::abs(this->GetGeometry().Area());
-		l_char = sqrt(4 * ElementArea / sqrt(3)); // Cervera's Formula
+		l_char = std::sqrt(4.0 * ElementArea / std::sqrt(3)); // Cervera's Formula
 	}											  // l_char computed
 
 	CurrentElement->SetCharacteristicLength(l_char, cont); // Storages the l_char of this side
@@ -1322,7 +1322,8 @@ void FemDem2DElement::ModifiedMohrCoulombCriterion(Vector &rIntegratedStress, do
 	else
 	{
 		theta = CalculateLodeAngle(J2, J3);
-		f = (2.00 * std::tan(3.14159 * 0.25 + friction_angle * 0.5) / std::cos(friction_angle)) * ((I1 * K3 / 3) + std::sqrt(J2) * (K1 * std::cos(theta) - K2 * std::sin(theta) * std::sin(friction_angle) / std::sqrt(3)));
+		f = (2.00 * std::tan(3.14159 * 0.25 + friction_angle * 0.5) / std::cos(friction_angle)) * ((I1 * K3 / 3) + 
+			std::sqrt(J2) * (K1 * std::cos(theta) - K2 * std::sin(theta) * std::sin(friction_angle) / std::sqrt(3)));
 	}
 
 	if (this->GetThreshold(cont) == 0)
@@ -1471,7 +1472,7 @@ void FemDem2DElement::DruckerPragerCriterion(
 	else
 	{
 		CFL = -std::sqrt(3.0) * (3.0 - std::sin(friction_angle)) / (3.0 * std::sin(friction_angle) - 3.0);
-		TEN0 = 2.0 * I1 * std::sin(friction_angle) / (std::sqrt(3) * (3 - std::sin(friction_angle))) + std::sqrt(J2);
+		TEN0 = 2.0 * I1 * std::sin(friction_angle) / (std::sqrt(3.0) * (3.0 - std::sin(friction_angle))) + std::sqrt(J2);
 		f = std::abs(CFL * TEN0);
 	}
 
@@ -1489,7 +1490,7 @@ void FemDem2DElement::DruckerPragerCriterion(
 	}
 	else
 	{
-		damage = 1 - (c_max / f) * std::exp(A * (1 - f / c_max)); // Exponential softening law
+		damage = 1.0 - (c_max / f) * std::exp(A * (1.0 - f / c_max)); // Exponential softening law
 		if (damage > 0.99)
 		{
 			damage = 0.99;

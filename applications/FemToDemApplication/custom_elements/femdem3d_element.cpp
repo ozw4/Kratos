@@ -273,7 +273,7 @@ void FemDem3DElement::InitializeNonLinearIteration(ProcessInfo &rCurrentProcessI
 		//1.-Initialize sizes for the system components:
 		const unsigned int number_of_nodes = GetGeometry().size();
 		const unsigned int dimension = GetGeometry().WorkingSpaceDimension();
-		unsigned int voigt_size = dimension * (dimension + 1) * 0.5;
+		unsigned int voigt_size = dimension * (dimension + 1) / 2;
 
 		Vector StrainVector(voigt_size);
 		noalias(StrainVector) = ZeroVector(voigt_size);
