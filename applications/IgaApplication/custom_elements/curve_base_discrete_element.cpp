@@ -37,7 +37,7 @@ namespace Kratos
         //Constitutive Law initialisation
         BaseDiscreteElement::InitializeMaterial();
 
-        Vector base_vector = ZeroVector(3);
+        Vector3d base_vector = ZeroVector(3);
         GetBaseVector(base_vector, GetValue(SHAPE_FUNCTION_LOCAL_DERIVATIVES));
         mBaseVector0 = base_vector;
 
@@ -47,7 +47,7 @@ namespace Kratos
     //************************************************************************************
     //************************************************************************************
     void CurveBaseDiscreteElement::GetBaseVector(
-        Vector& rBaseVector,
+        Vector3d& rBaseVector,
         const Matrix& rDN_De
     )
     {
@@ -77,7 +77,7 @@ namespace Kratos
     void CurveBaseDiscreteElement::GetBoundaryEdgeBaseVector(
         const Matrix& DN_De,
         const array_1d<double, 2>& Tangents,
-        Vector& rBaseVector)
+        Vector3d& rBaseVector)
     {
         Matrix J;
         Jacobian(DN_De, J);
@@ -100,8 +100,8 @@ namespace Kratos
     //************************************************************************************
     void CurveBaseDiscreteElement::Get1stVariationsAxialStrain(
         Vector& rEpsilon1stVariationDoF,
-        const Vector& rBaseVector,
-        const int& rNumberOfDoFs,
+        const Vector3d& rBaseVector,
+        const int& rNumberOfDoFs, 
         const Matrix& rDN_De)
     {
         int mat_size = rDN_De.size1()*rNumberOfDoFs;
