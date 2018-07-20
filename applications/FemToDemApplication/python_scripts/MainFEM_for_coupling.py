@@ -2,10 +2,7 @@ from __future__ import print_function, absolute_import, division #makes KratosMu
 
 import MainFemDem
 import KratosMultiphysics
-import KratosMultiphysics.FemToDemApplication   as KratosFemDem
-import cleaning_utility
-#import adaptive_mesh_refinement_utility
-import gid_output_utility
+import KratosMultiphysics.FemToDemApplication as KratosFemDem
 
 # Python script created to modify the existing one due to the coupling of the DEM app in 2D
 
@@ -54,7 +51,6 @@ class FEM_for_coupling_Solution(MainFemDem.FEM_Solution):
 			for properties in self.main_model_part.Properties:
 				print(properties)
 
-
 		#### START SOLUTION ####
 		self.computing_model_part = self.solver.GetComputingModelPart()
 
@@ -63,12 +59,10 @@ class FEM_for_coupling_Solution(MainFemDem.FEM_Solution):
 		#self.solver.InitializeStrategy()
 		self.solver.SetEchoLevel(self.echo_level)
 
-		
 		# Initialize GiD  I/O (gid outputs, file_lists)
 		self.SetGraphicalOutput()
 		
 		self.GraphicalOutputExecuteInitialize()
-
 
 		print(" ")
 		print("=================================================")
@@ -86,7 +80,4 @@ class FEM_for_coupling_Solution(MainFemDem.FEM_Solution):
 		self.end_time   = self.ProjectParameters["problem_data"]["end_time"].GetDouble()
 		self.delta_time = self.ProjectParameters["problem_data"]["time_step"].GetDouble()
 
-
-		###   ------  Initializing Adaptive Mesh Refinement  ----------####
-		self.cleaning_util = cleaning_utility.CleaningUtility(self.problem_path)
 
