@@ -87,7 +87,7 @@ void TrussDiscreteElement::CalculateAll(
 
     // compute base vectors
 
-    Vector3d actualBaseVector = ZeroVector(3);
+    Vector actualBaseVector = ZeroVector(3);
     GetBaseVector(actualBaseVector, DN_De);
 
     double referenceA = norm_2(mBaseVector0);

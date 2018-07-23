@@ -1,16 +1,16 @@
-//    |  /           |
-//    ' /   __| _` | __|  _ \   __|
-//    . \  |   (   | |   (   |\__ `
-//   _|\_\_|  \__,_|\__|\___/ ____/
-//                   Multi-Physics
+/*
+//  KRATOS .___  ________    _____
+//         |   |/  _____/   /  _  \
+//         |   /   \  ___  /  /_\  \
+//         |   \    \_\  \/    |    \
+//         |___|\______  /\____|__  /
+//                     \/         \/  Application
 //
-//  License:         BSD License
-//                     Kratos default license: kratos/IGAStructuralMechanicsApplication/license.txt
+//  License: BSD License
+//           Kratos default license: kratos/license.txt
 //
-//  Main authors:    Tobias Tescheamacher
-//
-
-
+//  Authors: Tobias Teschemacher
+*/
 // System includes
 
 
@@ -37,7 +37,7 @@ namespace Kratos
         //Constitutive Law initialisation
         BaseDiscreteElement::InitializeMaterial();
 
-        Vector3d base_vector = ZeroVector(3);
+        Vector base_vector = ZeroVector(3);
         GetBaseVector(base_vector, GetValue(SHAPE_FUNCTION_LOCAL_DERIVATIVES));
         mBaseVector0 = base_vector;
 
@@ -47,7 +47,7 @@ namespace Kratos
     //************************************************************************************
     //************************************************************************************
     void CurveBaseDiscreteElement::GetBaseVector(
-        Vector3d& rBaseVector,
+        Vector& rBaseVector,
         const Matrix& rDN_De
     )
     {
@@ -55,6 +55,7 @@ namespace Kratos
             rBaseVector.resize(3);
         rBaseVector = ZeroVector(3);
 
+        // this is valid for all parameter edges
         if (Has(TANGENTS))
         {
             GetBoundaryEdgeBaseVector(rDN_De, GetValue(TANGENTS), rBaseVector);
@@ -74,10 +75,42 @@ namespace Kratos
 
     //************************************************************************************
     //************************************************************************************
+    void CurveBaseDiscreteElement::GetBaseVectorsSurface(
+        const Matrix& DN_De,
+        Vector& g1,
+        Vector& g2,
+        Vector& g3)
+    {
+        Matrix J = ZeroMatrix(3,2);
+        Jacobian(DN_De, J);
+
+        //basis vectors g1 and g2
+        if (g1.size() != 3)
+            g1.resize(3, false);
+        g1 = ZeroVector(3);
+        if (g2.size() != 3)
+            g2.resize(3, false);
+        g2 = ZeroVector(3);
+        if (g3.size() != 3)
+            g3.resize(3, false);
+        g3 = ZeroVector(3);
+
+        g1[0] = J(0, 0);
+        g2[0] = J(0, 1);
+        g1[1] = J(1, 0);
+        g2[1] = J(1, 1);
+        g1[2] = J(2, 0);
+        g2[2] = J(2, 1);
+
+        MathUtils<double>::CrossProduct(g3, g1, g2);
+    }
+
+    //************************************************************************************
+    //************************************************************************************
     void CurveBaseDiscreteElement::GetBoundaryEdgeBaseVector(
         const Matrix& DN_De,
         const array_1d<double, 2>& Tangents,
-        Vector3d& rBaseVector)
+        Vector& rBaseVector)
     {
         Matrix J;
         Jacobian(DN_De, J);
@@ -100,8 +133,8 @@ namespace Kratos
     //************************************************************************************
     void CurveBaseDiscreteElement::Get1stVariationsAxialStrain(
         Vector& rEpsilon1stVariationDoF,
-        const Vector3d& rBaseVector,
-        const int& rNumberOfDoFs, 
+        const Vector& rBaseVector,
+        const int& rNumberOfDoFs,
         const Matrix& rDN_De)
     {
         int mat_size = rDN_De.size1()*rNumberOfDoFs;
@@ -162,4 +195,5 @@ namespace Kratos
 
     }
 } // Namespace Kratos
+
 

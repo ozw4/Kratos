@@ -1,14 +1,16 @@
-//    |  /           |
-//    ' /   __| _` | __|  _ \   __|
-//    . \  |   (   | |   (   |\__ `
-//   _|\_\_|  \__,_|\__|\___/ ____/
-//                   Multi-Physics
+/*
+//  KRATOS .___  ________    _____
+//         |   |/  _____/   /  _  \
+//         |   /   \  ___  /  /_\  \
+//         |   \    \_\  \/    |    \
+//         |___|\______  /\____|__  /
+//                     \/         \/  Application
 //
-//  License:         BSD License
-//                   Kratos default license: kratos/license.txt
+//  License: BSD License
+//           Kratos default license: kratos/license.txt
 //
-//  Main authors:    Tobias Tescheamacher
-//
+//  Authors: Tobias Teschemacher
+*/
 
 #if !defined(KRATOS_CURVE_BASE_DISCRETE_ELEMENT_H_INCLUDED )
 #define  KRATOS_CURVE_BASE_DISCRETE_ELEMENT_H_INCLUDED
@@ -21,7 +23,6 @@
 #include "includes/variables.h"
 
 // External includes
-//#include "boost/smart_ptr.hpp"
 
 // Project includes
 #include "custom_elements/base_discrete_element.h"
@@ -37,9 +38,7 @@ class  CurveBaseDiscreteElement
     : public BaseDiscreteElement
 {
 protected:
-    using Vector3d = BoundedVector<double, 3>;
 
-protected:
     std::string Info() const override
     {
         std::stringstream buffer;
@@ -63,104 +62,101 @@ public:
     ///@name Life Cycle
     ///@{
     /// Default constructor.
-	 // Constructor using an array of nodes
-	CurveBaseDiscreteElement(IndexType NewId, GeometryType::Pointer pGeometry)
-		: BaseDiscreteElement(NewId, pGeometry)
-	{};
-	 // Constructor using an array of nodes with properties
-	CurveBaseDiscreteElement(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties)
-		: BaseDiscreteElement(NewId, pGeometry, pProperties)
-	{};
+     // Constructor using an array of nodes
+    CurveBaseDiscreteElement(IndexType NewId, GeometryType::Pointer pGeometry)
+        : BaseDiscreteElement(NewId, pGeometry)
+    {};
+     // Constructor using an array of nodes with properties
+    CurveBaseDiscreteElement(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties)
+        : BaseDiscreteElement(NewId, pGeometry, pProperties)
+    {};
 
-	CurveBaseDiscreteElement() : BaseDiscreteElement()
-	{};
+    CurveBaseDiscreteElement() : BaseDiscreteElement()
+    {};
 
     /// Destructor.
-	virtual ~CurveBaseDiscreteElement() override
-	{};
+    virtual ~CurveBaseDiscreteElement() override
+    {};
 
-	Element::Pointer Create(IndexType NewId, NodesArrayType const& ThisNodes, PropertiesType::Pointer pProperties) const override
-	{
-		KRATOS_ERROR << "Trying to create a \"CurveBaseDiscreteElement\"" << std::endl;
-	};
+    Element::Pointer Create(IndexType NewId, NodesArrayType const& ThisNodes, PropertiesType::Pointer pProperties) const override
+    {
+        KRATOS_ERROR << "Trying to create a \"CurveBaseDiscreteElement\"" << std::endl;
+    };
 
     ///@}
     ///@name Operations
-	///@{
+    ///@{
 
-	/**
-	* Called to initialize the element.
-	* Must be called before any calculation is done
-	*/
-	void Initialize() override;
+    /**
+    * Called to initialize the element.
+    * Must be called before any calculation is done
+    */
+    void Initialize() override;
 
 
-	///@}
+    ///@}
 protected:
-	///@name Static Member Variables
-	///@{
-	ConstitutiveLaw::Pointer mConstitutiveLaw;
-	Vector3d mBaseVector0;
-	///@}
-	///@name Operations
-	///@{
-	///@}
+    ///@name Static Member Variables
+    ///@{
+    Vector mBaseVector0;
+    ///@}
+    ///@name Operations
+    ///@{
 
-	void GetBaseVector(
-		Vector3d& rBaseVector, 
-		const Matrix& rDN_De);
+    void GetBaseVector(
+        Vector& rBaseVector, 
+        const Matrix& rDN_De);
 
-	/**
-	* MappingGeometricToParameter calculates the J-tilde for the mapping from
-	Geometry to Parameter Space. This paramater is needed for all condition
-	integrations on edges.
-	*
-	* @param DN_De derivatives of shape functions.
-	* @param JGeometricToParameter Mapping parameter for Geometric Space to
-	Parameter Space
-	*
-	* @see Jacobian
-	*/
-	void GetBoundaryEdgeBaseVector(const Matrix& DN_De,
-		const array_1d<double, 2>& Tangents,
-		Vector3d& rBaseVector);
+    void GetBaseVectorsSurface(
+        const Matrix& DN_De,
+        Vector& g1,
+        Vector& g2,
+        Vector& g3);
 
-	void Get1stVariationsAxialStrain(
-		Vector& rEpsilon1stVariationDoF,
-		const Vector3d& rBaseVector,
-		const int& rNumberOfDoFs, 
-		const Matrix& rDN_De);
+    /**
+    * GetBoundaryEdgeBaseVector computes t3 of the boundary edge
+    * @param DN_De derivatives of shape functions.
+    * @param Tangents in Parameter space
+    * @see rBaseVector t3 of the edge
+    */
+    void GetBoundaryEdgeBaseVector(const Matrix& DN_De,
+        const array_1d<double, 2>& Tangents,
+        Vector& rBaseVector);
 
-	void Get2ndVariationsAxialStrain(
-		Matrix& rEpsilon2ndVariationDoF,
-		const int& rNumberOfDoFs, 
-		const Matrix& rDN_De);
+    void Get1stVariationsAxialStrain(
+        Vector& rEpsilon1stVariationDoF,
+        const Vector& rBaseVector,
+        const int& rNumberOfDoFs, 
+        const Matrix& rDN_De);
+
+    void Get2ndVariationsAxialStrain(
+        Matrix& rEpsilon2ndVariationDoF,
+        const int& rNumberOfDoFs, 
+        const Matrix& rDN_De);
 
 private:
-	///@name Operations
-	///@{
+    ///@name Operations
+    ///@{
 
-	///@}
+    ///@}
 
-	///@name Static Member Variables
+    ///@name Static Member Variables
 
-	///@}
-	///@name Serialization
-	///@{
-	friend class Serializer;
+    ///@}
+    ///@name Serialization
+    ///@{
+    friend class Serializer;
 
-	void save(Serializer& rSerializer) const override
-	{
-		KRATOS_SERIALIZE_SAVE_BASE_CLASS(rSerializer, Element)
-		rSerializer.save("ConstitutiveLaw", mConstitutiveLaw);
-	}
-	void load(Serializer& rSerializer) override
-	{
-		KRATOS_SERIALIZE_LOAD_BASE_CLASS(rSerializer, Element)
-		rSerializer.load("ConstitutiveLaw", mConstitutiveLaw);
-	}
-	///@}
-};	 // Class CurveBaseDiscreteElement
+    void save(Serializer& rSerializer) const override
+    {
+        KRATOS_SERIALIZE_SAVE_BASE_CLASS(rSerializer, BaseDiscreteElement)
+    }
+    void load(Serializer& rSerializer) override
+    {
+        KRATOS_SERIALIZE_LOAD_BASE_CLASS(rSerializer, BaseDiscreteElement)
+    }
+    ///@}
+};     // Class CurveBaseDiscreteElement
 ///@}
 }  // namespace Kratos.
 
