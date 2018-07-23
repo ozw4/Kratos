@@ -1,8 +1,13 @@
-//   
-//   Project Name:        KratosGeoMechanicsApplication $
-//   Last Modified by:    $Author:    Ignasi de Pouplana $
-//   Date:                $Date:           February 2016 $
-//   Revision:            $Revision:                 1.0 $
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
+//
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
+//
+//  Main authors:    @{KRATOS_APP_AUTHOR}
 //
 
 // External includes
@@ -17,16 +22,15 @@
 #include "custom_processes/apply_double_table_process.hpp"
 #include "custom_processes/apply_constant_hydrostatic_pressure_process.hpp"
 #include "custom_processes/apply_hydrostatic_pressure_table_process.hpp"
-//#include "custom_processes/periodic_interface_process.hpp"
 
 
 namespace Kratos
 {
-	
+
 namespace Python
 {
 
-void  AddCustomProcessesToPython(pybind11::module& m) 
+void  AddCustomProcessesToPython(pybind11::module& m)
 {
     using namespace pybind11;
 

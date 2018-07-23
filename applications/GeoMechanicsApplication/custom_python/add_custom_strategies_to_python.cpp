@@ -1,11 +1,16 @@
-//   
-//   Project Name:        KratosGeoMechanicsApplication $
-//   Last Modified by:    $Author:    Ignasi de Pouplana $
-//   Date:                $Date:            January 2016 $
-//   Revision:            $Revision:                 1.0 $
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
+//
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
+//
+//  Main authors:    @{KRATOS_APP_AUTHOR}
 //
 
-// External includes 
+// External includes
 #include "spaces/ublas_space.h"
 
 // Project includes
@@ -40,7 +45,7 @@ void  AddCustomStrategiesToPython(pybind11::module& m)
 {
     typedef UblasSpace<double, CompressedMatrix, Vector> SparseSpaceType;
     typedef UblasSpace<double, Matrix, Vector> LocalSpaceType;
-    
+
     typedef LinearSolver<SparseSpaceType, LocalSpaceType > LinearSolverType;
     typedef SolvingStrategy< SparseSpaceType, LocalSpaceType, LinearSolverType > BaseSolvingStrategyType;
     typedef Scheme< SparseSpaceType, LocalSpaceType > BaseSchemeType;
@@ -50,17 +55,13 @@ void  AddCustomStrategiesToPython(pybind11::module& m)
     typedef NewmarkQuasistaticUPwScheme< SparseSpaceType, LocalSpaceType >  NewmarkQuasistaticUPwSchemeType;
     typedef NewmarkQuasistaticDampedUPwScheme< SparseSpaceType, LocalSpaceType >  NewmarkQuasistaticDampedUPwSchemeType;
     typedef NewmarkDynamicUPwScheme< SparseSpaceType, LocalSpaceType >  NewmarkDynamicUPwSchemeType;
-    
+
     typedef GeoMechanicsNewtonRaphsonStrategy< SparseSpaceType, LocalSpaceType, LinearSolverType > GeoMechanicsNewtonRaphsonStrategyType;
     typedef GeoMechanicsRammArcLengthStrategy< SparseSpaceType, LocalSpaceType, LinearSolverType > GeoMechanicsRammArcLengthStrategyType;
 
-#ifdef VG_NON_LOCAL    
-    typedef GeoMechanicsNewtonRaphsonNonlocalStrategy< SparseSpaceType, LocalSpaceType, LinearSolverType > GeoMechanicsNewtonRaphsonNonlocalStrategyType;
-    typedef GeoMechanicsRammArcLengthNonlocalStrategy< SparseSpaceType, LocalSpaceType, LinearSolverType > GeoMechanicsRammArcLengthNonlocalStrategyType;
-#endif    
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
+
     class_< NewmarkQuasistaticUPwSchemeType, typename NewmarkQuasistaticUPwSchemeType::Pointer, BaseSchemeType >
     (m, "NewmarkQuasistaticUPwScheme")
     .def(init<  double, double, double >());
@@ -81,20 +82,6 @@ void  AddCustomStrategiesToPython(pybind11::module& m)
     .def(init < ModelPart&, BaseSchemeType::Pointer, LinearSolverType::Pointer, ConvergenceCriteriaType::Pointer,
         BuilderAndSolverType::Pointer, Parameters&, int, bool, bool, bool >())
     .def("UpdateLoads",&GeoMechanicsRammArcLengthStrategyType::UpdateLoads);
-
-#ifdef VG_NON_LOCAL
-
-    class_< GeoMechanicsNewtonRaphsonNonlocalStrategyType, typename GeoMechanicsNewtonRaphsonNonlocalStrategyType::Pointer, BaseSolvingStrategyType >
-    (m, "GeoMechanicsNewtonRaphsonNonlocalStrategy")
-    .def(init < ModelPart&, BaseSchemeType::Pointer, LinearSolverType::Pointer, ConvergenceCriteriaType::Pointer,
-        BuilderAndSolverType::Pointer, Parameters&, int, bool, bool, bool >());
-
-    class_< GeoMechanicsRammArcLengthNonlocalStrategyType, typename GeoMechanicsRammArcLengthNonlocalStrategyType::Pointer, BaseSolvingStrategyType >
-    (m, "GeoMechanicsRammArcLengthNonlocalStrategy")
-    .def(init < ModelPart&, BaseSchemeType::Pointer, LinearSolverType::Pointer, ConvergenceCriteriaType::Pointer,
-        BuilderAndSolverType::Pointer, Parameters&, int, bool, bool, bool >());
-
-#endif
 
 }
 

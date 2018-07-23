@@ -10,8 +10,6 @@
 //  Main authors:    @{KRATOS_APP_AUTHOR}
 //
 
-
-
 // System includes
 
 #if defined(KRATOS_PYTHON)

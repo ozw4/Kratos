@@ -1,10 +1,14 @@
-//   
-//   Project Name:        KratosGeoMechanicsApplication $
-//   Last Modified by:    $Author:    Ignasi de Pouplana $
-//   Date:                $Date:           February 2016 $
-//   Revision:            $Revision:                 1.0 $
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
 //
-
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
+//
+//  Main authors:    @{KRATOS_APP_AUTHOR}
+//
 // External includes
 
 // Project includes
@@ -18,29 +22,13 @@
 
 namespace Kratos
 {
-	
+
 namespace Python
 {
 
-void  AddCustomUtilitiesToPython(pybind11::module& m) 
+void  AddCustomUtilitiesToPython(pybind11::module& m)
 {
     using namespace pybind11;
-
-#ifdef VG_NON_LOCAL    
-
-    class_< FracturePropagation3DUtilities > 
-    (m, "FracturePropagation3DUtilities")
-    .def(init<>())
-    .def("CheckFracturePropagation",&FracturePropagation3DUtilities::CheckFracturePropagation)
-    .def("MappingModelParts",&FracturePropagation3DUtilities::MappingModelParts);
-    
-    class_< FracturePropagation2DUtilities >
-    (m, "FracturePropagation2DUtilities")
-    .def(init<>())
-    .def("CheckFracturePropagation",&FracturePropagation2DUtilities::CheckFracturePropagation)
-    .def("MappingModelParts",&FracturePropagation2DUtilities::MappingModelParts);
-
-#endif
 
 }
 
