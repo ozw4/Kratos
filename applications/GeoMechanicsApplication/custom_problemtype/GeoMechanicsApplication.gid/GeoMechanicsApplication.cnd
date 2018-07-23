@@ -4,7 +4,7 @@ CONDITION: Soil
 CONDTYPE: over groups
 CONDMESHTYPE: over body elements
 GROUPALLOW: surfaces volumes
-QUESTION: Constitutive_Law#CB#(LinearElasticPlaneStrain2DLaw,LinearElastic3DLaw)
+QUESTION: Constitutive_Law#CB#(LinearElasticPlaneStrain2DLaw,LinearElastic3DLaw,SmallStrainIsotropicPlasticity3DModifiedMohrCoulombModifiedMohrCoulomb)
 VALUE: LinearElasticPlaneStrain2DLaw
 DEPENDENCIES: (LinearElasticPlaneStrain2DLaw,HIDE,Intrinsic_Permeability_ZZ,#CURRENT#,HIDE,Intrinsic_Permeability_YZ,#CURRENT#,HIDE,Intrinsic_Permeability_ZX,#CURRENT#)
 DEPENDENCIES: (LinearElastic3DLaw,RESTORE,Intrinsic_Permeability_ZZ,#CURRENT#,RESTORE,Intrinsic_Permeability_YZ,#CURRENT#,RESTORE,Intrinsic_Permeability_ZX,#CURRENT#)
@@ -102,13 +102,6 @@ HELP: Cohesive strength of the joint. Units in IS: N/m2
 QUESTION: Friction_Coefficient
 VALUE: 0.4
 HELP: Mohr-Coulomb's friction coefficient in contact cases.
-QUESTION: Joint_Activation#CB#(true,false)
-VALUE: false
-HELP: True means that the joint is initially inactive, but can be activated during the calculation. False means that the joint is active from the beginning.
-DEPENDENCIES: (true,RESTORE,Stress_Limit,#CURRENT#)(false,HIDE,Stress_Limit,#CURRENT#)
-QUESTION: Stress_Limit
-VALUE: 100.0e6
-HELP: Principal stress S1 after which the joint is activated.
 END CONDITION
 
 

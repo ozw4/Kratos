@@ -18,12 +18,7 @@ proc WriteProjectParameters { basename dir problemtypedir TableDict} {
     puts $FileVar "        \"end_time\":             [GiD_AccessValue get gendata End_Time],"
     puts $FileVar "        \"time_step\":            [GiD_AccessValue get gendata Delta_Time],"
     puts $FileVar "        \"parallel_type\":        \"[GiD_AccessValue get gendata Parallel_Configuration]\","
-    puts $FileVar "        \"number_of_threads\":    [GiD_AccessValue get gendata Number_of_threads],"
-    if {[GiD_AccessValue get gendata Parallel_Configuration] eq "MPI"} {
-        puts $FileVar "        \"fracture_propagation\": false"
-    } else {
-        puts $FileVar "        \"fracture_propagation\": [GiD_AccessValue get gendata Fracture_Propagation]"
-    }
+    puts $FileVar "        \"number_of_threads\":    [GiD_AccessValue get gendata Number_of_threads]"
     puts $FileVar "    \},"
 
     ## solver_settings
@@ -43,16 +38,8 @@ proc WriteProjectParameters { basename dir problemtypedir TableDict} {
     puts $FileVar "        \"clear_storage\":                      false,"
     puts $FileVar "        \"compute_reactions\":                  [GiD_AccessValue get gendata Write_Reactions],"
     puts $FileVar "        \"move_mesh_flag\":                     [GiD_AccessValue get gendata Move_Mesh],"
-    set IsPeriodic [GiD_AccessValue get gendata Periodic_Interface_Conditions]
-    if {$IsPeriodic eq true} {
-        puts $FileVar "        \"periodic_interface_conditions\":      true,"
-        puts $FileVar "        \"reform_dofs_at_each_step\":           true,"
-        puts $FileVar "        \"nodal_smoothing\":                    true,"
-    } else {
-        puts $FileVar "        \"periodic_interface_conditions\":      false,"
-        puts $FileVar "        \"reform_dofs_at_each_step\":           [GiD_AccessValue get gendata Reform_Dofs_At_Each_Step],"
-        puts $FileVar "        \"nodal_smoothing\":                    [GiD_AccessValue get gendata Nodal_Smoothing],"
-    }
+    puts $FileVar "        \"reform_dofs_at_each_step\":           [GiD_AccessValue get gendata Reform_Dofs_At_Each_Step],"
+    puts $FileVar "        \"nodal_smoothing\":                    [GiD_AccessValue get gendata Nodal_Smoothing],"
     puts $FileVar "        \"block_builder\":                      [GiD_AccessValue get gendata Block_Builder],"
     puts $FileVar "        \"solution_type\":                      \"[GiD_AccessValue get gendata Solution_Type]\","
     puts $FileVar "        \"scheme_type\":                        \"[GiD_AccessValue get gendata Scheme_Type]\","
@@ -71,12 +58,6 @@ proc WriteProjectParameters { basename dir problemtypedir TableDict} {
     puts $FileVar "        \"desired_iterations\":                 [GiD_AccessValue get gendata Desired_Iterations],"
     puts $FileVar "        \"max_radius_factor\":                  [GiD_AccessValue get gendata Max_Radius_Factor],"
     puts $FileVar "        \"min_radius_factor\":                  [GiD_AccessValue get gendata Min_Radius_Factor],"
-    if {[GiD_AccessValue get gendata Parallel_Configuration] eq "MPI"} {
-        puts $FileVar "        \"nonlocal_damage\":                    false,"
-    } else {
-        puts $FileVar "        \"nonlocal_damage\":                    [GiD_AccessValue get gendata Non-local_Damage],"
-    }
-    puts $FileVar "        \"characteristic_length\":              [GiD_AccessValue get gendata Characteristic_Length],"
     ## linear_solver_settings
     puts $FileVar "        \"linear_solver_settings\":             \{"
     if {[GiD_AccessValue get gendata Parallel_Configuration] eq "MPI"} {
@@ -156,15 +137,7 @@ proc WriteProjectParameters { basename dir problemtypedir TableDict} {
     AppendGroupNames PutStrings Interface_Normal_Fluid_Flux
     # Body_Acceleration
     AppendGroupNames PutStrings Body_Acceleration
-    # Periodic_Bars
-    if {$IsPeriodic eq true} {
-        set Groups [GiD_Info conditions Interface groups]
-        for {set i 0} {$i < [llength $Groups]} {incr i} {
-            if {[lindex [lindex $Groups $i] 20] eq true} {
-                append PutStrings \" Periodic_Bars_[lindex [lindex $Groups $i] 1] \" ,
-            }
-        }
-    }
+
     set PutStrings [string trimright $PutStrings ,]
     append PutStrings \]
     puts $FileVar "        \"processes_sub_model_part_list\":      $PutStrings,"
@@ -230,17 +203,10 @@ proc WriteProjectParameters { basename dir problemtypedir TableDict} {
     puts $FileVar "            \"gidpost_flags\":       \{"
     puts $FileVar "                \"WriteDeformedMeshFlag\": \"[GiD_AccessValue get gendata Write_deformed_mesh]\","
     puts $FileVar "                \"WriteConditionsFlag\":   \"[GiD_AccessValue get gendata Write_conditions]\","
-    if { ([GiD_AccessValue get gendata Fracture_Propagation] eq true) || ($IsPeriodic eq true) } {
-        puts $FileVar "                \"GiDPostMode\":           \"GiD_PostAscii\","
-        puts $FileVar "                \"MultiFileFlag\":         \"MultipleFiles\""
-        puts $FileVar "            \},"
-        puts $FileVar "            \"file_label\":          \"time\","
-    } else {
-        puts $FileVar "                \"GiDPostMode\":           \"[GiD_AccessValue get gendata GiD_post_mode]\","
-        puts $FileVar "                \"MultiFileFlag\":         \"[GiD_AccessValue get gendata Multi_file_flag]\""
-        puts $FileVar "            \},"
-        puts $FileVar "            \"file_label\":          \"[GiD_AccessValue get gendata File_label]\","
-    }
+    puts $FileVar "                \"GiDPostMode\":           \"[GiD_AccessValue get gendata GiD_post_mode]\","
+    puts $FileVar "                \"MultiFileFlag\":         \"[GiD_AccessValue get gendata Multi_file_flag]\""
+    puts $FileVar "            \},"
+    puts $FileVar "            \"file_label\":          \"[GiD_AccessValue get gendata File_label]\","
     puts $FileVar "            \"output_control_type\": \"[GiD_AccessValue get gendata Output_control_type]\","
     puts $FileVar "            \"output_frequency\":    [GiD_AccessValue get gendata Output_frequency],"
     puts $FileVar "            \"body_output\":         [GiD_AccessValue get gendata Body_output],"
@@ -338,14 +304,7 @@ proc WriteProjectParameters { basename dir problemtypedir TableDict} {
     incr NumGroups [llength $Groups]
     set Groups [GiD_Info conditions Body_Acceleration groups]
     incr NumGroups [llength $Groups]
-    if {$IsPeriodic eq true} {
-        set Groups [GiD_Info conditions Interface groups]
-        for {set i 0} {$i < [llength $Groups]} {incr i} {
-            if {[lindex [lindex $Groups $i] 20] eq true} {
-                incr NumGroups
-            }
-        }
-    }
+
     if {$NumGroups > 0} {
         set iGroup 0
         puts $FileVar "    \"loads_process_list\": \[\{"
@@ -370,11 +329,6 @@ proc WriteProjectParameters { basename dir problemtypedir TableDict} {
         # Body_Acceleration
         set Groups [GiD_Info conditions Body_Acceleration groups]
         WriteLoadVectorProcess FileVar iGroup $Groups VOLUME_ACCELERATION $TableDict $NumGroups
-        # Periodic_Bars
-        if {$IsPeriodic eq true} {
-            set Groups [GiD_Info conditions Interface groups]
-            WritePeriodicInterfaceProcess FileVar iGroup $Groups $NumGroups
-        }
     } else {
         puts $FileVar "    \"loads_process_list\":       \[\]"
     }
