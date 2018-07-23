@@ -34,7 +34,7 @@ void TrussDiscreteElement::Initialize()
 {
     KRATOS_TRY
 
-    Vector3d base_vector = ZeroVector(3);
+    Vector base_vector = ZeroVector(3);
     GetBaseVector(base_vector, GetValue(SHAPE_FUNCTION_LOCAL_DERIVATIVES));
     mBaseVector0 = base_vector;
 
