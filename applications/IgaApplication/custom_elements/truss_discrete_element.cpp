@@ -137,8 +137,8 @@ void TrussDiscreteElement::CalculateAll(
 
     rRightHandSideVector = -S11_membrane * epsilonVar1Dof;
 
-    rLeftHandSideMatrix *= integrationWeight;
-    rRightHandSideVector *= integrationWeight;
+    rLeftHandSideMatrix *= integrationWeight * referenceA;
+    rRightHandSideVector *= integrationWeight * referenceA;
 
     KRATOS_CATCH("");
 }
