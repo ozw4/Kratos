@@ -48,6 +48,7 @@ Import_DelaunayMeshingApplication = False
 Import_FluidRveLagrangeMultipliersApplication=False
 Import_PoromechanicsApplication = False
 Import_FluidTransportApplication = False
+Import_GeoMechanicsApplication = False
 
 print("Applications Available:")
 print("Import_FluidRveLagrangeMultipliersApplication: False")
@@ -95,6 +96,7 @@ print("Import_ShallowWaterApplication: False")
 print("Import_DelaunayMeshingApplication: False")
 print("Import_PoromechanicsApplication: False")
 print("Import_FluidTransportApplication: False")
+print("Import_GeoMechanicsApplication: False")
 
 application_directory = os.path.dirname(os.path.realpath(__file__))
 
@@ -146,6 +148,7 @@ def ImportApplications(kernel, applications_path=application_directory):
     print("Import_DelaunayMeshingApplication: " + str(Import_DelaunayMeshingApplication))
     print("Import_PoromechanicsApplication: " + str(Import_PoromechanicsApplication))
     print("Import_FluidTransportApplication: " + str(Import_FluidTransportApplication))
+    print("Import_GeoMechanicsApplication: " + str(Import_GeoMechanicsApplication))
 
     if(Import_FluidRveLagrangeMultipliersApplication):
         print("importing KratosFluidRveLagrangeMultipliersApplication ...")
@@ -537,6 +540,15 @@ def ImportApplications(kernel, applications_path=application_directory):
         kernel.AddApplication(fluid_transport_application)
         print("KratosFluidTransportApplication Succesfully imported")
 
+    if(Import_GeoMechanicsApplication):
+        print("importing KratosGeoMechanicsApplication ...")
+        sys.path.append(applications_path + '/GeoMechanics/python_scripts')
+        sys.path.append(applications_path + '/GeoMechanics/Linux')
+        from KratosGeoMechanicsApplication import *
+        geo_mechanics_application = KratosGeoMechanicsApplication()
+        kernel.AddApplication(geo_mechanics_application)
+        print("KratosGeoMechanicsApplication Succesfully imported")
+
     # dynamic renumbering of variables to ensure the consistency
     kernel.Initialize()
 
@@ -626,6 +638,8 @@ def ImportApplications(kernel, applications_path=application_directory):
         kernel.InitializeApplication(poromechanics_application)
     if(Import_FluidTransportApplication):
         kernel.InitializeApplication(fluid_transport_application)
+    if(Import_GeoMechanicsApplication):
+        kernel.InitializeApplication(geo_mechanics_application)
 
 # def ImportApplications(kernel  ):
     # import os.path
