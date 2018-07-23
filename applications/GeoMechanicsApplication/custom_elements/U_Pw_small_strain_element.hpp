@@ -35,6 +35,8 @@ public:
     typedef Geometry<NodeType>::PointsArrayType NodesArrayType;
     typedef Vector VectorType;
     typedef Matrix MatrixType;
+    /// The definition of the sizetype
+    typedef std::size_t SizeType;
     using UPwElement<TDim,TNumNodes>::mThisIntegrationMethod;
     using UPwElement<TDim,TNumNodes>::mConstitutiveLawVector;
 

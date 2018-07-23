@@ -246,7 +246,7 @@ class UPwSolver(PythonSolver):
         ##settings string in json format
         default_settings = KratosMultiphysics.Parameters("""
         {
-            "solver_type": "poromechanics_U_Pw_solver",
+            "solver_type": "geomechanics_U_Pw_solver",
             "model_part_name": "PorousDomain",
             "domain_size": 2,
             "start_time": 0.0,
@@ -333,14 +333,19 @@ class UPwSolver(PythonSolver):
         params.AddValue("loads_sub_model_part_list",self.settings["loads_sub_model_part_list"])
         params.AddValue("loads_sub_sub_model_part_list",self.loads_sub_sub_model_part_list)
         # CheckAndPrepareModelProcess creates the porous_computational_model_part
-        import check_and_prepare_model_process_poro
-        check_and_prepare_model_process_poro.CheckAndPrepareModelProcess(self.main_model_part, params).Execute()
+        import check_and_prepare_model_process_geo
+        check_and_prepare_model_process_geo.CheckAndPrepareModelProcess(self.main_model_part, params).Execute()
 
         # Constitutive law import
 
         # OLD METHOD
-        # import poromechanics_constitutivelaw_utility
-        # poromechanics_constitutivelaw_utility.SetConstitutiveLaw(self.main_model_part)
+        # import geomechanics_constitutivelaw_utility
+        # geomechanics_constitutivelaw_utility.SetConstitutiveLaw(self.main_model_part)
+
+        # This will be removed once the Model is fully supported! => It wont e necessary anymore
+        # NOTE: We do this here in case the model is empty, so the properties can be assigned
+        if not self.model.HasModelPart(self.main_model_part.Name):
+            self.model.AddModelPart(self.main_model_part)
 
         # Import constitutive laws.
         materials_imported = self.import_constitutive_laws()
@@ -448,7 +453,7 @@ class UPwSolver(PythonSolver):
             self.strategy_params = KratosMultiphysics.Parameters("{}")
             self.strategy_params.AddValue("loads_sub_model_part_list",self.loads_sub_sub_model_part_list)
             self.strategy_params.AddValue("loads_variable_list",self.settings["loads_variable_list"])
-            solving_strategy = KratosGeo.PoromechanicsNewtonRaphsonStrategy(self.computing_model_part,
+            solving_strategy = KratosGeo.GeoMechanicsNewtonRaphsonStrategy(self.computing_model_part,
                                                                     self.scheme,
                                                                     self.linear_solver,
                                                                     self.convergence_criterion,
@@ -466,7 +471,7 @@ class UPwSolver(PythonSolver):
             self.strategy_params.AddValue("min_radius_factor",self.settings["min_radius_factor"])
             self.strategy_params.AddValue("loads_sub_model_part_list",self.loads_sub_sub_model_part_list)
             self.strategy_params.AddValue("loads_variable_list",self.settings["loads_variable_list"])
-            solving_strategy = KratosGeo.PoromechanicsRammArcLengthStrategy(self.computing_model_part,
+            solving_strategy = KratosGeo.GeoMechanicsRammArcLengthStrategy(self.computing_model_part,
                                                                     self.scheme,
                                                                     self.linear_solver,
                                                                     self.convergence_criterion,

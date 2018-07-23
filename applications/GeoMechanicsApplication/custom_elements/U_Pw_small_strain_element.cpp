@@ -63,28 +63,21 @@ int UPwSmallStrainElement<TDim,TNumNodes>::Check( const ProcessInfo& rCurrentPro
             KRATOS_THROW_ERROR( std::invalid_argument,"PERMEABILITY_ZX has Key zero, is not defined or has an invalid value at element", this->Id() )
     }
 
-    // Verify the constitutive law
-    if ( CONSTITUTIVE_LAW.Key() == 0 || Prop.Has( CONSTITUTIVE_LAW ) == false )
-        KRATOS_THROW_ERROR( std::invalid_argument, "CONSTITUTIVE_LAW has Key zero or is not defined at element ", this->Id() )
-    if ( Prop[CONSTITUTIVE_LAW] != NULL )
-    {
-        // Verify compatibility of the element with the constitutive law
-        ConstitutiveLaw::Features LawFeatures;
-        Prop[CONSTITUTIVE_LAW]->GetLawFeatures(LawFeatures);
-        bool correct_strain_measure = false;
-        for(unsigned int i=0; i<LawFeatures.mStrainMeasures.size(); i++)
-        {
-            if(LawFeatures.mStrainMeasures[i] == ConstitutiveLaw::StrainMeasure_Infinitesimal)
-                correct_strain_measure = true;
-        }
-        if( correct_strain_measure == false )
-            KRATOS_THROW_ERROR( std::logic_error, "constitutive law is not compatible with the element type", " StrainMeasure_Infinitesimal " );
+    // Verify that the constitutive law exists
+    KRATOS_ERROR_IF_NOT(this->GetProperties().Has( CONSTITUTIVE_LAW )) << "Constitutive law not provided for property " << this->GetProperties().Id() << std::endl;
 
-        // Check constitutive law
-        ierr = Prop[CONSTITUTIVE_LAW]->Check( Prop, Geom, rCurrentProcessInfo );
+    // Verify that the constitutive law has the correct dimension
+    const SizeType strain_size = this->GetProperties().GetValue( CONSTITUTIVE_LAW )->GetStrainSize();
+    if ( TDim == 2 ) {
+        KRATOS_ERROR_IF( strain_size < 3 || strain_size > 4) << "Wrong constitutive law used. This is a 2D element! expected strain size is 3 or 4 (el id = ) " << this->Id() << std::endl;
+    } else {
+        KRATOS_ERROR_IF_NOT(strain_size == 6) << "Wrong constitutive law used. This is a 3D element! expected strain size is 6 (el id = ) "<<  this->Id() << std::endl;
     }
-    else
-        KRATOS_THROW_ERROR( std::logic_error, "A constitutive law needs to be specified for the element ", this->Id() )
+
+    // Check constitutive law
+    if ( mConstitutiveLawVector.size() > 0 ) {
+        return mConstitutiveLawVector[0]->Check( Prop, Geom, rCurrentProcessInfo );
+    }
 
     return ierr;
 
@@ -835,7 +828,7 @@ void UPwSmallStrainElement<TDim,TNumNodes>::CalculateAll( MatrixType& rLeftHandS
     ConstitutiveParameters.Set(ConstitutiveLaw::COMPUTE_CONSTITUTIVE_TENSOR);
     ConstitutiveParameters.Set(ConstitutiveLaw::COMPUTE_STRESS);
     ConstitutiveParameters.Set(ConstitutiveLaw::USE_ELEMENT_PROVIDED_STRAIN);
-    
+
 
     //Element variables
     ElementVariables Variables;
@@ -1187,14 +1180,14 @@ void UPwSmallStrainElement<TDim,TNumNodes>::CalculateAndAddRHS(VectorType& rRigh
     this->CalculateAndAddPermeabilityFlow(rRightHandSideVector, rVariables);
 
     this->CalculateAndAddFluidBodyFlow(rRightHandSideVector, rVariables);
-    
+
 }
 
 //----------------------------------------------------------------------------------------
 
 template< unsigned int TDim, unsigned int TNumNodes >
 void UPwSmallStrainElement<TDim,TNumNodes>::CalculateAndAddStiffnessForce(VectorType& rRightHandSideVector, ElementVariables& rVariables)
-{    
+{
     noalias(rVariables.UVector) = -1.0*prod(trans(rVariables.B),rVariables.StressVector)*rVariables.IntegrationCoefficient;
 
     //Distribute stiffness block vector into elemental vector
