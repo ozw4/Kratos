@@ -2,7 +2,8 @@
 
 namespace Kratos
 {
-/* Variables from PoroMechanicsApplications */
+/* Variables from GeoMechanicsApplication */
+
 KRATOS_CREATE_VARIABLE( double, VELOCITY_COEFFICIENT )
 KRATOS_CREATE_VARIABLE( double, DT_PRESSURE_COEFFICIENT )
 

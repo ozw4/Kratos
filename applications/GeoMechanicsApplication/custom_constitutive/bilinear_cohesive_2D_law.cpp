@@ -1,8 +1,13 @@
-//   
-//   Project Name:        KratosPoromechanicsApplication $
-//   Last Modified by:    $Author:    Ignasi de Pouplana $
-//   Date:                $Date:           February 2016 $
-//   Revision:            $Revision:                 1.0 $
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
+//
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
+//
+//  Main authors:    @{KRATOS_APP_AUTHOR}
 //
 
 // Application includes
@@ -39,7 +44,7 @@ void BilinearCohesive2DLaw::GetLawFeatures(Features& rFeatures)
 
 	//Set the spacedimension
 	rFeatures.mSpaceDimension = 2;
-    
+
 	//Set the strain size
 	rFeatures.mStrainSize = 2;
 }
@@ -56,7 +61,7 @@ ConstitutiveLaw::Pointer BilinearCohesive2DLaw::Clone() const
 
 void BilinearCohesive2DLaw::ComputeEquivalentStrain(double& rEquivalentStrain,const Vector& StrainVector,const double& CriticalDisplacement)
 {
-    rEquivalentStrain = sqrt(StrainVector[0]*StrainVector[0]+StrainVector[1]*StrainVector[1])/CriticalDisplacement;    
+    rEquivalentStrain = sqrt(StrainVector[0]*StrainVector[0]+StrainVector[1]*StrainVector[1])/CriticalDisplacement;
 }
 
 //----------------------------------------------------------------------------------------
@@ -89,7 +94,7 @@ void BilinearCohesive2DLaw::ComputeConstitutiveMatrixContactLoading(Matrix& rCon
     rConstitutiveMatrix(0,0) = YieldStress/((1.0-DamageThreshold)*CriticalDisplacement) * ( (1.0-mStateVariable)/mStateVariable-
                                 StrainVector[0]*StrainVector[0]/(CriticalDisplacement*CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable) );
     rConstitutiveMatrix(1,1) = YoungModulus/(DamageThreshold*CriticalDisplacement);
-        
+
     if(StrainVector[0] > 1.0e-20)
     {
         rConstitutiveMatrix(0,1) = -YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-DamageThreshold)*
@@ -106,7 +111,7 @@ void BilinearCohesive2DLaw::ComputeConstitutiveMatrixContactLoading(Matrix& rCon
     {
         rConstitutiveMatrix(0,1) = 0.0;
     }
-    
+
     rConstitutiveMatrix(1,0) = 0.0;
 }
 
@@ -142,7 +147,7 @@ void BilinearCohesive2DLaw::ComputeConstitutiveMatrixContactUnloading(Matrix& rC
     {
         rConstitutiveMatrix(0,1) = 0.0;
     }
-    
+
     rConstitutiveMatrix(1,0) = 0.0;
 }
 

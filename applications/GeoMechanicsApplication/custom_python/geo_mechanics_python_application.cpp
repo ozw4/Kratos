@@ -2,14 +2,14 @@
 //    ' /   __| _` | __|  _ \   __|
 //    . \  |   (   | |   (   |\__ `
 //   _|\_\_|  \__,_|\__|\___/ ____/
-//                   Multi-Physics 
+//                   Multi-Physics
 //
-//  License:		 BSD License 
+//  License:		 BSD License
 //					 Kratos default license: kratos/license.txt
 //
-//  Main authors:    Author1 Fullname
-//                   Author2 Fullname 
+//  Main authors:    @{KRATOS_APP_AUTHOR}
 //
+
 
 
 // System includes
@@ -27,6 +27,7 @@
 #include "geo_mechanics_application.h"
 #include "geo_mechanics_application_variables.h"
 #include "custom_python/add_custom_strategies_to_python.h"
+#include "custom_python/add_custom_constitutive_laws_to_python.h"
 #include "custom_python/add_custom_processes_to_python.h"
 #include "custom_python/add_custom_utilities_to_python.h"
 
@@ -48,7 +49,7 @@ namespace Python {
 
 	  AddCustomStrategiesToPython(m);
 	  AddCustomUtilitiesToPython(m);
-    // AddCustomConstitutiveLawsToPython(m);
+    AddCustomConstitutiveLawsToPython(m);
     AddCustomProcessesToPython(m);
 
     //Registering variables in python

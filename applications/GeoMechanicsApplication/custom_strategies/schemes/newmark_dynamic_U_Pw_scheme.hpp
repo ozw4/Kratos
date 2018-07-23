@@ -1,8 +1,13 @@
-//   
-//   Project Name:        KratosPoromechanicsApplication $
-//   Last Modified by:    $Author:    Ignasi de Pouplana $
-//   Date:                $Date:            January 2016 $
-//   Revision:            $Revision:                 1.0 $
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
+//
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
+//
+//  Main authors:    @{KRATOS_APP_AUTHOR}
 //
 
 #if !defined(KRATOS_NEWMARK_DYNAMIC_U_PW_SCHEME )
@@ -43,7 +48,7 @@ public:
     {
         mRayleighAlpha = rayleigh_m;
         mRayleighBeta = rayleigh_k;
-                
+
         //Allocate auxiliary memory
         int NumThreads = OpenMPUtils::GetNumThreads();
         mMassMatrix.resize(NumThreads);
@@ -53,16 +58,16 @@ public:
     }
 
     //------------------------------------------------------------------------------------
-    
+
     ///Destructor
     ~NewmarkDynamicUPwScheme() override {}
-    
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     int Check(ModelPart& r_model_part) override
     {
         KRATOS_TRY
-        
+
         int ierr = NewmarkQuasistaticUPwScheme<TSparseSpace,TDenseSpace>::Check(r_model_part);
         if(ierr != 0) return ierr;
 
@@ -70,13 +75,13 @@ public:
             KRATOS_THROW_ERROR( std::invalid_argument, "RAYLEIGH_ALPHA Key is 0. Check if all applications were correctly registered.", "" )
         if ( RAYLEIGH_BETA.Key() == 0 )
             KRATOS_THROW_ERROR( std::invalid_argument, "RAYLEIGH_BETA Key is 0. Check if all applications were correctly registered.", "" )
-            
+
         // Check rayleigh coefficients
         if( mRayleighAlpha < 0.0 || mRayleighBeta < 0.0 )
             KRATOS_THROW_ERROR( std::invalid_argument,"Some of the rayleigh coefficients has an invalid value ", "" )
-            
+
         return ierr;
-        
+
         KRATOS_CATCH( "" )
     }
 
@@ -85,12 +90,12 @@ public:
     void Initialize(ModelPart& r_model_part) override
     {
         KRATOS_TRY
-        
+
         NewmarkQuasistaticUPwScheme<TSparseSpace,TDenseSpace>::Initialize(r_model_part);
-        
+
         r_model_part.GetProcessInfo()[RAYLEIGH_ALPHA] = mRayleighAlpha;
         r_model_part.GetProcessInfo()[RAYLEIGH_BETA] = mRayleighBeta;
-        
+
         KRATOS_CATCH("")
     }
 
@@ -104,22 +109,22 @@ public:
         TSystemVectorType& b) override
     {
         // Predict Displacements on free nodes and update Acceleration, Velocity and DtPressure
-        
+
         array_1d<double,3> DeltaDisplacement;
         double DeltaPressure;
-        
+
         const int NNodes = static_cast<int>(r_model_part.Nodes().size());
         ModelPart::NodesContainerType::iterator node_begin = r_model_part.NodesBegin();
-        
+
         #pragma omp parallel for private(DeltaDisplacement,DeltaPressure)
         for(int i = 0; i < NNodes; i++)
         {
             ModelPart::NodesContainerType::iterator itNode = node_begin + i;
-            
+
             array_1d<double,3>& CurrentDisplacement = itNode->FastGetSolutionStepValue(DISPLACEMENT);
             array_1d<double,3>& CurrentAcceleration = itNode->FastGetSolutionStepValue(ACCELERATION);
             array_1d<double,3>& CurrentVelocity = itNode->FastGetSolutionStepValue(VELOCITY);
-            
+
             const array_1d<double,3>& PreviousDisplacement = itNode->FastGetSolutionStepValue(DISPLACEMENT, 1);
             const array_1d<double,3>& PreviousAcceleration = itNode->FastGetSolutionStepValue(ACCELERATION, 1);
             const array_1d<double,3>& PreviousVelocity = itNode->FastGetSolutionStepValue(VELOCITY, 1);
@@ -166,12 +171,12 @@ public:
                     CurrentDisplacement[2] = PreviousDisplacement[2] + mDeltaTime * PreviousVelocity[2] + 0.5 * std::pow(mDeltaTime, 2) * PreviousAcceleration[2];
                 }
             }
-            
+
             noalias(DeltaDisplacement) = CurrentDisplacement - PreviousDisplacement;
-            
+
             noalias(CurrentAcceleration) = 1.0/(mBeta*mDeltaTime*mDeltaTime)*(DeltaDisplacement - mDeltaTime*PreviousVelocity - (0.5-mBeta)*mDeltaTime*mDeltaTime*PreviousAcceleration);
             noalias(CurrentVelocity) = PreviousVelocity + (1.0-mGamma)*mDeltaTime*PreviousAcceleration + mGamma*mDeltaTime*CurrentAcceleration;
-            
+
             double& CurrentDtPressure = itNode->FastGetSolutionStepValue(DT_WATER_PRESSURE);
             DeltaPressure = itNode->FastGetSolutionStepValue(WATER_PRESSURE) - itNode->FastGetSolutionStepValue(WATER_PRESSURE, 1);
             const double& PreviousDtPressure = itNode->FastGetSolutionStepValue(DT_WATER_PRESSURE, 1);
@@ -179,7 +184,7 @@ public:
             CurrentDtPressure = 1.0/(mTheta*mDeltaTime)*(DeltaPressure - (1.0-mTheta)*mDeltaTime*PreviousDtPressure);
         }
     }
-    
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Note: this is in a parallel loop
@@ -267,12 +272,12 @@ public:
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 protected:
-    
+
     /// Member Variables
-    
+
     double mRayleighAlpha;
     double mRayleighBeta;
-    
+
     std::vector< Matrix > mMassMatrix;
     std::vector< Vector > mAccelerationVector;
     std::vector< Matrix > mDampingMatrix;
@@ -281,7 +286,7 @@ protected:
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void AddDynamicsToLHS(LocalSystemMatrixType& LHS_Contribution,LocalSystemMatrixType& M,LocalSystemMatrixType& C,ProcessInfo& CurrentProcessInfo)
-    {        
+    {
         // adding mass contribution
         if (M.size1() != 0)
             noalias(LHS_Contribution) += 1.0/(mBeta*mDeltaTime*mDeltaTime)*M;
@@ -290,7 +295,7 @@ protected:
         if (C.size1() != 0)
             noalias(LHS_Contribution) += mGamma/(mBeta*mDeltaTime)*C;
     }
-    
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void AddDynamicsToRHS(Element::Pointer rCurrentElement,LocalSystemVectorType& RHS_Contribution,

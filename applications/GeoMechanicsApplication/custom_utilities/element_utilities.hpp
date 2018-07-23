@@ -1,8 +1,13 @@
-//   
-//   Project Name:        KratosPoromechanicsApplication $
-//   Last Modified by:    $Author:    Ignasi de Pouplana $
-//   Date:                $Date:           February 2016 $
-//   Revision:            $Revision:                 1.0 $
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
+//
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
+//
+//  Main authors:    @{KRATOS_APP_AUTHOR}
 //
 
 #if !defined(KRATOS_ELEMENT_UTILITIES )
@@ -23,20 +28,20 @@ namespace Kratos
 
 class ElementUtilities
 {
-    
+
 public:
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
+
     static inline void CalculateNuMatrix(BoundedMatrix<double,2,6>& rNu, const Matrix& Ncontainer, const unsigned int& GPoint)
     {
         //Triangle_2d_3
         rNu(0,0) = Ncontainer(GPoint,0); rNu(0,2) = Ncontainer(GPoint,1); rNu(0,4) = Ncontainer(GPoint,2);
         rNu(1,1) = Ncontainer(GPoint,0); rNu(1,3) = Ncontainer(GPoint,1); rNu(1,5) = Ncontainer(GPoint,2);
     }
-    
+
     //----------------------------------------------------------------------------------------
-    
+
     static inline void CalculateNuMatrix(BoundedMatrix<double,2,8>& rNu, const Matrix& Ncontainer, const unsigned int& GPoint)
     {
         //Quadrilateral_2d_4
@@ -116,14 +121,14 @@ public:
     {
         //Prism_3d_6
         rNut(0,0) = Ncontainer(GPoint,0); rNut(0,4) = Ncontainer(GPoint,1); rNut(0,8) = Ncontainer(GPoint,2);
-        rNut(1,1) = Ncontainer(GPoint,0); rNut(1,5) = Ncontainer(GPoint,1); rNut(1,9) = Ncontainer(GPoint,2); 
-        rNut(2,2) = Ncontainer(GPoint,0); rNut(2,6) = Ncontainer(GPoint,1); rNut(2,10) = Ncontainer(GPoint,2); 
+        rNut(1,1) = Ncontainer(GPoint,0); rNut(1,5) = Ncontainer(GPoint,1); rNut(1,9) = Ncontainer(GPoint,2);
+        rNut(2,2) = Ncontainer(GPoint,0); rNut(2,6) = Ncontainer(GPoint,1); rNut(2,10) = Ncontainer(GPoint,2);
 
         rNut(0,12) = Ncontainer(GPoint,3); rNut(0,16) = Ncontainer(GPoint,4); rNut(0,20) = Ncontainer(GPoint,5);
         rNut(1,13) = Ncontainer(GPoint,3); rNut(1,17) = Ncontainer(GPoint,4); rNut(1,21) = Ncontainer(GPoint,5);
         rNut(2,14) = Ncontainer(GPoint,3); rNut(2,18) = Ncontainer(GPoint,4); rNut(2,22) = Ncontainer(GPoint,5);
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void CalculateNuElementMatrix(BoundedMatrix<double,4,32>& rNut, const Matrix& Ncontainer, const unsigned int& GPoint)
@@ -140,12 +145,12 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static inline void InterpolateVariableWithComponents(array_1d<double,2>& rVector,const Matrix& Ncontainer, 
+    static inline void InterpolateVariableWithComponents(array_1d<double,2>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,6>& VariableWithComponents,const unsigned int& GPoint)
-    {        
+    {
         //Triangle_2d_3
         noalias(rVector) = ZeroVector(2);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<3; i++)
         {
@@ -153,15 +158,15 @@ public:
             rVector[1] += Ncontainer(GPoint,i)*VariableWithComponents[index++];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
-    static inline void InterpolateVariableWithComponents(array_1d<double,2>& rVector,const Matrix& Ncontainer, 
+    static inline void InterpolateVariableWithComponents(array_1d<double,2>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,8>& VariableWithComponents,const unsigned int& GPoint)
-    {        
+    {
         //Quadrilateral_2d_4
         noalias(rVector) = ZeroVector(2);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<4; i++)
         {
@@ -171,13 +176,13 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-        
-    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer, 
+
+    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,12>& VariableWithComponents,const unsigned int& GPoint)
     {
         //Tetrahedra_3d_4
         noalias(rVector) = ZeroVector(3);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<4; i++)
         {
@@ -188,13 +193,13 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-        
-    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer, 
+
+    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,18>& VariableWithComponents,const unsigned int& GPoint)
     {
         //Prism_3d_6
         noalias(rVector) = ZeroVector(3);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<6; i++)
         {
@@ -203,15 +208,15 @@ public:
             rVector[2] += Ncontainer(GPoint,i)*VariableWithComponents[index++];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
-    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer, 
+    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,24>& VariableWithComponents,const unsigned int& GPoint)
     {
         //Hexahedra_3d_8
         noalias(rVector) = ZeroVector(3);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<8; i++)
         {
@@ -229,16 +234,16 @@ public:
         rOutputValue[1] = ComputedValue[1];
         rOutputValue[2] = 0.0;
     }
-    
+
     //----------------------------------------------------------------------------------------
-    
+
     static inline void FillArray1dOutput(array_1d<double,3>& rOutputValue, const array_1d<double,3>& ComputedValue)
     {
         rOutputValue[0] = ComputedValue[0];
         rOutputValue[1] = ComputedValue[1];
         rOutputValue[2] = ComputedValue[2];
     }
-    
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     static inline void GetDisplacementsVector(array_1d<double,6>& rDisplacementVector, const Element::GeometryType& Geom)
@@ -255,7 +260,7 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     static inline void GetDisplacementsVector(array_1d<double,8>& rDisplacementVector, const Element::GeometryType& Geom)
     {
         //Quadrilateral_2d_4
@@ -286,7 +291,7 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     static inline void GetDisplacementsVector(array_1d<double,18>& rDisplacementVector, const Element::GeometryType& Geom)
     {
         //Prism_3d_6
@@ -318,7 +323,7 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     static inline void GetVelocitiesVector(array_1d<double,6>& rVelocityVector, const Element::GeometryType& Geom)
     {
         //Triangle_2d_3
@@ -331,7 +336,7 @@ public:
             rVelocityVector[index++] = VelocityAux[1];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void GetVelocitiesVector(array_1d<double,8>& rVelocityVector, const Element::GeometryType& Geom)
@@ -362,7 +367,7 @@ public:
             rVelocityVector[index++] = VelocityAux[2];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void GetVelocitiesVector(array_1d<double,18>& rVelocityVector, const Element::GeometryType& Geom)
@@ -409,7 +414,7 @@ public:
             rVolumeAccelerationVector[index++] = BodyAccelerationAux[1];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void GetVolumeAccelerationVector(array_1d<double,8>& rVolumeAccelerationVector, const Element::GeometryType& Geom)
@@ -440,7 +445,7 @@ public:
             rVolumeAccelerationVector[index++] = BodyAccelerationAux[2];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void GetVolumeAccelerationVector(array_1d<double,18>& rVolumeAccelerationVector, const Element::GeometryType& Geom)
@@ -481,13 +486,13 @@ public:
         //2D
         rPermeabilityMatrix(0,0) = Prop[PERMEABILITY_XX];
         rPermeabilityMatrix(1,1) = Prop[PERMEABILITY_YY];
-        
+
         rPermeabilityMatrix(0,1) = Prop[PERMEABILITY_XY];
         rPermeabilityMatrix(1,0) = rPermeabilityMatrix(0,1);
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     static inline void CalculatePermeabilityMatrix(BoundedMatrix<double,3,3>& rPermeabilityMatrix,
                                                     const Element::PropertiesType& Prop)
     {
@@ -495,10 +500,10 @@ public:
         rPermeabilityMatrix(0,0) = Prop[PERMEABILITY_XX];
         rPermeabilityMatrix(1,1) = Prop[PERMEABILITY_YY];
         rPermeabilityMatrix(2,2) = Prop[PERMEABILITY_ZZ];
-        
+
         rPermeabilityMatrix(0,1) = Prop[PERMEABILITY_XY];
         rPermeabilityMatrix(1,0) = rPermeabilityMatrix(0,1);
-        
+
         rPermeabilityMatrix(1,2) = Prop[PERMEABILITY_YZ];
         rPermeabilityMatrix(2,1) = rPermeabilityMatrix(1,2);
 
@@ -513,13 +518,13 @@ public:
                                     const BoundedMatrix<double,2,2>& InputMatrix)
     {
         double InputMatrixDet = InputMatrix(0,0)*InputMatrix(1,1)-InputMatrix(0,1)*InputMatrix(1,0);
-        
+
         rInvertedMatrix(0,0) =  InputMatrix(1,1)/InputMatrixDet;
         rInvertedMatrix(0,1) = -InputMatrix(0,1)/InputMatrixDet;
         rInvertedMatrix(1,0) = -InputMatrix(1,0)/InputMatrixDet;
         rInvertedMatrix(1,1) =  InputMatrix(0,0)/InputMatrixDet;
     }
-    
+
     //----------------------------------------------------------------------------------------
 /*
 	template<class T>
@@ -551,7 +556,7 @@ public:
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,6,6>& UBlockMatrix)
-    {        
+    {
         //Triangle_2d_3
         unsigned int Global_i, Global_j, Local_i, Local_j;
 
@@ -572,11 +577,11 @@ public:
             }
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,8,8>& UBlockMatrix)
-    {        
+    {
         //Quadrilateral_2d_4
         unsigned int Global_i, Global_j, Local_i, Local_j;
 
@@ -632,7 +637,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,18,18>& UBlockMatrix)
-    {        
+    {
         //Prism_3d_6
         unsigned int Global_i, Global_j, Local_i, Local_j;
 
@@ -692,7 +697,7 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     static inline void AssembleUPBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,6,3>& UPBlockMatrix)
     {
         //Triangle_2d_3
@@ -714,9 +719,9 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     static inline void AssembleUPBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,8,4>& UPBlockMatrix)
-    {        
+    {
         //Quadrilateral_2d_4
         unsigned int Global_i, Global_j, Local_i;
 
@@ -784,7 +789,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUPBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,24,8>& UPBlockMatrix)
-    {        
+    {
         //Hexahedra_3d_8
         unsigned int Global_i, Global_j, Local_i;
 
@@ -807,7 +812,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssemblePUBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,3,6>& PUBlockMatrix)
-    {        
+    {
         //Triangle_2d_3
         unsigned int Global_i, Global_j, Local_j;
 
@@ -829,7 +834,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssemblePUBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,4,8>& PUBlockMatrix)
-    {        
+    {
         //Quadrilateral_2d_4
         unsigned int Global_i, Global_j, Local_j;
 
@@ -897,7 +902,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssemblePUBlockMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,8,24>& PUBlockMatrix)
-    {        
+    {
         //Hexahedra_3d_8
         unsigned int Global_i, Global_j, Local_j;
 
@@ -918,7 +923,7 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     template< class TMatrixType >
     static inline void AssemblePBlockMatrix(Matrix& rLeftHandSideMatrix,const TMatrixType& PBlockMatrix, const unsigned int& Dim, const unsigned int& NumNodes)
     {
@@ -940,7 +945,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,6>& UBlockVector)
-    {        
+    {
         //Triangle_2d_3
         unsigned int Global_i, Local_i;
 
@@ -957,7 +962,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,8>& UBlockVector)
-    {        
+    {
         //Quadrilateral_2d_4
         unsigned int Global_i, Local_i;
 
@@ -974,7 +979,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,12>& UBlockVector)
-    {        
+    {
         //Tetrahedra_3d_4
         unsigned int Global_i, Local_i;
 
@@ -992,7 +997,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,18>& UBlockVector)
-    {        
+    {
         //Prism_3d_6
         unsigned int Global_i, Local_i;
 
@@ -1010,7 +1015,7 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,24>& UBlockVector)
-    {        
+    {
         //Hexahedra_3d_8
         unsigned int Global_i, Local_i;
 
@@ -1026,12 +1031,12 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
+
     template< class TVectorType >
     static inline void AssemblePBlockVector(Vector& rRightHandSideVector,const TVectorType& PBlockVector, const unsigned int& Dim, const unsigned int& NumNodes)
     {
         unsigned int Global_i;
-        
+
         for(unsigned int i = 0; i < NumNodes; i++)
         {
             Global_i = i * (Dim + 1) + Dim;
@@ -1041,39 +1046,39 @@ public:
     }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        
+
     /// CalculateExtrapolationMatrix
     /// The matrix contains the shape functions at each GP evaluated at each node.
     /// Rows: nodes
     /// Columns: GP
-            
+
     static inline void CalculateExtrapolationMatrix(BoundedMatrix<double,4,4>& rExtrapolationMatrix)
     {
         //Quadrilateral_2d_4
         //GI_GAUSS_2
-        
+
         rExtrapolationMatrix(0,0) = 1.8660254037844386; rExtrapolationMatrix(0,1) = -0.5; rExtrapolationMatrix(0,2) = 0.13397459621556132; rExtrapolationMatrix(0,3) = -0.5;
         rExtrapolationMatrix(1,0) = -0.5; rExtrapolationMatrix(1,1) = 1.8660254037844386; rExtrapolationMatrix(1,2) = -0.5; rExtrapolationMatrix(1,3) = 0.13397459621556132;
         rExtrapolationMatrix(2,0) = 0.13397459621556132; rExtrapolationMatrix(2,1) = -0.5; rExtrapolationMatrix(2,2) = 1.8660254037844386; rExtrapolationMatrix(2,3) = -0.5;
         rExtrapolationMatrix(3,0) = -0.5; rExtrapolationMatrix(3,1) = 0.13397459621556132; rExtrapolationMatrix(3,2) = -0.5; rExtrapolationMatrix(3,3) = 1.8660254037844386;
     }
-    
-    //----------------------------------------------------------------------------------------    
-    
+
+    //----------------------------------------------------------------------------------------
+
     static inline void CalculateExtrapolationMatrix(BoundedMatrix<double,8,8>& rExtrapolationMatrix)
     {
         //Hexahedra_3d_8
         //GI_GAUSS_2
-        
+
         rExtrapolationMatrix(0,0) = 2.549038105676658; rExtrapolationMatrix(0,1) = -0.6830127018922192; rExtrapolationMatrix(0,2) = 0.18301270189221927; rExtrapolationMatrix(0,3) = -0.6830127018922192;
         rExtrapolationMatrix(0,4) = -0.6830127018922192; rExtrapolationMatrix(0,5) = 0.18301270189221927; rExtrapolationMatrix(0,6) = -0.04903810567665795; rExtrapolationMatrix(0,7) = 0.18301270189221927;
-        
+
         rExtrapolationMatrix(1,0) = -0.6830127018922192; rExtrapolationMatrix(1,1) = 2.549038105676658; rExtrapolationMatrix(1,2) = -0.6830127018922192; rExtrapolationMatrix(1,3) = 0.18301270189221927;
         rExtrapolationMatrix(1,4) = 0.18301270189221927; rExtrapolationMatrix(1,5) = -0.6830127018922192; rExtrapolationMatrix(1,6) = 0.18301270189221927; rExtrapolationMatrix(1,7) = -0.04903810567665795;
-        
+
         rExtrapolationMatrix(2,0) = 0.18301270189221927; rExtrapolationMatrix(2,1) = -0.6830127018922192; rExtrapolationMatrix(2,2) = 2.549038105676658; rExtrapolationMatrix(2,3) = -0.6830127018922192;
         rExtrapolationMatrix(2,4) = -0.04903810567665795; rExtrapolationMatrix(2,5) = 0.18301270189221927; rExtrapolationMatrix(2,6) = -0.6830127018922192; rExtrapolationMatrix(2,7) = 0.18301270189221927;
-        
+
         rExtrapolationMatrix(3,0) = -0.6830127018922192; rExtrapolationMatrix(3,1) = 0.18301270189221927; rExtrapolationMatrix(3,2) = -0.6830127018922192; rExtrapolationMatrix(3,3) = 2.549038105676658;
         rExtrapolationMatrix(3,4) = 0.18301270189221927; rExtrapolationMatrix(3,5) = -0.04903810567665795; rExtrapolationMatrix(3,6) = 0.18301270189221927; rExtrapolationMatrix(3,7) = -0.6830127018922192;
 

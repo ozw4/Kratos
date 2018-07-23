@@ -51,27 +51,8 @@
 #include "custom_elements/U_Pw_small_strain_FIC_element.hpp"
 #include "custom_elements/small_strain_U_Pw_diff_order_element.hpp"
 
-#ifdef VG_NON_LOCAL
-
 #include "custom_constitutive/bilinear_cohesive_3D_law.hpp"
 #include "custom_constitutive/bilinear_cohesive_2D_law.hpp"
-
-#include "custom_constitutive/custom_flow_rules/local_damage_flow_rule.hpp"
-#include "custom_constitutive/custom_flow_rules/nonlocal_damage_flow_rule.hpp"
-
-#include "custom_constitutive/simo_ju_local_damage_3D_law.hpp"
-#include "custom_constitutive/simo_ju_local_damage_plane_strain_2D_law.hpp"
-#include "custom_constitutive/simo_ju_local_damage_plane_stress_2D_law.hpp"
-
-#include "custom_constitutive/simo_ju_nonlocal_damage_3D_law.hpp"
-#include "custom_constitutive/simo_ju_nonlocal_damage_plane_strain_2D_law.hpp"
-#include "custom_constitutive/simo_ju_nonlocal_damage_plane_stress_2D_law.hpp"
-
-#include "custom_constitutive/modified_mises_nonlocal_damage_3D_law.hpp"
-#include "custom_constitutive/modified_mises_nonlocal_damage_plane_strain_2D_law.hpp"
-#include "custom_constitutive/modified_mises_nonlocal_damage_plane_stress_2D_law.hpp"
-
-#endif
 
 
 namespace Kratos {
@@ -316,7 +297,8 @@ private:
     const SurfaceNormalFluidFlux3DDiffOrderCondition mSurfaceNormalFluidFluxDiffOrderCondition3D8N;
     const SurfaceNormalFluidFlux3DDiffOrderCondition mSurfaceNormalFluidFluxDiffOrderCondition3D9N;
 
-
+	const BilinearCohesive3DLaw mBilinearCohesive3DLaw;
+	const BilinearCohesive2DLaw mBilinearCohesive2DLaw;
 
 
 	/// Assignment operator.

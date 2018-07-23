@@ -1,8 +1,13 @@
-//   
-//   Project Name:        KratosPoromechanicsApplication $
-//   Last Modified by:    $Author:    Ignasi de Pouplana $
-//   Date:                $Date:           February 2016 $
-//   Revision:            $Revision:                 1.0 $
+//    |  /           |
+//    ' /   __| _` | __|  _ \   __|
+//    . \  |   (   | |   (   |\__ `
+//   _|\_\_|  \__,_|\__|\___/ ____/
+//                   Multi-Physics
+//
+//  License:		 BSD License
+//					 Kratos default license: kratos/license.txt
+//
+//  Main authors:    @{KRATOS_APP_AUTHOR}
 //
 
 #if !defined(KRATOS_CONDITION_UTILITIES )
@@ -16,18 +21,18 @@ namespace Kratos
 
 class ConditionUtilities
 {
-    
+
 public:
-        
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     static inline void CalculateNuMatrix(BoundedMatrix<double,2,4>& rNu, const Matrix& Ncontainer, const unsigned int& GPoint)
     {
         //Line_2d_2
-        rNu(0,0) = Ncontainer(GPoint,0); rNu(0,2) = Ncontainer(GPoint,1); 
+        rNu(0,0) = Ncontainer(GPoint,0); rNu(0,2) = Ncontainer(GPoint,1);
         rNu(1,1) = Ncontainer(GPoint,0); rNu(1,3) = Ncontainer(GPoint,1);
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void CalculateNuMatrix(BoundedMatrix<double,3,9>& rNu, const Matrix& Ncontainer, const unsigned int& GPoint)
@@ -47,15 +52,15 @@ public:
         rNu(1,1) = Ncontainer(GPoint,0); rNu(1,4) = Ncontainer(GPoint,1); rNu(1,7) = Ncontainer(GPoint,2); rNu(1,10) = Ncontainer(GPoint,3);
         rNu(2,2) = Ncontainer(GPoint,0); rNu(2,5) = Ncontainer(GPoint,1); rNu(2,8) = Ncontainer(GPoint,2); rNu(2,11) = Ncontainer(GPoint,3);
     }
-    
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static inline void InterpolateVariableWithComponents(array_1d<double,2>& rVector,const Matrix& Ncontainer, 
+    static inline void InterpolateVariableWithComponents(array_1d<double,2>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,4>& VariableWithComponents,const unsigned int& GPoint)
-    {        
+    {
         //Line_2d_2
         noalias(rVector) = ZeroVector(2);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<2; i++)
         {
@@ -63,15 +68,15 @@ public:
             rVector[1] += Ncontainer(GPoint,i)*VariableWithComponents[index++];
         }
     }
-        
+
     //----------------------------------------------------------------------------------------
-    
-    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer, 
+
+    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,9>& VariableWithComponents,const unsigned int& GPoint)
     {
         //Triangle_3d_3
         noalias(rVector) = ZeroVector(3);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<3; i++)
         {
@@ -82,13 +87,13 @@ public:
     }
 
     //----------------------------------------------------------------------------------------
-    
-    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer, 
+
+    static inline void InterpolateVariableWithComponents(array_1d<double,3>& rVector,const Matrix& Ncontainer,
                                                         const array_1d<double,12>& VariableWithComponents,const unsigned int& GPoint)
     {
         //Quadrilateral_3d_4
         noalias(rVector) = ZeroVector(3);
-        
+
         unsigned int index = 0;
         for(unsigned int i=0; i<4; i++)
         {
@@ -128,7 +133,7 @@ public:
             rDisplacementVector[index++] = DisplacementAux[2];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void GetFaceLoadVector(array_1d<double,4>& rFaceLoadVector, const Element::GeometryType& Geom)
@@ -180,7 +185,7 @@ public:
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,4>& UBlockVector)
     {
-        //Line_2d_2  
+        //Line_2d_2
         unsigned int Global_i, Local_i;
 
         for(unsigned int i = 0; i < 2; i++)
@@ -196,8 +201,8 @@ public:
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,9>& UBlockVector)
-    {      
-        //Triangle_3d_3  
+    {
+        //Triangle_3d_3
         unsigned int Global_i, Local_i;
 
         for(unsigned int i = 0; i < 3; i++)
@@ -210,11 +215,11 @@ public:
             rRightHandSideVector[Global_i+2] += UBlockVector[Local_i+2];
         }
     }
-    
+
     //----------------------------------------------------------------------------------------
 
     static inline void AssembleUBlockVector(Vector& rRightHandSideVector, const array_1d<double,12>& UBlockVector)
-    {        
+    {
         //Quadrilateral_3d_4
         unsigned int Global_i, Local_i;
 
@@ -235,7 +240,7 @@ public:
     static inline void AssemblePBlockVector(Vector& rRightHandSideVector,const TVectorType& PBlockVector, const unsigned int& Dim, const unsigned int& NumNodes)
     {
         unsigned int Global_i;
-        
+
         for(unsigned int i = 0; i < NumNodes; i++)
         {
             Global_i = i * (Dim + 1) + Dim;
@@ -244,10 +249,10 @@ public:
         }
     }
 
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	static inline void AssembleUPMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,4,2>& UPBlockMatrix)
-    {        
+    {
         //Line_2d_2
         unsigned int Global_i, Global_j, Local_i;
 
@@ -265,12 +270,12 @@ public:
             }
         }
     }
-    
+
 //----------------------------------------------------------------------------------------
- 
+
 	static inline void AssembleUPMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,9,3>& UPBlockMatrix)
     {
-        //Triangle_3d_3  
+        //Triangle_3d_3
         unsigned int Global_i, Global_j, Local_i;
 
         for(unsigned int i = 0; i < 3; i++)
@@ -288,9 +293,9 @@ public:
             }
         }
     }
-    
+
 //----------------------------------------------------------------------------------------
- 
+
 	static inline void AssembleUPMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,12,4>& UPBlockMatrix)
     {
         //Quadrilateral_3d_4
@@ -311,11 +316,11 @@ public:
             }
         }
     }
-    
+
 //----------------------------------------------------------------------------------------
 
 	static inline void AssemblePUMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,2,4>& PUBlockMatrix)
-    {        
+    {
         //Line_2d_2
         unsigned int Global_i, Global_j, Local_j;
 
@@ -338,7 +343,7 @@ public:
 
 	static inline void AssemblePUMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,3,9>& PUBlockMatrix)
     {
-        //Triangle_3d_3 
+        //Triangle_3d_3
         unsigned int Global_i, Global_j, Local_j;
 
         for(unsigned int i = 0; i < 3; i++)
@@ -356,7 +361,7 @@ public:
             }
         }
     }
-    
+
 //----------------------------------------------------------------------------------------
 
 	static inline void AssemblePUMatrix(Matrix& rLeftHandSideMatrix, const BoundedMatrix<double,4,12>& PUBlockMatrix)
@@ -378,8 +383,8 @@ public:
                 rLeftHandSideMatrix(Global_i,Global_j+2) += PUBlockMatrix(i,Local_j+2);
             }
         }
-    }     
-    
+    }
+
 }; /* Class ConditionUtilities*/
 } /* namespace Kratos.*/
 
