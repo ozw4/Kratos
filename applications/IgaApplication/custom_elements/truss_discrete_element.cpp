@@ -30,6 +30,21 @@
 namespace Kratos
 {
 
+constexpr size_t TrussDiscreteElement::DofsPerNode()
+{
+    return 3;
+};
+
+size_t TrussDiscreteElement::NumberOfNodes() const
+{
+    return GetGeometry().size();
+};
+
+size_t TrussDiscreteElement::NumberOfDofs() const
+{
+    return NumberOfNodes() * DofsPerNode();
+};
+
 void TrussDiscreteElement::Initialize()
 {
     KRATOS_TRY
@@ -51,8 +66,7 @@ void TrussDiscreteElement::CalculateAll(
 {
     KRATOS_TRY
 
-    size_t number_of_nodes = GetGeometry().size();
-    size_t number_of_dofs = number_of_nodes * 3;
+    const size_t number_of_dofs = NumberOfDofs();
 
     if (CalculateStiffnessMatrixFlag) {
         if (rLeftHandSideMatrix.size1() != number_of_dofs) {
