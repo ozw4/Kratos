@@ -1,5 +1,5 @@
 import KratosMultiphysics
-import KratosMultiphysics.GeoMechanicsApplication as KratosPoro
+import KratosMultiphysics.GeoMechanicsApplication as KratosGeo
 
 def Factory(settings, Model):
     if(type(settings) != KratosMultiphysics.Parameters):
@@ -28,7 +28,7 @@ class ApplyVectorConstraintTableProcess(KratosMultiphysics.Process):
                 self.components_process_list.append(KratosMultiphysics.ApplyConstantScalarValueProcess(model_part, x_params))
             else:
                 x_params.AddValue("table",settings["table"][0])
-                self.components_process_list.append(KratosPoro.ApplyComponentTableProcess(model_part, x_params))
+                self.components_process_list.append(KratosGeo.ApplyComponentTableProcess(model_part, x_params))
 
         if settings["active"][1].GetBool() == True:
             y_params = KratosMultiphysics.Parameters("{}")
@@ -41,7 +41,7 @@ class ApplyVectorConstraintTableProcess(KratosMultiphysics.Process):
                 self.components_process_list.append(KratosMultiphysics.ApplyConstantScalarValueProcess(model_part, y_params))
             else:
                 y_params.AddValue("table",settings["table"][1])
-                self.components_process_list.append(KratosPoro.ApplyComponentTableProcess(model_part, y_params))
+                self.components_process_list.append(KratosGeo.ApplyComponentTableProcess(model_part, y_params))
 
         if settings["active"][2].GetBool() == True:
             z_params = KratosMultiphysics.Parameters("{}")
@@ -54,7 +54,7 @@ class ApplyVectorConstraintTableProcess(KratosMultiphysics.Process):
                 self.components_process_list.append(KratosMultiphysics.ApplyConstantScalarValueProcess(model_part, z_params))
             else:
                 z_params.AddValue("table",settings["table"][2])
-                self.components_process_list.append(KratosPoro.ApplyComponentTableProcess(model_part, z_params))
+                self.components_process_list.append(KratosGeo.ApplyComponentTableProcess(model_part, z_params))
 
     def ExecuteInitialize(self):
 
