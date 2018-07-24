@@ -115,9 +115,21 @@ class FEMDEM_Solution:
             self.RemeshingProcessMMG.ExecuteInitializeSolutionStep()
 
             # print("nodos fijados...")
+            # print(self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-1"))
+            # print(self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-2"))
+
             # for node in self.FEM_Solution.main_model_part.Nodes:
             #     if node.IsFixed(KratosMultiphysics.DISPLACEMENT_Y):
             #         print(node.Id)
+
+            # node = self.FEM_Solution.main_model_part.GetNode(490)
+            # node.Set(KratosMultiphysics.TO_ERASE, True) # added
+            # self.FEM_Solution.main_model_part.RemoveNodesFromAllLevels(KratosMultiphysics.TO_ERASE) # added
+            # print("despues de borrar...")
+            # # for node in self.FEM_Solution.main_model_part.Nodes:
+            # #     print(node.Id)
+            # print(self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-1"))
+            # print(self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-2"))
             # Wait()
 
             if is_remeshing:
@@ -139,11 +151,15 @@ class FEMDEM_Solution:
                 self.FEM_Solution.model_processes.ExecuteInitialize()
                 self.FEM_Solution.model_processes.ExecuteBeforeSolutionLoop()
                 self.FEM_Solution.model_processes.ExecuteInitializeSolutionStep()
+
         self.FEM_Solution.InitializeSolutionStep()
+
         # Create initial skin of DEM's
         self.create_initial_dem_skin = False  # Hard Coded TODO
+
         if self.create_initial_dem_skin and self.FEM_Solution.step == 1:
             self.CreateInitialSkinDEM()
+
         if self.DoRemeshing and is_remeshing:
             self.GenerateDemAfterRemeshing()
 

@@ -236,6 +236,7 @@ class FEM_Solution(MainSolidFEM.Solution):
 		                                                                   skin_detection_process_param)
 		skin_detection_process.Execute()
 
+		print("")
 		print(" [STEP:",self.step," TIME:", self.time,"]")
 
 		# processes to be executed at the begining of the solution step
