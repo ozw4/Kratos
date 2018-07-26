@@ -158,23 +158,16 @@ void SkinDetectionProcess<TDim>::Execute()
     if (!(mrModelPart.HasSubModelPart(name_auxiliar_model_part))) {
         mrModelPart.CreateSubModelPart(name_auxiliar_model_part);
     } else {
-        ModelPart& r_auxiliar_model_part = mrModelPart.GetSubModelPart(name_auxiliar_model_part);
+        auto& conditions_array = mrModelPart.GetSubModelPart(name_auxiliar_model_part).Conditions();
 
-        auto& nodes_array = r_auxiliar_model_part.Nodes();
-    
-        #pragma omp parallel for 
-        for(int i = 0; i < static_cast<int>(nodes_array.size()); ++i)
-            (nodes_array.begin() + i)->Set(TO_ERASE, true);
-   
-        r_auxiliar_model_part.RemoveNodes(TO_ERASE);
-    
-        auto& conditions_array = r_auxiliar_model_part.Conditions();
- 
-        #pragma omp parallel for 
+        #pragma omp parallel for
         for(int i = 0; i < static_cast<int>(conditions_array.size()); ++i)
             (conditions_array.begin() + i)->Set(TO_ERASE, true);
-         
-        r_auxiliar_model_part.RemoveConditions(TO_ERASE);
+
+        mrModelPart.GetSubModelPart(name_auxiliar_model_part).RemoveConditionsFromAllLevels(TO_ERASE);
+
+        mrModelPart.RemoveSubModelPart(name_auxiliar_model_part);
+        mrModelPart.CreateSubModelPart(name_auxiliar_model_part);
     } 
     ModelPart& r_auxiliar_model_part = mrModelPart.GetSubModelPart(name_auxiliar_model_part);
 
@@ -185,7 +178,7 @@ void SkinDetectionProcess<TDim>::Execute()
         pre_name = "Surface";
 
     // The number of conditions
-    IndexType condition_id = mrModelPart.Conditions().size();
+    IndexType condition_id = mrModelPart.GetRootModelPart().Conditions().size();
 
     // The indexes of the nodes of the skin
     std::unordered_set<IndexType> nodes_in_the_skin;
@@ -204,6 +197,7 @@ void SkinDetectionProcess<TDim>::Execute()
         auto p_cond = mrModelPart.CreateNewCondition(complete_name, condition_id, nodes_face, p_prop_0);
         r_auxiliar_model_part.AddCondition(p_cond);
         p_cond->Set(INTERFACE, true);
+        p_cond->Initialize();
     }
 
     // Adding to the auxiliar model part
@@ -211,7 +205,7 @@ void SkinDetectionProcess<TDim>::Execute()
     indexes_skin.insert(indexes_skin.end(), nodes_in_the_skin.begin(), nodes_in_the_skin.end());
     r_auxiliar_model_part.AddNodes(indexes_skin);
 
-    KRATOS_INFO_IF("SkinDetectionProcess", echo_level > 0) << inverse_face_map.size() << "have been created" << std::endl;
+    KRATOS_INFO_IF("SkinDetectionProcess", echo_level > 0) << inverse_face_map.size() << " have been created" << std::endl;
 
     // Now we set the falg on the nodes. The list of nodes of the auxiliar model part
     auto& nodes_array = r_auxiliar_model_part.Nodes();
