@@ -35,6 +35,7 @@
 #include "linear_solvers/iterative_solver.h"
 #include <utility>
 
+#include <boost/version.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <boost/property_tree/ptree.hpp>

@@ -38,6 +38,7 @@
 #include<utility>
 
 #include <boost/property_tree/ptree.hpp>
+#include <boost/version.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include <amgcl/adapter/crs_tuple.hpp>
