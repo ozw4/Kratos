@@ -37,7 +37,7 @@ class FEMDEM_Solution:
 
 #============================================================================================================================
     def Run(self):
-        
+
         self.Initialize()
         self.RunMainTemporalLoop()
         self.Finalize()
@@ -54,7 +54,7 @@ class FEMDEM_Solution:
         KratosMultiphysics.VariableUtils().SetNonHistoricalVariable(KratosFemDem.NODAL_FORCE_APPLIED, False, self.FEM_Solution.main_model_part.Nodes)
         # Initialize the "flag" RADIUS in all the nodes
         KratosMultiphysics.VariableUtils().SetNonHistoricalVariable(KratosMultiphysics.RADIUS, False, self.FEM_Solution.main_model_part.Nodes)
-        
+
         self.SpheresModelPart = self.DEM_Solution.spheres_model_part
         self.DEMParameters = self.DEM_Solution.DEM_parameters
         self.DEMProperties = self.SpheresModelPart.GetProperties()[1]
@@ -101,7 +101,7 @@ class FEMDEM_Solution:
 
         if self.DoRemeshing:
             is_remeshing = self.CheckIfHasRemeshed()
-            
+
             if is_remeshing:
                 # Extrapolate the VonMises normalized stress to nodes (remeshing)
                 KratosFemDem.StressToNodesProcess(self.FEM_Solution.main_model_part, 2).Execute()
@@ -118,6 +118,18 @@ class FEMDEM_Solution:
             # print(self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-1"))
             # print(self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-2"))
 
+
+            # for condition in self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-2").Conditions:
+            #     for i in range(0,2):
+            #         print(condition.GetNodes()[i].Id)
+
+            # print("*********************************")
+            # for condition in self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-1").Conditions:
+            #     for i in range(0,2):
+            #         print(condition.GetNodes()[i].Id)
+
+            # Wait()
+
             # for node in self.FEM_Solution.main_model_part.Nodes:
             #     if node.IsFixed(KratosMultiphysics.DISPLACEMENT_Y):
             #         print(node.Id)
@@ -132,8 +144,14 @@ class FEMDEM_Solution:
             # print(self.FEM_Solution.main_model_part.GetSubModelPart("Solid_Displacement-auto-2"))
             # Wait()
 
+
+            # number = self.FEM_Solution.main_model_part.NumberOfSubModelParts()
+            # names = self.FEM_Solution.main_model_part.ConditionsArray(0)
+            # print(names)
+            # Wait()
+
             if is_remeshing:
-                   
+
                 # write output results GiD: (frequency writing is controlled internally) remove TODO
                 # self.FEM_Solution.graphical_output.PrintOutput()
                 # Wait()
@@ -182,10 +200,13 @@ class FEMDEM_Solution:
         self.SpheresModelPart = self.ParticleCreatorDestructor.GetSpheresModelPart()
         self.CheckForPossibleIndentations()
         self.CheckInactiveNodes()
+
         # We update coordinates, displ and velocities of the DEM according to FEM
         self.UpdateDEMVariables()
+
         # Extrapolate the VonMises normalized stress to nodes (remeshing)
         KratosFemDem.StressToNodesProcess(self.FEM_Solution.main_model_part, 2).Execute()
+
         self.DEM_Solution.InitializeTimeStep()
         self.DEM_Solution.time = self.FEM_Solution.time
         self.DEM_Solution.step = self.FEM_Solution.step
@@ -201,7 +222,7 @@ class FEMDEM_Solution:
 
         self.DEM_Solution.AfterSolveOperations()
         self.DEM_Solution.DEMFEMProcedures.MoveAllMeshes(self.DEM_Solution.all_model_parts, self.DEM_Solution.time, self.DEM_Solution.dt)
-        
+
         # to print DEM with the FEM coordinates
         self.UpdateDEMVariables()
 
@@ -239,10 +260,10 @@ class FEMDEM_Solution:
 
         # processes to be executed after writting the output
         self.FEM_Solution.model_processes.ExecuteAfterOutputStep()
-        
+
         if self.DoRemeshing:
              self.RemeshingProcessMMG.ExecuteFinalizeSolutionStep()
-             
+
         # Remove the submodel to be recomputed at each dt
         for cond in self.FEM_Solution.main_model_part.GetSubModelPart("SkinDEMModelPart").Conditions:
             cond.Set(KratosMultiphysics.TO_ERASE)

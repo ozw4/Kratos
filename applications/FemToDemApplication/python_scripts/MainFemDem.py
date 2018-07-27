@@ -25,11 +25,11 @@ class FEM_Solution(MainSolidFEM.Solution):
 	def Info(self):
 		print("FEM part of the FEMDEM application")
 
-#============================================================================================================================					
+#============================================================================================================================
 	def __init__(self):
 
 		#### TIME MONITORING START ####
-		# Time control starts		
+		# Time control starts
 		print(timer.ctime())
 		# Measure process time
 		self.t0p = timer.clock()
@@ -87,7 +87,7 @@ class FEM_Solution(MainSolidFEM.Solution):
 		self.problem_path = os.getcwd()
 		self.problem_name = self.ProjectParameters["problem_data"]["problem_name"].GetString()
 
-		
+
 #============================================================================================================================
 	def AddMaterials(self):
 
@@ -111,8 +111,8 @@ class FEM_Solution(MainSolidFEM.Solution):
 				process.Execute()
 		else:
 			print(" No Materials.json found ")
-				
-#============================================================================================================================		  
+
+#============================================================================================================================
 	def AddProcesses(self):
 
 		# Build sub_model_parts or submeshes (rearrange parts for the application of custom processes)
@@ -121,11 +121,11 @@ class FEM_Solution(MainSolidFEM.Solution):
 			part_name = self.ProjectParameters["solver_settings"]["processes_sub_model_part_list"][i].GetString()
 			if( self.main_model_part.HasSubModelPart(part_name) ):
 				self.Model.update({part_name: self.main_model_part.GetSubModelPart(part_name)})
-		
+
 		# Obtain the list of the processes to be applied
 		import process_handler
 
-		process_parameters = KratosMultiphysics.Parameters("{}") 
+		process_parameters = KratosMultiphysics.Parameters("{}")
 		process_parameters.AddValue("echo_level", self.ProjectParameters["problem_data"]["echo_level"])
 		process_parameters.AddValue("constraints_process_list", self.ProjectParameters["constraints_process_list"])
 		process_parameters.AddValue("loads_process_list", self.ProjectParameters["loads_process_list"])
@@ -136,7 +136,7 @@ class FEM_Solution(MainSolidFEM.Solution):
 
 		return (process_handler.ProcessHandler(self.Model, process_parameters))
 
-#============================================================================================================================	
+#============================================================================================================================
 	def Run(self):
 
 		self.Initialize()
@@ -144,16 +144,16 @@ class FEM_Solution(MainSolidFEM.Solution):
 		self.RunMainTemporalLoop()
 
 		self.Finalize()
-		
-#============================================================================================================================		
+
+#============================================================================================================================
 	def Initialize(self):
 
 
 		#### INITIALIZE ####
-		
+
 		# Add variables (always before importing the model part)
 		self.solver.AddVariables()
-		
+
 		# Read model_part (note: the buffer_size is set here) (restart is read here)
 		self.solver.ImportModelPart()
 
@@ -166,7 +166,7 @@ class FEM_Solution(MainSolidFEM.Solution):
 
 		# Add materials (assign material to model_parts if Materials.json exists)
 		self.AddMaterials()
-		
+
 		# Add processes
 		self.model_processes = self.AddProcesses()
 		self.model_processes.ExecuteInitialize()
@@ -187,7 +187,7 @@ class FEM_Solution(MainSolidFEM.Solution):
 
 		# Initialize GiD  I/O (gid outputs, file_lists)
 		self.SetGraphicalOutput()
-		
+
 		self.GraphicalOutputExecuteInitialize()
 
 		print(" ")
@@ -197,7 +197,7 @@ class FEM_Solution(MainSolidFEM.Solution):
 
 		self.model_processes.ExecuteBeforeSolutionLoop()
 
-		self.GraphicalOutputExecuteBeforeSolutionLoop()		
+		self.GraphicalOutputExecuteBeforeSolutionLoop()
 
 		# Set time settings
 		self.step	   = self.main_model_part.ProcessInfo[KratosMultiphysics.STEP]
@@ -209,14 +209,14 @@ class FEM_Solution(MainSolidFEM.Solution):
 
 #============================================================================================================================
 	def RunMainTemporalLoop(self):
-		
+
 		# Solving the problem (time integration)
 		while(self.time < self.end_time):
-			
+
 			self.InitializeSolutionStep()
 			self.SolveSolutionStep()
 			self.FinalizeSolutionStep()
-	  
+
 #============================================================================================================================
 	def InitializeSolutionStep(self):
 
@@ -229,6 +229,8 @@ class FEM_Solution(MainSolidFEM.Solution):
         {
 			"name_auxiliar_model_part" : "SkinDEMModelPart",
 			"name_auxiliar_condition"  : "Condition",
+			"list_model_parts_to_assign_conditions" : [],
+			"clean_previous_conditions"             : true,
 			"echo_level"               : 0
         }""")
 
@@ -258,16 +260,16 @@ class FEM_Solution(MainSolidFEM.Solution):
 #============================================================================================================================
 	def FinalizeSolutionStep(self):
 
-		self.GraphicalOutputExecuteFinalizeSolutionStep()			
+		self.GraphicalOutputExecuteFinalizeSolutionStep()
 
 		# processes to be executed at the end of the solution step
 		self.model_processes.ExecuteFinalizeSolutionStep()
 
-		# processes to be executed before witting the output	  
+		# processes to be executed before witting the output
 		self.model_processes.ExecuteBeforeOutputStep()
 
 		# write output results GiD: (frequency writing is controlled internally)
-		self.GraphicalOutputPrintOutput()			
+		self.GraphicalOutputPrintOutput()
 
 		# processes to be executed after witting the output
 		self.model_processes.ExecuteAfterOutputStep()
@@ -276,9 +278,9 @@ class FEM_Solution(MainSolidFEM.Solution):
 
 #============================================================================================================================
 	def Finalize(self):
-		
+
 		# Ending the problem (time integration finished)
-		self.GraphicalOutputExecuteFinalize()		
+		self.GraphicalOutputExecuteFinalize()
 
 		self.model_processes.ExecuteFinalize()
 
@@ -300,46 +302,46 @@ class FEM_Solution(MainSolidFEM.Solution):
 		print(timer.ctime())
 
 
- #============================================================================================================================	   
+ #============================================================================================================================
 	def SetGraphicalOutput(self):
 		from gid_output_process import GiDOutputProcess
 		self.output_settings = self.ProjectParameters["output_configuration"]
 		self.graphical_output = GiDOutputProcess(self.computing_model_part,
 									  self.problem_name,
-									  self.output_settings)		
+									  self.output_settings)
 	#============================================================================================================================
 	def GraphicalOutputExecuteInitialize(self):
-		self.graphical_output.ExecuteInitialize() 
-	#============================================================================================================================		
+		self.graphical_output.ExecuteInitialize()
+	#============================================================================================================================
 	def GraphicalOutputExecuteBeforeSolutionLoop(self):
 		# writing a initial state results file or single file (if no restart)
 		if((self.main_model_part.ProcessInfo).Has(KratosMultiphysics.IS_RESTARTED)):
 			if(self.main_model_part.ProcessInfo[KratosMultiphysics.IS_RESTARTED] == False):
 				self.graphical_output.ExecuteBeforeSolutionLoop()
-	#============================================================================================================================			   
+	#============================================================================================================================
 	def GraphicalOutputExecuteInitializeSolutionStep(self):
 		self.graphical_output.ExecuteInitializeSolutionStep()
-	#============================================================================================================================		
+	#============================================================================================================================
 	def GraphicalOutputExecuteFinalizeSolutionStep(self):
-		self.graphical_output.ExecuteFinalizeSolutionStep() 
-	#============================================================================================================================		
+		self.graphical_output.ExecuteFinalizeSolutionStep()
+	#============================================================================================================================
 	def GraphicalOutputPrintOutput(self):
 		if(self.graphical_output.IsOutputStep()):
 				self.graphical_output.PrintOutput()
 	#============================================================================================================================
 	def GraphicalOutputExecuteFinalize(self):
 		self.graphical_output.ExecuteFinalize()
-				
 
-	#============================================================================================================================   
+
+	#============================================================================================================================
 	def SetParallelSize(self, num_threads):
 		parallel = KratosMultiphysics.OpenMPUtils()
 		parallel.SetNumThreads(int(num_threads))
 	#============================================================================================================================
 	def GetParallelSize(self):
 		parallel = KratosMultiphysics.OpenMPUtils()
-		return parallel.GetNumThreads()	
-	#============================================================================================================================	
+		return parallel.GetNumThreads()
+	#============================================================================================================================
 	def StartTimeMeasuring(self):
 		# Measure process time
 		time_ip = timer.clock()
@@ -355,11 +357,11 @@ class FEM_Solution(MainSolidFEM.Solution):
 	#============================================================================================================================
 
 
-		
 
 
 
-if __name__ == "__main__": 
+
+if __name__ == "__main__":
 	Solution().Run()
 
 
